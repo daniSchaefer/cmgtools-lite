@@ -196,7 +196,9 @@ for i in range(1,res.GetNbinsX()+1):
 
 
 
-
+#distribution of mjet from simulation --> use to validate kernel
+mjet=ROOT.TH1F("mjet","mjet",options.binsx,options.minx,options.maxx)
+mjet.Sumw2()
 
 histogram=ROOT.TH1F("histo","histo",options.binsx,options.minx,options.maxx)
 histogram.Sumw2()
@@ -229,6 +231,7 @@ histograms=[
     histogram_scale_down,
     histogram_top_up,
     histogram_top_down,
+    mjet,
 #    histogram_pt_up,
 #    histogram_pt_down,
 ]
@@ -250,6 +253,8 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     print "filename: ", plotter.filename, " preparing central values histo"
     
     histI=plotter.drawTH1(options.var,options.cut,"1",1,0,1000000000)
+    histI2=plotter.drawTH1(options.var,options.cut,"1",options.binsx,options.minx,options.maxx)
+
     norm=histI.Integral()
     
     #nominal
@@ -263,6 +268,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     if histTMP.Integral()>0:
         histTMP.Scale(histI.Integral()/histTMP.Integral())
         histogram.Add(histTMP)
+	mjet.Add(histI2)
         if "TT" in plotterNW.filename:
             histogram_top_up.Add(histTMP,2.0)
             histogram_top_down.Add(histTMP,0.5)

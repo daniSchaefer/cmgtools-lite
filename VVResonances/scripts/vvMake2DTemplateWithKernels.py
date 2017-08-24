@@ -146,7 +146,6 @@ weights_ = options.weights.split(',')
 
 random=ROOT.TRandom3(101082)
 
-
 sampleTypes=options.samples.split(',')
 dataPlotters=[]
 dataPlottersNW=[]
@@ -171,9 +170,6 @@ for filename in os.listdir(args[0]):
             dataPlottersNW.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
             dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
             dataPlottersNW[-1].addCorrectionFactor('genWeight','tree')
-            dataPlottersNW[-1].addCorrectionFactor('lnujj_sf','branch')
-            dataPlotters[-1].addCorrectionFactor('truth_genTop_weight','branch')
-            dataPlottersNW[-1].addCorrectionFactor('lnujj_btagWeight','branch')
 	    for w in weights_: 
              if w != '': dataPlottersNW[-1].addCorrectionFactor(w,'branch')
             dataPlottersNW[-1].filename = fname
@@ -322,7 +318,7 @@ histograms=[
 ]
 
 #NB: l1 is the highest mass jet for JJ, while it is the lepton for LNUJJ
-channel = options.var.split('_')[0] 
+channel = (options.vars.split(','))[0].split('_')[0] 
 l1 = ''
 l2 = ''
 if channel == 'lnujj':
