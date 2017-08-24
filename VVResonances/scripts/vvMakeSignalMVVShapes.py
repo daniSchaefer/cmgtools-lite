@@ -32,6 +32,7 @@ samples={}
 graphs={'MEAN':ROOT.TGraphErrors(),'SIGMA':ROOT.TGraphErrors(),'ALPHA1':ROOT.TGraphErrors(),'N1':ROOT.TGraphErrors(),'ALPHA2':ROOT.TGraphErrors(),'N2':ROOT.TGraphErrors()}
 
 for filename in os.listdir(args[0]):
+    print filename
     if not (filename.find(options.sample)!=-1):
         continue
 
@@ -61,6 +62,7 @@ N=0
 for mass in sorted(samples.keys()):
 
     print 'fitting',str(mass) 
+    print args[0]+'/'+samples[mass]+'.root'
     plotter=TreePlotter(args[0]+'/'+samples[mass]+'.root','tree')
     plotter.addCorrectionFactor('genWeight','tree')
     plotter.addCorrectionFactor('puWeight','tree')

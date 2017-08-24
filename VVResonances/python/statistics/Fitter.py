@@ -335,7 +335,7 @@ class Fitter(object):
         self.w.factory("alpha[3,0.5,10]")
         self.w.factory("n[2]")
         self.w.factory("alpha2[3,0.5,10]")
-        self.w.factory("n2[2]")
+        self.w.factory("n2[2,0,10]")
 
         peak = ROOT.RooDoubleCB(name+'S','modelS',self.w.var(poi),self.w.var('mean'),self.w.var('sigma'),self.w.var('alpha'),self.w.var('n'),self.w.var("alpha2"),self.w.var("n2"))
         getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name+'S'))
@@ -369,7 +369,7 @@ class Fitter(object):
         self.w.factory("alpha[1,0.5,10]")
         self.w.factory("n[2]")
         self.w.factory("alpha2[1,0.5,10]")
-        self.w.factory("n2[2]")
+        self.w.factory("n2[2,0,10]")
         self.w.factory("slope[0.0]")
         self.w.factory("f[0.0]")
 
@@ -443,16 +443,27 @@ class Fitter(object):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
         self.w.factory("MH[1000]")
         self.w.factory("MEAN[400,13000]")
-        self.w.factory("SIGMA[1,5000]")
+        self.w.factory("SIGMA[1,7000]")
         self.w.factory("ALPHA1[1,0.5,3]")
-        self.w.factory("N1[5]")
+        self.w.factory("N1[5,0,10]")
+        #self.w.factory("N1[5]")
         if singleSided:
             self.w.factory("ALPHA2[1000000.0]")
             self.w.factory("N2[0]")
         else:
             self.w.factory("ALPHA2[1,0.5,3]")
             self.w.factory("N2[5]")
-        peak_vv = ROOT.RooDoubleCB(name,'modelS',self.w.var(poi),self.w.var('MEAN'),self.w.function('SIGMA'),self.w.var('ALPHA1'),self.w.var('N1'),self.w.var('ALPHA2'),self.w.var('N2'))
+            self.w.factory("F[]")
+            self.w.factory("SIGMA_G[]")
+            self.w.factory("MEAN_G[]")
+            
+        if name =='model':    
+            peak_vv = ROOT.RooDoubleCB(name,'modelS',self.w.var(poi),self.w.var('MEAN'),self.w.function('SIGMA'),self.w.var('ALPHA1'),self.w.var('N1'),self.w.var('ALPHA2'),self.w.var('N2'))
+        else:
+            peak_gauss = Roo
+            peak_CB    = ROOT.RooCBShape(name,'modelS',self.w.var(poi),self.w.var('MEAN'),self.w.function('SIGMA'),self.w.var('ALPHA1'),self.w.var('N1'))
+            peak_vv = ROOT.RooDoubleCB(name,'modelS',self.w.var(poi),self.w.var('MEAN'),self.w.function('SIGMA'),self.w.var('ALPHA1'),self.w.var('N1'),self.w.var('ALPHA2'),self.w.var('N2')) 
+        print "peak_vv function "
         getattr(self.w,'import')(peak_vv,ROOT.RooFit.Rename(name))
 
     def signal2D(self,name,poi):

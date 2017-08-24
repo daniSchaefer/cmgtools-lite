@@ -4,6 +4,7 @@ import os,sys
 cuts={}
 
 cuts['common'] = '((HLT_JJ)*(run>500) + (run<500))*(njj>0&&Flag_goodVertices&&Flag_CSCTightHaloFilter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&jj_nOtherLeptons==0)'
+#cuts['common'] = '((HLT_JJ)*(run>500) + (run<500)*(njj>0&&Flag_goodVertices&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&jj_nOtherLeptons==0))'
 
 cuts['HP'] = '(jj_l1_tau2/jj_l1_tau1<0.35)'
 cuts['LP'] = '(jj_l1_tau2/jj_l1_tau1>0.35 && jj_l1_tau2/jj_l1_tau1<0.75)'
@@ -39,13 +40,14 @@ cuts['acceptanceGENMVV']= "(jj_gen_partialMass>{minMVV}&&jj_gen_partialMass<{max
 def makeSignalShapesMVV(filename,template):
 
  cut='*'.join([cuts['common'],cuts['acceptanceMJJ']])
+ #cut=cuts['acceptanceMJJ']
  rootFile=filename+"_MVV.root"
  cmd='vvMakeSignalMVVShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "jj_LV_mass"  samples'.format(template=template,cut=cut,rootFile=rootFile,minMJJ=minMJJ,maxMJJ=maxMJJ)
  os.system(cmd)
- jsonFile=filename+"_MVV.json"
- print 'Making JSON'
- cmd='vvMakeJSON.py  -o "{jsonFile}" -g "MEAN:pol1,SIGMA:pol1,ALPHA1:pol2,N1:pol0,ALPHA2:pol2,N2:pol0" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
- os.system(cmd)
+ #jsonFile=filename+"_MVV.json"
+ #print 'Making JSON'
+ #cmd='vvMakeJSON.py  -o "{jsonFile}" -g "MEAN:pol1,SIGMA:pol1,ALPHA1:pol2,N1:pol0,ALPHA2:pol2,N2:pol0" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
+ #os.system(cmd)
 
 def makeSignalShapesMJJ(filename,template):
 
@@ -108,12 +110,12 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut=""):
   os.system(cmd)
 									
 makeSignalShapesMVV("JJ_XqW",qWTemplate)
-makeSignalShapesMJJ("JJ_XqW",qWTemplate)
-makeSignalYields("JJ_XqW",qWTemplate,BRqW,{'HP':1.03,'LP':0.95})
+#makeSignalShapesMJJ("JJ_XqW",qWTemplate)
+#makeSignalYields("JJ_XqW",qWTemplate,BRqW,{'HP':1.03,'LP':0.95})
 
-makeSignalShapesMVV("JJ_XqZ",qZTemplate)
-makeSignalShapesMJJ("JJ_XqZ",qZTemplate)
-makeSignalYields("JJ_XqZ",qZTemplate,BRqW,{'HP':1.03,'LP':0.95})
+#makeSignalShapesMVV("JJ_XqZ",qZTemplate)
+#makeSignalShapesMJJ("JJ_XqZ",qZTemplate)
+#makeSignalYields("JJ_XqZ",qZTemplate,BRqW,{'HP':1.03,'LP':0.95})
 
-makeBackgroundShapesMJJ("nonRes","JJ",nonResTemplate,cuts['nonres'])
-makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,cuts['nonres'])
+#makeBackgroundShapesMJJ("nonRes","JJ",nonResTemplate,cuts['nonres'])
+#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,cuts['nonres'])
