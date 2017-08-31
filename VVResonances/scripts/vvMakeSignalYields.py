@@ -66,7 +66,7 @@ for mass in sorted(samples.keys()):
     plotter.addCorrectionFactor('genWeight','tree')
     plotter.addCorrectionFactor('xsec','tree')
     plotter.addCorrectionFactor('puWeight','tree')
-    histo = plotter.drawTH1(options.mvv,options.cut,"1",500,options.min,options.max)
+    histo = plotter.drawTH1(options.mvv,options.cut+'*(jj_LV_mass>%f&&jj_LV_mass<%f)'%(mass*0.8,mass*1.2),"1",500,options.min,options.max)
     err=ROOT.Double(0)
     integral=histo.IntegralAndError(1,histo.GetNbinsX(),err) 
 

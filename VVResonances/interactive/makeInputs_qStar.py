@@ -3,15 +3,18 @@ import os,sys
 
 cuts={}
 
-<<<<<<< HEAD
-cuts['common'] = '((HLT_JJ)*(run>500) + (run<500))*(njj>0&&Flag_goodVertices&&Flag_CSCTightHaloFilter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&jj_nOtherLeptons==0)'
-#cuts['common'] = '((HLT_JJ)*(run>500) + (run<500)*(njj>0&&Flag_goodVertices&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&jj_nOtherLeptons==0))'
-=======
-cuts['common'] = '((HLT_JJ)*(run>500) + (run<500))*(njj>0&&Flag_goodVertices&&Flag_CSCTightHaloFilter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter)'
->>>>>>> 681ab9cbf493726898c8ae04a52f21a8505ef435
 
-cuts['HP'] = '(jj_l1_tau2/jj_l1_tau1<0.35)'
-cuts['LP'] = '(jj_l1_tau2/jj_l1_tau1>0.35 && jj_l1_tau2/jj_l1_tau1<0.75)'
+#cuts['common'] = '((HLT_JJ)*(run>500) + (run<500))*(njj>0&&Flag_goodVertices&&Flag_CSCTightHaloFilter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&jj_nOtherLeptons==0)'
+#cuts['common'] = '((HLT_JJ)*(run>500) + (run<500)*(njj>0&&Flag_goodVertices&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&jj_nOtherLeptons==0))'
+
+cuts['common'] = '((HLT_JJ)*(run>500) + (run<500))*(njj>0&&Flag_goodVertices&&Flag_CSCTightHaloFilter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter)'
+
+
+#cuts['HP'] = '(jj_l1_tau2/jj_l1_tau1<0.35)'
+#cuts['LP'] = '(jj_l1_tau2/jj_l1_tau1>0.35 && jj_l1_tau2/jj_l1_tau1<0.75)'
+cuts['HP'] = '(jj_l1_tau21<=0.35)'
+cuts['LP'] = '(jj_l1_tau21>0.35 && jj_l1_tau21<0.75)'
+
 
 cuts['nonres'] = '1'
 
@@ -120,8 +123,8 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut=""):
 
 
 									
-makeSignalShapesMVV("JJ_XqW",qWTemplate)
-#makeSignalShapesMJJ("JJ_XqW",qWTemplate)
+#makeSignalShapesMVV("JJ_XqW",qWTemplate)
+makeSignalShapesMJJ("JJ_XqW",qWTemplate)
 #makeSignalYields("JJ_XqW",qWTemplate,BRqW,{'HP':1.03,'LP':0.95})
 
 #makeSignalShapesMVV("JJ_XqZ",qZTemplate)
