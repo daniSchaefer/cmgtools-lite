@@ -69,7 +69,6 @@ gaussian=ROOT.TF1("gaussian","gaus",0.5,1.5)
 f=ROOT.TFile(options.output,"RECREATE")
 f.cd()
 
-
 superHX=data.drawTH2Binned(variables[0]+'/'+genVariables[0]+':'+genVariables[2],options.cut,"1",binsx,binsz)
 superHY=data.drawTH2Binned(variables[1]+'/'+genVariables[1]+':'+genVariables[2],options.cut,"1",binsx,binsz)
 
@@ -87,7 +86,6 @@ for bin in range(1,superHX.GetNbinsX()+1):
     resyHisto.SetBinContent(bin,tmp.GetRMS())
     resyHisto.SetBinError(bin,tmp.GetRMSError())
 
-        
         
 scalexHisto.Write()
 scaleyHisto.Write()

@@ -123,8 +123,8 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut=""):
 
 
 									
-#makeSignalShapesMVV("JJ_XqW",qWTemplate)
-makeSignalShapesMJJ("JJ_XqW",qWTemplate)
+makeSignalShapesMVV("JJ_XqW",qWTemplate)
+#makeSignalShapesMJJ("JJ_XqW",qWTemplate)
 #makeSignalYields("JJ_XqW",qWTemplate,BRqW,{'HP':1.03,'LP':0.95})
 
 #makeSignalShapesMVV("JJ_XqZ",qZTemplate)

@@ -200,7 +200,7 @@ binsx=[]
 for i in range(0,options.binsx+1):
     binsx.append(options.minx+i*(options.maxx-options.minx)/options.binsx)
 
-binsy=[30.,40.,50.,60.,70.,80.,90.,100.,110.,120.,140.,150.,160.,180.,210.]    
+binsy=[30.,40.,50.,60.,70.,80.,90.,100.,110.,120.,140.,150.,160.,180.,210., 240., 270., 300., 330., 360., 390., 410., 440., 470., 500., 530., 560., 590.,610.]    
 
 
 ###Make res up and down
@@ -223,7 +223,7 @@ for i in range(1,scale_x.GetNbinsX()+1):
 
 
 
-ptBins=[200,300,400,500,600,700,800,1000,1500,2000,3000,5000]
+ptBins=[0,150,200,250,300,350,400,450,500,550,600,700,800,900,1000,1500,2000,5000]
 
 ###Make pt spectrum
 #print 'Making W Pt spectra for reweighting'
@@ -281,7 +281,7 @@ ptBins=[200,300,400,500,600,700,800,1000,1500,2000,3000,5000]
 
 
 
-
+mjet_mvv=ROOT.TH2F("mjet_mvv","mjet_mvv",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 histogram=ROOT.TH2F("histo","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 histogram_top_up=ROOT.TH2F("histo_TOPUp","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 histogram_top_down=ROOT.TH2F("histo_TOPDown","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
@@ -310,6 +310,7 @@ histograms=[
 #    histogram_scaleLog_up,
 #    histogram_scaleLog_down,
     histogram_res_up,
+    mjet_mvv
 #    histogram_res_down,
 #    histogram_qg_up,
 #    histogram_qg_down,
@@ -334,6 +335,8 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
 
     histI=plotter.drawTH1(variables[0],options.cut,"1",1,0,1000000000)
     norm=histI.Integral()
+    
+    hstI2D=plotter.drawTH2(variables[0]+":"+variables[1],options.cut,"1",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 
     #nominal
     histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
@@ -343,6 +346,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     if histTMP.Integral()>0:
         histTMP.Scale(histI.Integral()/histTMP.Integral())
         histogram.Add(histTMP)
+	mjet_mvv.Add(histI2D)
 
         #TOP UP/DOWN
         if "TT" in plotterNW.filename:

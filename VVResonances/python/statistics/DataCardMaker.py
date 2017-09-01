@@ -1,6 +1,7 @@
 import ROOT
 ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 import json
+import sys
 
 
 class DataCardMaker:
@@ -12,7 +13,7 @@ class DataCardMaker:
         self.contributions=[]
         self.systematics=[]
 
-        self.tag=self.physics+"_"+finalstate+"_"+category+"_"+period
+        self.tag=self.physics+"_"+category+"_"+period
         self.rootFile = ROOT.TFile("datacardInputs_"+self.tag+".root","RECREATE")
         self.rootFile.cd()
         self.w=ROOT.RooWorkspace("w","w")
@@ -73,6 +74,59 @@ class DataCardMaker:
 
         pdfName="_".join([name,self.tag])
         vvMass = ROOT.RooDoubleCB(pdfName,pdfName,self.w.var(MVV),self.w.function(SCALEVar),self.w.function(SIGMAVar),self.w.function(ALPHA1Var),self.w.function(N1Var),self.w.function(ALPHA2Var),self.w.function(N2Var))
+        getattr(self.w,'import')(vvMass,ROOT.RooFit.Rename(pdfName))
+        f.close()
+	
+    def addMVVSignalParametricShape2(self,name,variable,jsonFile,scale ={},resolution={}):
+        self.w.factory("MH[2000]")
+        self.w.var("MH").setConstant(1)
+       
+        scaleStr='0'
+        resolutionStr='0'
+
+        scaleSysts=[]
+        resolutionSysts=[]
+        for syst,factor in scale.iteritems():
+            self.w.factory(syst+"[0,-0.1,0.1]")
+            scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            scaleSysts.append(syst)
+        for syst,factor in resolution.iteritems():
+            self.w.factory(syst+"[0,-0.5,0.5]")
+            resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            resolutionSysts.append(syst)
+       
+        MVV=variable            
+        self.w.factory(variable+"[0,13000]")
+
+        
+        f=open(jsonFile)
+        info=json.load(f)
+
+        SCALEVar="_".join(["MEAN",name,self.tag])
+        self.w.factory("expr::{name}('({param})*(1+{vv_syst})',MH,{vv_systs})".format(name=SCALEVar,param=info['MEAN'],vv_syst=scaleStr,vv_systs=','.join(scaleSysts)))
+
+        SIGMAVar="_".join(["SIGMA",name,self.tag])
+        self.w.factory("expr::{name}('({param})*(1+{vv_syst})',MH,{vv_systs})".format(name=SIGMAVar,param=info['SIGMA'],vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
+
+        ALPHAVar="_".join(["ALPHA",name,self.tag])
+        self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=ALPHAVar,param=info['ALPHA']))
+
+        SCALESIGMAVar="_".join(["SCALESIGMA",name,self.tag])
+        self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=SCALESIGMAVar,param=info['SCALESIGMA']))
+
+        NVar="_".join(["N",name,self.tag])
+        self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=NVar,param=info['N']))
+
+        fVar="_".join(["f",name,self.tag])
+        self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=fVar,param=info['f']))        
+
+        GSIGMAVar="_".join(["GSIGMA",name,self.tag])
+        self.w.factory("prod::{name}({param1},{param2})".format(name=GSIGMAVar,param1=SIGMAVar,param2=SCALESIGMAVar))        
+
+        pdfName="_".join([name,self.tag])
+	gaus = ROOT.RooGaussian(pdfName+'_Gaus',pdfName+'_Gaus',self.w.var(MVV),self.w.function(SCALEVar),self.w.function(GSIGMAVar))
+	cb = ROOT.RooCBShape(pdfName+'_CB',pdfName+'_CB',self.w.var(MVV),self.w.function(SCALEVar),self.w.function(SIGMAVar),self.w.function(ALPHAVar),self.w.function(NVar))
+        vvMass = ROOT.RooAddPdf(pdfName,pdfName,gaus,cb,self.w.function(fVar))
         getattr(self.w,'import')(vvMass,ROOT.RooFit.Rename(pdfName))
         f.close()
 

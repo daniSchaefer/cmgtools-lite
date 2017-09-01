@@ -32,3 +32,6 @@ cd VVResonances/interactive
 ln -s samples_location samples
 python makeInputs_qStar.py
 ```
+
+Further instructions on how to run the code can be found at:
+https://www.evernote.com/shard/s531/sh/cead4d9f-6b68-465f-8583-388f7527e7fc/f59cc13785c6e236454d2f69d5ce970c
