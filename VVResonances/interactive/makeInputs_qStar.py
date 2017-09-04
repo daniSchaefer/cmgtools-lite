@@ -25,7 +25,7 @@ qZTemplate="QstarQZ"
 BRqW=1.
 
 dataTemplate="JetHT"
-nonResTemplate="QCD_HT"
+nonResTemplate="QCD_"
 
 minMJJ=30.0
 maxMJJ=210.0
@@ -123,7 +123,7 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut=""):
 
 
 									
-makeSignalShapesMVV("JJ_XqW",qWTemplate)
+#makeSignalShapesMVV("JJ_XqW",qWTemplate)
 #makeSignalShapesMJJ("JJ_XqW",qWTemplate)
 #makeSignalYields("JJ_XqW",qWTemplate,BRqW,{'HP':1.03,'LP':0.95})
 
@@ -131,6 +131,6 @@ makeSignalShapesMVV("JJ_XqW",qWTemplate)
 #makeSignalShapesMJJ("JJ_XqZ",qZTemplate)
 #makeSignalYields("JJ_XqZ",qZTemplate,BRqW,{'HP':1.03,'LP':0.95})
 
-#makeDetectorResponse("nonRes","JJ",nonResTemplate,cuts['nonres'])
+makeDetectorResponse("nonRes","JJ",nonResTemplate,cuts['nonres'])
 #makeBackgroundShapesMJJ("nonRes","JJ",nonResTemplate,cuts['nonres'])
 #makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,cuts['nonres'])
