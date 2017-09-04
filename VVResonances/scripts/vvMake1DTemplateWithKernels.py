@@ -253,8 +253,12 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     print "filename: ", plotter.filename, " preparing central values histo"
     
     histI=plotter.drawTH1(options.var,options.cut,"1",1,0,1000000000)
-    histI2=plotter.drawTH1(options.var,options.cut,"1",options.binsx,options.minx,options.maxx)
-
+    
+    if options.var.find('gen_partialMass') == -1:
+     histI2=plotter.drawTH1('%s_softDrop_mass'%l2,options.cut,"1",options.binsx,options.minx,options.maxx)
+    else:  
+     histI2=plotter.drawTH1('%s_gen_partialMass'%channel,options.cut,"1",options.binsx,options.minx,options.maxx)
+     
     norm=histI.Integral()
     
     #nominal
