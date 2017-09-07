@@ -251,7 +251,8 @@ elif channel == 'jj':
 for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
 
     print "filename: ", plotter.filename, " preparing central values histo"
-    
+   
+
     histI=plotter.drawTH1(options.var,options.cut,"1",1,0,1000000000)
     
     if options.var.find('gen_partialMass') == -1:
@@ -264,9 +265,8 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     #nominal
     histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,options.minx,options.maxx)
     
-    #if options.var.find('gen_partialMass') == -1: dataset=plotterNW.makeDataSet('%s_pt,%s_gen_partialMass,%s_partonFlavour,%s_gen_pt,'%(l1,channel,l2,l2)+options.var,options.cut,-1) 
-    if options.var.find('gen_partialMass') == -1: dataset=plotterNW.makeDataSet('%s_pt,%s_gen_partialMass,%s_gen_pt,'%(l1,channel,l2)+options.var,options.cut,-1)  
-    else: dataset=plotterNW.makeDataSet('%s_pt,%s_partonFlavour,%s_gen_pt,'%(l1,l2,l2)+options.var,options.cut,-1)
+    if options.var.find('gen_partialMass') == -1: dataset=plotterNW.makeDataSet('%s_pt,%s_gen_partialMass,%s_gen_pt,jj_l1_softDrop_mass,'%(l1,channel,l2)+options.var,options.cut,-1)     
+    else: dataset=plotterNW.makeDataSet('%s_pt,%s_gen_pt,'%(l1,l2)+options.var,options.cut,-1)
         
     datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'%s_gen_pt'%(l2),scale,res,histTMP);
     
@@ -282,7 +282,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
             histogram_top_down.Add(histTMP,1.0)
 
     histTMP.Delete()
-
+ 
     print "filename: ", plotter.filename, " preparing res up histo"
 
     #res Up
@@ -314,21 +314,21 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
         histogram_scale_down.Add(histTMP)
     histTMP.Delete()
 
-    #pt Up
-#    histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,options.minx,options.maxx)
-#    datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'lnujj_l2_gen_pt',scale,res,histTMP,options.var,ptUp);
-#    if histTMP.Integral()>0:
-#        histTMP.Scale(histI.Integral()/histTMP.Integral())
-#        histogram_pt_up.Add(histTMP)
-#    histTMP.Delete()
-
-    #pt Down
-#    histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,options.minx,options.maxx)
-#    datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'lnujj_l2_gen_pt',scale,res,histTMP,options.var,ptDown);
-#    if histTMP.Integral()>0:
-#        histTMP.Scale(histI.Integral()/histTMP.Integral())
-#        histogram_pt_down.Add(histTMP)
-#    histTMP.Delete()
+    # # pt Up
+   # histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,options.minx,options.maxx)
+   # datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'lnujj_l2_gen_pt',scale,res,histTMP,options.var,ptUp);
+   # if histTMP.Integral()>0:
+   #     histTMP.Scale(histI.Integral()/histTMP.Integral())
+   #     histogram_pt_up.Add(histTMP)
+   # histTMP.Delete()
+   #
+   #  # pt Down
+   # histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,options.minx,options.maxx)
+   # datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'lnujj_l2_gen_pt',scale,res,histTMP,options.var,ptDown);
+   # if histTMP.Integral()>0:
+   #     histTMP.Scale(histI.Integral()/histTMP.Integral())
+   #     histogram_pt_down.Add(histTMP)
+   # histTMP.Delete()
 
 print " ********** ALL DONE, now save in output file ", options.output
 
@@ -337,8 +337,8 @@ f.cd()
 
 finalHistograms={}
 for hist in histograms:
-    hist.Write(hist.GetName()+"_raw")
-    smoothTail(hist)
+    # hist.Write(hist.GetName()+"_raw")
+    # smoothTail(hist)
     hist.Write(hist.GetName())
     finalHistograms[hist.GetName()]=hist
 
