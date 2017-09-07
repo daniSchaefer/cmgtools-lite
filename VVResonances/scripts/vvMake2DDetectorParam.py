@@ -32,6 +32,7 @@ for filename in os.listdir(args[0]):
             fnameParts=filename.split('.')
             fname=fnameParts[0]
             ext=fnameParts[1]
+            print fname
             if ext.find("root") ==-1:
                 continue
             dataPlotters.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
@@ -67,10 +68,13 @@ gaussian=ROOT.TF1("gaussian","gaus",0.5,1.5)
 
 
 f=ROOT.TFile(options.output,"RECREATE")
+print "create output file " + str(options.output)
 f.cd()
 
 superHX=data.drawTH2Binned(variables[0]+'/'+genVariables[0]+':'+genVariables[2],options.cut,"1",binsx,binsz)
 superHY=data.drawTH2Binned(variables[1]+'/'+genVariables[1]+':'+genVariables[2],options.cut,"1",binsx,binsz)
+
+
 
 for bin in range(1,superHX.GetNbinsX()+1):
 

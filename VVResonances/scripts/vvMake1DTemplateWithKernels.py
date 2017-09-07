@@ -264,7 +264,8 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     #nominal
     histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,options.minx,options.maxx)
     
-    if options.var.find('gen_partialMass') == -1: dataset=plotterNW.makeDataSet('%s_pt,%s_gen_partialMass,%s_partonFlavour,%s_gen_pt,'%(l1,channel,l2,l2)+options.var,options.cut,-1)     
+    #if options.var.find('gen_partialMass') == -1: dataset=plotterNW.makeDataSet('%s_pt,%s_gen_partialMass,%s_partonFlavour,%s_gen_pt,'%(l1,channel,l2,l2)+options.var,options.cut,-1) 
+    if options.var.find('gen_partialMass') == -1: dataset=plotterNW.makeDataSet('%s_pt,%s_gen_partialMass,%s_gen_pt,'%(l1,channel,l2)+options.var,options.cut,-1)  
     else: dataset=plotterNW.makeDataSet('%s_pt,%s_partonFlavour,%s_gen_pt,'%(l1,l2,l2)+options.var,options.cut,-1)
         
     datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'%s_gen_pt'%(l2),scale,res,histTMP);

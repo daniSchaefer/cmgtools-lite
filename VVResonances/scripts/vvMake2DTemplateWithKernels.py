@@ -336,11 +336,13 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     histI=plotter.drawTH1(variables[0],options.cut,"1",1,0,1000000000)
     norm=histI.Integral()
     
-    hstI2D=plotter.drawTH2(variables[0]+":"+variables[1],options.cut,"1",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+    #hstI2D=plotter.drawTH2(variables[0]+":"+variables[1],options.cut,"1",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+    histI2D=plotter.drawTH2(variables[0]+":"+variables[1],options.cut,"1",len(binsx)-1,binsx[0],binsx[-1],len(binsy)-1,binsy[0],binsy[-1])
 
     #nominal
     histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-    dataset=plotterNW.makeDataSet('%s_pt,%s_partonFlavour,%s_gen_pt,'%(l1,l2,l2)+variables[1]+','+variables[0],options.cut,-1)
+    #dataset=plotterNW.makeDataSet('%s_pt,%s_partonFlavour,%s_gen_pt,'%(l1,l2,l2)+variables[1]+','+variables[0],options.cut,-1)
+    dataset=plotterNW.makeDataSet('%s_pt,%s_gen_pt,'%(l1,l2)+variables[1]+','+variables[0],options.cut,-1)
     datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'%s_gen_pt'%(l2),scale_x,scale_y,res_x,res_y,histTMP);
     
     if histTMP.Integral()>0:

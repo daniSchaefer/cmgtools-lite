@@ -260,7 +260,7 @@ class TreePlotter(PlotterBase):
                     weight=weight*getattr(event,c['value'])[0]
 
             for v in variables:
-                argset2.find(v).setVal(getattr(event,v)[0])
+                argset2.find(v).setVal(getattr(event,v))
             data.add(argset2,weight)
             N=N+1
             if maxN >0 and N>maxN:

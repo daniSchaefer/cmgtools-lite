@@ -22,6 +22,8 @@ purities=['HP','LP']
 
 qWTemplate="QstarQW"
 qZTemplate="QstarQZ"
+
+VJetTemplate="JetsToQQ"
 BRqW=1.
 
 dataTemplate="JetHT"
@@ -50,13 +52,12 @@ cuts['acceptanceGENMVV']= "(jj_gen_partialMass>{minMVV}&&jj_gen_partialMass<{max
 def makeSignalShapesMVV(filename,template):
 
  cut='*'.join([cuts['common'],cuts['acceptanceMJJ']])
- #cut=cuts['acceptanceMJJ']
  rootFile=filename+"_MVV.root"
  cmd='vvMakeSignalMVVShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "jj_LV_mass"  samples'.format(template=template,cut=cut,rootFile=rootFile,minMJJ=minMJJ,maxMJJ=maxMJJ)
- os.system(cmd)
+ #os.system(cmd)
  jsonFile=filename+"_MVV.json"
  print 'Making JSON'
- cmd='vvMakeJSON.py  -o "{jsonFile}" -g "MEAN:pol1,SIGMA:pol1,ALPHA:pol2,N:pol2,SCALESIGMA:pol2,f:pol2" -m 1000 -M 6000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
+ cmd='vvMakeJSON.py  -o "{jsonFile}" -g "MEAN:bestfit,SIGMA:bestfit,ALPHA:bestfit,N:pol0,SCALESIGMA:bestfit,f:bestfit" -m 1200 -M 7000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
  os.system(cmd)
 
 
@@ -131,6 +132,9 @@ def makeBackgroundShapesMVVConditional(name,filename,template,addCut=""):
 #makeSignalShapesMJJ("JJ_XqZ",qZTemplate)
 #makeSignalYields("JJ_XqZ",qZTemplate,BRqW,{'HP':1.03,'LP':0.95})
 
-makeDetectorResponse("nonRes","JJ",nonResTemplate,cuts['nonres'])
+#makeDetectorResponse("nonRes","JJ",nonResTemplate,cuts['nonres'])
+makeDetectorResponse("nonRes","JJ",VJetTemplate,cuts['nonres'])
+makeBackgroundShapesMJJ("nonRes","JJ",VJetTemplate,cuts['nonres'])
+makeBackgroundShapesMVVConditional("nonRes","JJ",VJetTemplate,cuts['nonres'])
 #makeBackgroundShapesMJJ("nonRes","JJ",nonResTemplate,cuts['nonres'])
 #makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,cuts['nonres'])
