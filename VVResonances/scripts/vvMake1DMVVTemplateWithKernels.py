@@ -91,7 +91,7 @@ for filename in os.listdir(args[0]):
             dataPlotters[-1].addCorrectionFactor('genWeight','tree')
             dataPlotters[-1].addCorrectionFactor('puWeight','tree')
             for w in weights_:
-							if w != '': dataPlotters[-1].addCorrectionFactor(w,'branch')
+	     if w != '': dataPlotters[-1].addCorrectionFactor(w,'branch')
             dataPlotters[-1].filename=fname
             dataPlottersNW.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
             dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
@@ -108,14 +108,14 @@ scale = fcorr.Get("scale"+options.resHisto+"Histo")
 res   = fcorr.Get("res"  +options.resHisto+"Histo")
 
 #distribution of mjet from simulation --> use to validate kernel
-mjet_nominal=ROOT.TH1F("mjet_nominal","mjet_nominal",options.binsx,options.minx,options.maxx)
-mjet_nominal.Sumw2()
+mvv_nominal=ROOT.TH1F("mvv_nominal","mvv_nominal",options.binsx,options.minx,options.maxx)
+mvv_nominal.Sumw2()
 
-mjet_altshapeUp=ROOT.TH1F("mjet_altshapeUp","mjet_altshapeUp",options.binsx,options.minx,options.maxx)
-mjet_altshapeUp.Sumw2()
+mvv_altshapeUp=ROOT.TH1F("mvv_altshapeUp","mvv_altshapeUp",options.binsx,options.minx,options.maxx)
+mvv_altshapeUp.Sumw2()
 
-mjet_altshape2=ROOT.TH1F("mjet_altshape2","mjet_altshape2",options.binsx,options.minx,options.maxx)
-mjet_altshape2.Sumw2()
+mvv_altshape2=ROOT.TH1F("mvv_altshape2","mvv_altshape2",options.binsx,options.minx,options.maxx)
+mvv_altshape2.Sumw2()
 
 histogram_nominal=ROOT.TH1F("histo_nominal","histo_nominal",options.binsx,options.minx,options.maxx)
 histogram_nominal.Sumw2()
@@ -130,9 +130,9 @@ histograms=[
     histogram_nominal,
     histogram_altshapeUp,
     histogram_altshape2,
-    mjet_nominal,
-    mjet_altshapeUp,
-    mjet_altshape2
+    mvv_nominal,
+    mvv_altshapeUp,
+    mvv_altshape2
 	]
 
 maxEvents = -1
@@ -145,9 +145,9 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
    print "filename: ", plotter.filename, " preparing central values histo"
    
    #histI=plotter.drawTH1(options.var,options.cut,"1",1,0,1000000000)   
-   histI2=plotter.drawTH1('jj_l1_softDrop_mass',options.cut,"1",options.binsx,options.minx,options.maxx)
+   histI2=plotter.drawTH1('jj_LV_mass',options.cut,"1",options.binsx,options.minx,options.maxx)
    
-   dataset=plotterNW.makeDataSet('jj_gen_partialMass,jj_l1_gen_pt,'+options.var,options.cut,maxEvents)     
+   dataset=plotterNW.makeDataSet('jj_gen_partialMass,jj_l1_gen_pt,jj_l1_gen_softDrop_mass',options.cut,maxEvents)     
    
    histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,options.minx,options.maxx)   
    if not(options.usegenmass): 
@@ -157,13 +157,17 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
    #if histTMP.Integral()>0:
    # histTMP.Scale(histI.Integral()/histTMP.Integral())
    # histogram_nominal.Add(histTMP)
-   # mjet_nominal.Add(histI2)
+   #if histI2.Integral()>0:
+   # histI2.Scale(histI.Integral()/histI2.Integral())
+   # mvv_nominal.Add(histI2)
 
    if histTMP.Integral()>0:
     histTMP.Scale(histI2.Integral()/histTMP.Integral())
     histogram_nominal.Add(histTMP)
-    mjet_nominal.Add(histI2)
+    mvv_nominal.Add(histI2)
     
+   #histI.Delete()
+   histI2.Delete()
    histTMP.Delete()
 
  if len(sampleTypes)<2: continue
@@ -172,9 +176,9 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
    print "filename: ", plotter.filename, " preparing alternate shape histo"
    
    #histI=plotter.drawTH1(options.var,options.cut,"1",1,0,1000000000)
-   histI2=plotter.drawTH1('jj_l1_softDrop_mass',options.cut,"1",options.binsx,options.minx,options.maxx)
+   histI2=plotter.drawTH1('jj_LV_mass',options.cut,"1",options.binsx,options.minx,options.maxx)
 
-   dataset=plotterNW.makeDataSet('jj_gen_partialMass,jj_l1_gen_pt,'+options.var,options.cut,maxEvents)     
+   dataset=plotterNW.makeDataSet('jj_gen_partialMass,jj_l1_gen_pt,jj_l1_gen_softDrop_mass',options.cut,maxEvents)     
    
    histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,options.minx,options.maxx)    
    if not(options.usegenmass): 
@@ -184,13 +188,17 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
    #if histTMP.Integral()>0:
    # histTMP.Scale(histI.Integral()/histTMP.Integral())
    # histogram_altshapeUp.Add(histTMP)
-   # mjet_altshapeUp.Add(histI2)
+   #if histI2.Integral()>0:
+   # histI2.Scale(histI.Integral()/histI2.Integral())
+   # mvv_altshapeUp.Add(histI2)
 
    if histTMP.Integral()>0:
     histTMP.Scale(histI2.Integral()/histTMP.Integral())
     histogram_altshapeUp.Add(histTMP)
-    mjet_altshapeUp.Add(histI2)
+    mvv_altshapeUp.Add(histI2)
     
+   #histI.Delete()
+   histI2.Delete()
    histTMP.Delete()
 		          	      
  if len(sampleTypes)<3: continue
@@ -199,9 +207,9 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
    print "filename: ", plotter.filename, " preparing alternate shape histo"
    
    #histI=plotter.drawTH1(options.var,options.cut,"1",1,0,1000000000)
-   histI2=plotter.drawTH1('jj_l1_softDrop_mass',options.cut,"1",options.binsx,options.minx,options.maxx)
+   histI2=plotter.drawTH1('jj_LV_mass',options.cut,"1",options.binsx,options.minx,options.maxx)
 
-   dataset=plotterNW.makeDataSet('jj_gen_partialMass,jj_l1_gen_pt,'+options.var,options.cut,maxEvents)     
+   dataset=plotterNW.makeDataSet('jj_gen_partialMass,jj_l1_gen_pt,jj_l1_gen_softDrop_mass',options.cut,maxEvents)     
    
    histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,options.minx,options.maxx)    
    if not(options.usegenmass): 
@@ -211,13 +219,17 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
    #if histTMP.Integral()>0:
    # histTMP.Scale(histI.Integral()/histTMP.Integral())
    # histogram_altshape2.Add(histTMP)
-   # mjet_altshape2.Add(histI2)
+   #if histI2.Integral()>0:
+   # histI2.Scale(histI.Integral()/histI2.Integral())
+   # mvv_altshape2.Add(histI2)
 
    if histTMP.Integral()>0:
     histTMP.Scale(histI2.Integral()/histTMP.Integral())
     histogram_altshape2.Add(histTMP)
-    mjet_altshape2.Add(histI2)
+    mvv_altshape2.Add(histI2)
     
+   #histI.Delete()
+   histI2.Delete()
    histTMP.Delete()
 
 
@@ -254,7 +266,5 @@ for i,hist in enumerate(histograms):
  leg.AddEntry(hist,hist.GetName(),"L")
 leg.Draw("same")
 canv.SaveAs("debug_"+options.output.replace(".root",".png") )
-
-
 
 

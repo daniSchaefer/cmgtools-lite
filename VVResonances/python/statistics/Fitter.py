@@ -471,16 +471,15 @@ class Fitter(object):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
         self.w.factory("MH[1000]")
         self.w.factory("MEAN[%.1f,%.1f,%.1f]"%(mass,0.8*mass,1.2*mass))
-	self.w.factory("SIGMA[%.1f,20,700]"%(mass*0.05))
-	self.w.factory("SCALESIGMA[2,1.2,10]")
+	self.w.factory("SIGMA[%.1f,%.1f,%.1f]"%(mass*0.05,mass*0.02,mass*0.10))
+	self.w.factory("SCALESIGMA[2.0,1.2,3.]")
 	gsigma = ROOT.RooFormulaVar("gsigma","gsigma","@0*@1", ROOT.RooArgList(self.w.var('SIGMA'),self.w.var('SCALESIGMA')))
 	getattr(self.w,'import')(gsigma,ROOT.RooFit.Rename('gsigma'))
-        self.w.factory("ALPHA[2,0,20]")
-        #self.w.factory("N[100, 0., 300]")
-        self.w.factory("N[126]")
+        self.w.factory("ALPHA[0.85,0.60,1.20]")
+        self.w.factory("N[126.9]") #From @dani: N=126
 	self.w.factory("Gaussian::signalResonanceGaus(%s,MEAN,gsigma)"%poi)
 	self.w.factory("CBShape::signalResonanceCB(%s,MEAN,SIGMA,ALPHA,N)"%poi)
-	self.w.factory('SUM::'+name+'(f[0,0,0.35]*signalResonanceGaus,signalResonanceCB)')
+	self.w.factory('SUM::'+name+'(f[0.00,0.00,0.85]*signalResonanceGaus,signalResonanceCB)')
     
     def signal2D(self,name,poi):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")

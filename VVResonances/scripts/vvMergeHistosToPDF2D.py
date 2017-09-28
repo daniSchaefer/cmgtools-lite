@@ -30,6 +30,7 @@ parser.add_option("-o","--output",dest="output",help="Output ROOT File",default=
 
 ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
 
+'''
 systX={}
 tmp=options.systX.split(',')
 for s in tmp:
@@ -47,16 +48,18 @@ tmp=options.systCommon.split(',')
 for s in tmp:
     tmp2=s.split(':')
     systC[tmp2[0]]=tmp2[1]
-
-
+'''
 
 inputx=ROOT.TFile(options.inputX)
 inputy=ROOT.TFile(options.inputY)
 output=ROOT.TFile(options.output,"RECREATE")
 
 
-makeHisto("histo",inputx,"histo",inputy,"histo",output)
+makeHisto("histo_nominal",inputx,"histo_nominal",inputy,"histo_nominal",output)
+makeHisto("histo_altshapeUp",inputx,"histo_altshapeUp",inputy,"histo_altshapeUp",output)
+makeHisto("histo_altshapeDown",inputx,"histo_altshapeDown",inputy,"histo_altshapeDown",output)
 
+'''
 for systName,systNewName in systC.iteritems():
     makeHisto("histo_"+systNewName+"Up",inputx,"histo_"+systName+"Up",inputy,"histo_"+systName+"Up",output)
     makeHisto("histo_"+systNewName+"Down",inputx,"histo_"+systName+"Down",inputy,"histo_"+systName+"Down",output)
@@ -68,7 +71,7 @@ for systName,systNewName in systX.iteritems():
 for systName,systNewName in systY.iteritems():
     makeHisto("histo_"+systNewName+"Up",inputx,"histo",inputy,"histo_"+systName+"Up",output)
     makeHisto("histo_"+systNewName+"Down",inputx,"histo",inputy,"histo_"+systName+"Down",output)
-
+'''
 
 inputx.Close()
 inputy.Close()

@@ -92,11 +92,16 @@ for string in graphStr:
             func=ROOT.TF1(comps[1],st,1,13000)
             for i in range(0,order):
                 func.SetParameter(i,0)
-    
-        graph.Fit(func,"","",options.min,options.max)
-        parameterization[comps[0]]=returnString(func)
-        graph.Write(comps[0])
-        func.Write(comps[0]+"_func")
+    graph.Fit(func,"","",options.min,options.max)
+    graph.Fit(func,"","",options.min,options.max)
+    graph.Fit(func,"","",options.min,options.max)
+    parameterization[comps[0]]=returnString(func)
+    graph.Write(comps[0])
+    func.Write(comps[0]+"_func")
+    c = ROOT.TCanvas()
+    graph.Draw()
+    c.SaveAs("debug_"+comps[0]+".png")
+
 
 ff.Close()
 f=open(options.output,"w")

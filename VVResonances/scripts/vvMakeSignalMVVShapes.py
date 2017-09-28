@@ -60,7 +60,7 @@ scaleFactors=options.scaleFactors.split(',')
 #Now we have the samples: Sort the masses and run the fits
 N=0
 for mass in sorted(samples.keys()):
-
+    if mass>6000: continue
     print 'fitting',str(mass) 
     print args[0]+'/'+samples[mass]+'.root'
     plotter=TreePlotter(args[0]+'/'+samples[mass]+'.root','tree')
@@ -74,12 +74,13 @@ for mass in sorted(samples.keys()):
     fitter.signalResonanceCBGaus('model','MVV',mass)
     fitter.w.var("MH").setVal(mass)
 
-    histo = plotter.drawTH1(options.mvv,options.cut+"*(jj_LV_mass>%f&&jj_LV_mass<%f)"%(0.8*mass,1.2*mass),"1",140,1000,8000)
+    histo = plotter.drawTH1(options.mvv,options.cut+"*(jj_LV_mass>%f&&jj_LV_mass<%f)"%(0.8*mass,1.2*mass),"1",140,700,8000)
 
 
     fitter.importBinnedData(histo,['MVV'],'data')
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])#,ROOT.RooFit.Range(1000,8000)])
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])#,ROOT.RooFit.Range(1000,8000)])
+    # fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])#,ROOT.RooFit.Range(1000,8000)])
 
     #fitter.projection("model","data","MVV","debugVV_"+options.output+"_"+str(mass)+".root")
     fitter.projection("model","data","MVV","debugVV_"+options.output+"_"+str(mass)+".png","M_{jj} (GeV)",mass)

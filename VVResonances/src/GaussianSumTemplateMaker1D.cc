@@ -1,5 +1,6 @@
 #include "CMGTools/VVResonances/interface/GaussianSumTemplateMaker1D.h"
 #include "RooArgSet.h"
+#include "TMath.h"
 
 using namespace cmg;
 GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D() {}
@@ -43,8 +44,6 @@ GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D(const RooDataSet* dataset
     }
   }
 }
-
-
 
 double GaussianSumTemplateMaker1D::gaus(double x,double genx,double resx) {
   return exp(-0.5*(x-genx)*(x-genx)/(resx*resx))/(2.5066*resx);
