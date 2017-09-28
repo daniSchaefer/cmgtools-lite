@@ -228,15 +228,23 @@ finalHistograms={}
 for hist in histograms:
  # hist.Write(hist.GetName()+"_raw")
  # smoothTail(hist)
+ print hist.GetName()
+ print hist.Integral()
  hist.Write(hist.GetName())
  finalHistograms[hist.GetName()]=hist
 
-histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
-histogram_altshapeDown.Write()
+print finalHistograms['histo_altshapeUp']
+print finalHistograms['histo_nominal']
+
+if len(sampleTypes)>2:
+    histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
+    histogram_altshapeDown.Write()
+    histograms.append(histogram_altshapeDown)
 
 f.Close()
 
-histograms.append(histogram_altshapeDown)
+
+
 print "Drawing debugging plot ", "debug_"+options.output.replace(".root",".png") 
 canv = ROOT.TCanvas("c1","c1",800,600)
 leg = ROOT.TLegend(0.55010112,0.7183362,0.70202143,0.919833)
