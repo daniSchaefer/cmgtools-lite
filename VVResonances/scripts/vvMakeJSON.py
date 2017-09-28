@@ -73,7 +73,7 @@ for string in graphStr:
                 Lmin =L
                 fbest = key
         #graph.Fit(fitfunc[fbest],"","",options.min,options.max)
-        #parameterization[fbest]=returnString(fitfunc[fbest])
+        #parameterization[comps[0]]=returnString(fitfunc[fbest])
         print " take "+fbest+" as best fit function  for variable "+str(comps[0])
         graph.Write(comps[0])
         func.Write(comps[0]+"_func")

@@ -130,17 +130,17 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1):
 
 									
 makeSignalShapesMVV("JJ_XqW",qWTemplate)
-makeSignalShapesMJJ("JJ_XqW",qWTemplate)
-makeSignalYields("JJ_XqW",qWTemplate,BRqW,{'HP':1.03,'LP':0.95})
+#makeSignalShapesMJJ("JJ_XqW",qWTemplate)
+#makeSignalYields("JJ_XqW",qWTemplate,BRqW,{'HP':1.03,'LP':0.95})
 
-makeSignalShapesMVV("JJ_XqZ",qZTemplate)
-makeSignalShapesMJJ("JJ_XqZ",qZTemplate)
-makeSignalYields("JJ_XqZ",qZTemplate,BRqZ,{'HP':1.03,'LP':0.95})
+#makeSignalShapesMVV("JJ_XqZ",qZTemplate)
+#makeSignalShapesMJJ("JJ_XqZ",qZTemplate)
+#makeSignalYields("JJ_XqZ",qZTemplate,BRqZ,{'HP':1.03,'LP':0.95})
 
-makeDetectorResponse("nonRes","JJ",nonResTemplate,cuts['nonres'])
-makeBackgroundShapesMJJ("nonRes","JJ",nonResTemplate,cuts['nonres'])
-makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,cuts['nonres'])
-mergeBackgroundShapes("nonRes","JJ")
+#makeDetectorResponse("nonRes","JJ",nonResTemplate,cuts['nonres'])
+#makeBackgroundShapesMJJ("nonRes","JJ",nonResTemplate,cuts['nonres'])
+#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,cuts['nonres'])
+#mergeBackgroundShapes("nonRes","JJ")
 
-makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],1.0)
-makeNormalizations("data","JJ",dataTemplate,0,'',1.0)
+#makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],1.0)
+#makeNormalizations("data","JJ",dataTemplate,0,'',1.0)
