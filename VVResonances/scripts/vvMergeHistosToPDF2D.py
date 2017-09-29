@@ -56,8 +56,11 @@ output=ROOT.TFile(options.output,"RECREATE")
 
 
 makeHisto("histo_nominal",inputx,"histo_nominal",inputy,"histo_nominal",output)
-makeHisto("histo_altshapeUp",inputx,"histo_altshapeUp",inputy,"histo_altshapeUp",output)
-makeHisto("histo_altshapeDown",inputx,"histo_altshapeDown",inputy,"histo_altshapeDown",output)
+print "write output file " + output.GetName()
+#========= don't do this if you only want to process one sample ...
+#makeHisto("histo_altshapeUp",inputx,"histo_altshapeUp",inputy,"histo_altshapeUp",output)
+#makeHisto("histo_altshapeDown",inputx,"histo_altshapeDown",inputy,"histo_altshapeDown",output)
+#=========
 
 '''
 for systName,systNewName in systC.iteritems():

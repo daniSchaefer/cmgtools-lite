@@ -150,24 +150,15 @@ histograms=[
     histogram_altshape2
 ]
 
+# do if only nominal shapes should be calculated
+if len(sampleTypes)<2:
+    histograms=[histogram]
 #ok lets populate!
 
 maxEvents = -1
 varsDataSet = 'jj_l1_gen_pt,'+variables[1]+','+variables[0]
 
-<<<<<<< HEAD
-    histI=plotter.drawTH1(variables[0],options.cut,"1",1,0,1000000000)
-    norm=histI.Integral()
-    
-    #hstI2D=plotter.drawTH2(variables[0]+":"+variables[1],options.cut,"1",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-    histI2D=plotter.drawTH2(variables[0]+":"+variables[1],options.cut,"1",len(binsx)-1,binsx[0],binsx[-1],len(binsy)-1,binsy[0],binsy[-1])
 
-    #nominal
-    histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-    #dataset=plotterNW.makeDataSet('%s_pt,%s_partonFlavour,%s_gen_pt,'%(l1,l2,l2)+variables[1]+','+variables[0],options.cut,-1)
-    dataset=plotterNW.makeDataSet('%s_pt,%s_gen_pt,'%(l1,l2)+variables[1]+','+variables[0],options.cut,-1)
-    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'%s_gen_pt'%(l2),scale_x,scale_y,res_x,res_y,histTMP);
-=======
 for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
 
  #if plotter.filename != 'QCD_Pt-15to7000': continue
@@ -273,7 +264,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     histTMP.Scale(histI.Integral()/histTMP.Integral())
     histogram_altshape2.Add(histTMP) 
     mjet_mvv_altshape2.Add(histI2D)
->>>>>>> Diboson3D/qstarStat
+
     
   #histI.Delete()  
   histI2D.Delete()
@@ -302,9 +293,10 @@ mjet_mvv_altshapeUp.Write()
 mjet_mvv_altshape2.Write()
 
 # ##Mirror Herwig shape
-histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
-conditional(histogram_altshapeDown)
-histogram_altshapeDown.Write()
+if len(sampleTypes)>2:
+    histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
+    conditional(histogram_altshapeDown)
+    histogram_altshapeDown.Write()
         		
 f.Close()
 
