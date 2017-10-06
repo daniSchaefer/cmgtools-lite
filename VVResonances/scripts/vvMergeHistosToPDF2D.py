@@ -58,9 +58,23 @@ output=ROOT.TFile(options.output,"RECREATE")
 makeHisto("histo_nominal",inputx,"histo_nominal",inputy,"histo_nominal",output)
 print "write output file " + output.GetName()
 #========= don't do this if you only want to process one sample ...
+#makeHisto("histo_altshapeXUp",inputx,"histo_altshapeUp",inputy,"histo_nominal",output)
+#makeHisto("histo_altshapeXDown",inputx,"histo_altshapeDown",inputy,"histo_nominal",output)
+#makeHisto("histo_altshapeYUp",inputx,"histo_nominal",inputy,"histo_altshapeUp",output)
+#makeHisto("histo_altshapeYDown",inputx,"histo_nominal",inputy,"histo_altshapeDown",output)
 #makeHisto("histo_altshapeUp",inputx,"histo_altshapeUp",inputy,"histo_altshapeUp",output)
 #makeHisto("histo_altshapeDown",inputx,"histo_altshapeDown",inputy,"histo_altshapeDown",output)
-#=========
+
+
+#makeHisto("histo_PTXUp",inputx,"histo_nominal_ScaleUp",inputy,"histo_nominal",output)
+#makeHisto("histo_PTXDown",inputx,"histo_nominal_ScaleDown",inputy,"histo_nominal",output)
+#makeHisto("histo_PTYUp",inputx,"histo_nominal",inputy,"histo_nominal_ScaleUp",output)
+#makeHisto("histo_PTYDown",inputx,"histo_nominal",inputy,"histo_nominal_ScaleDown",output)
+
+#makeHisto("histo_PTUp",inputx,"histo_nominal_ScaleUp",inputy,"histo_nominal_ScaleUp",output)
+#makeHisto("histo_PTDown",inputx,"histo_nominal_ScaleDown",inputy,"histo_nominal_ScaleDown",output)
+
+#=================
 
 '''
 for systName,systNewName in systC.iteritems():

@@ -150,8 +150,9 @@ for plotter in dataPlotters:
   
 #histoCoarse=data.drawTH1(options.var,options.cut,"1",options.binsx/options.factor,options.minx,options.maxx)
 expandHisto(histoCoarse_nominal,histogram_nominal)
-expandHisto(histoCoarse_altshapeUp,histogram_altshapeUp)
-expandHisto(histoCoarse_altshape2,histogram_altshape2)
+if len(sampleTypes)>1:
+    expandHisto(histoCoarse_altshapeUp,histogram_altshapeUp)
+    expandHisto(histoCoarse_altshape2,histogram_altshape2)
 
 f=ROOT.TFile(options.output,"RECREATE")
 f.cd()
@@ -165,7 +166,8 @@ histoCoarse_altshapeUp.Write()
 histogram_altshapeUp.Write()
 histogram_altshape2.Write()
 
-histogram_altshapeDown=mirror(histogram_altshapeUp,histogram_nominal,"histo_altshapeDown")
-histogram_altshapeDown.Write()
+if len(sampleTypes)>1:
+    histogram_altshapeDown=mirror(histogram_altshapeUp,histogram_nominal,"histo_altshapeDown")
+    histogram_altshapeDown.Write()
 
 f.Close()
