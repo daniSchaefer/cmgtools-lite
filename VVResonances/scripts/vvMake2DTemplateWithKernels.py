@@ -64,12 +64,6 @@ def conditional(hist):
 
 def smoothTail(hist):
     hist.Scale(1.0/hist.Integral())
-    expo=ROOT.TF1("expo","expo",1000,8000)
-    #expo=ROOT.TF1("expo","(1-[0]/13000.)^[1]/([0]/13000)^[2]",1000,8000)  
-    ##expo.SetParameters(1,-)                                                       
-    #expo.SetParLimits(20,-100.,500.)                                              
-    #expo.SetParLimits(3,-100.,100)
-    #expo.SetParLimits(0,-50.,50.)
 
     for i in range(1,hist.GetNbinsY()+1):
         proj=hist.ProjectionX("q",i,i)
@@ -78,10 +72,14 @@ def smoothTail(hist):
 #                proj.SetBinError(j,1.8)
         
         beginFit = proj.GetBinLowEdge( proj.GetMaximumBin() )
-        beginFitX = beginFit + 1000 * 1/(beginFit/1000.)
+        beginFitX = beginFit + 1500. * 1/(beginFit/1000.)
         print beginFit
         print beginFitX
-        proj.Fit(expo,"","",beginFitX,8000)
+        #expo=ROOT.TF1("expo","expo",beginFitX,8000)
+        expo=ROOT.TF1("expo","[0]*(1-x/13000.)^[1]/(x/13000)^[2]",2000,8000) 
+        expo.SetParameters(0,16.,2.)
+        expo.SetParLimits(2,1.,20.)
+        proj.Fit(expo,"LLMR","",beginFitX,8000)
         #proj.Fit(expo,"","",2000,8000)
         c = ROOT.TCanvas("c","c",400,400)
         c.SetLogy()
@@ -93,10 +91,16 @@ def smoothTail(hist):
             x=hist.GetXaxis().GetBinCenter(j)
             if x>beginFitX:
                 if beginsmooth==False:
+                   if x<3000: 
+                       if abs(proj.GetBinContent(j) - expo.Eval(x)) < 0.0000001:# and abs(expo.Derivative(x)- (hist.GetBinContent(j):
+                        print beginFitX
+                        print "begin smoothing at " +str(x)
+                        beginsmooth = True 
                    if abs(proj.GetBinContent(j) - expo.Eval(x)) < 0.00000001:# and abs(expo.Derivative(x)- (hist.GetBinContent(j):
+                       print beginFitX
                        print "begin smoothing at " +str(x)
                        beginsmooth = True 
-                if beginsmooth:    
+                if beginsmooth:
                     hist.SetBinContent(j,i,expo.Eval(x))
 
 
@@ -353,7 +357,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
 
 f=ROOT.TFile(options.output,"RECREATE")
 print "Finished producing histograms! Saving to" ,options.output
-####################### speed up ############################################
+###################### speed up ############################################
 #f = ROOT.TFile("JJ_nonRes_COND2D_HP.root","READ")
 #histogram = f.Get("histo_nominal_coarse")
 #histograms = [histogram]

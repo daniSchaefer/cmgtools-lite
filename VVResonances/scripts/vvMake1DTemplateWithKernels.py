@@ -61,7 +61,7 @@ def smoothTail(hist):
     if hist.Integral()==0:
         print "Well we have  0 integrl for the hist ",hist.GetName()
         return
-    expo=ROOT.TF1("func","expo",0,6000)
+    expo=ROOT.TF1("func","expo",0,8000)
 #    expo=ROOT.TF1("expo","[0]*((1-x/13000.0)^[1])/(x/13000.0)^([2]+[3]*log(x))",1000,8000)
 #    expo.SetParameters(1,1,1,0)
 #    expo.SetParLimits(0,0,1)
@@ -69,7 +69,7 @@ def smoothTail(hist):
 #    expo.SetParLimits(2,0.1,100)
 #    expo.SetParLimits(3,0.0,20)
 
-
+    beginsmooth = False
     for j in range(1,hist.GetNbinsX()+1):
         if hist.GetBinContent(j)/hist.Integral()<0.0005:
             hist.SetBinError(j,1.8)
@@ -79,7 +79,10 @@ def smoothTail(hist):
     for j in range(1,hist.GetNbinsX()+1):
         x=hist.GetXaxis().GetBinCenter(j)
         if x>2000:
-            hist.SetBinContent(j,expo.Eval(x))
+            if abs(proj.GetBinContent(j) - expo.Eval(x)) < 0.00000001:
+                beginsmooth = True 
+            if beginsmooth==True:    
+                hist.SetBinContent(j,expo.Eval(x))
 
 weights_ = options.weights.split(',')
 
@@ -119,6 +122,11 @@ fcorr=ROOT.TFile(options.res)
 
 scale = fcorr.Get("scale"+options.resHisto+"Histo")
 res   = fcorr.Get("res"  +options.resHisto+"Histo")
+
+print scale.GetName()
+print scale
+print res.GetName()
+print res
 
 scaleUp = ROOT.TH1F(scale)
 scaleUp.SetName("scaleUp")
