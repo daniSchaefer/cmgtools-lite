@@ -1,6 +1,8 @@
 #include "CMGTools/VVResonances/interface/GaussianSumTemplateMaker1D.h"
 #include "RooArgSet.h"
 #include "TMath.h"
+#include "TCanvas.h"
+#include "TF1.h"
 
 using namespace cmg;
 GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D() {}
@@ -16,8 +18,6 @@ GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D(const RooDataSet* dataset
   genpt=0.0;
   reweight=1.0;
   genw=0.0;
-  
-
 
   int binw=0;
   unsigned int nevents = dataset->numEntries();
@@ -36,8 +36,9 @@ GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D(const RooDataSet* dataset
       reweight=weightH->GetBinContent(binw);
     }
       
-    scalex=hscalex->Interpolate(genpt)*genx;
-    resx=hresx->Interpolate(genpt)*genx;
+  scalex=hscalex->Interpolate(genpt)*genx;
+  resx=hresx->Interpolate(genpt)*genx;
+
     for (int i=1;i<output->GetNbinsX()+1;++i) {
       x=output->GetXaxis()->GetBinCenter(i);
       output->Fill(x,reweight*dataset->weight()*gaus(x,scalex,resx));

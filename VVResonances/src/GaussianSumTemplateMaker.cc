@@ -1,5 +1,6 @@
 #include "CMGTools/VVResonances/interface/GaussianSumTemplateMaker.h"
 #include "RooArgSet.h"
+#include "TCanvas.h"
 
 using namespace cmg;
 GaussianSumTemplateMaker::GaussianSumTemplateMaker() {}
@@ -20,8 +21,6 @@ GaussianSumTemplateMaker::GaussianSumTemplateMaker(const RooDataSet* dataset, co
   reweight=1.0;
   genw=0.0;
   
-
-  //  int bin=0;
   int binw=0;
   unsigned int nevents = dataset->numEntries();
   for (unsigned int entry=0;entry<nevents;++entry) {
