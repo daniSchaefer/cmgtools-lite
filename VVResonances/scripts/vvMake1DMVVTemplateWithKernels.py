@@ -243,7 +243,7 @@ for hist in histograms:
  hist.Write(hist.GetName())
  finalHistograms[hist.GetName()]=hist
 
-if len(sampleTypes)>2:
+if len(sampleTypes)>1:
     histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
     histogram_altshapeDown.Write()
     histograms.append(histogram_altshapeDown)
