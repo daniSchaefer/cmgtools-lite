@@ -243,30 +243,30 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
   histTMP.Delete()
 
 # create pt scaled templates --> only commented out so it runs faster!
-  #print " - Creating 2D gaussian template scale up - "
-  #histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-  #if not(options.usegenmass): 
-   #datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'jj_l1_gen_pt',scaleUp,scale_y,res_x,res_y,histTMP)
-  #else: datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'jj_l1_gen_softDrop_mass',scaleUp,scale_y,res_x,res_y,histTMP)
+  print " - Creating 2D gaussian template scale up - "
+  histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+  if not(options.usegenmass): 
+   datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'jj_l1_gen_pt',scaleUp,scale_y,res_x,res_y,histTMP)
+  else: datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'jj_l1_gen_softDrop_mass',scaleUp,scale_y,res_x,res_y,histTMP)
 
-  #if histTMP.Integral()>0:
-   #histTMP.Scale(histI2D.Integral()/histTMP.Integral())
-   #histogram_scale_up.Add(histTMP)
+  if histTMP.Integral()>0:
+   histTMP.Scale(histI2D.Integral()/histTMP.Integral())
+   histogram_scale_up.Add(histTMP)
     	  
-  #histTMP.Delete()
+  histTMP.Delete()
 
-  #print " - Creating 2D gaussian template scale down - "
-  #histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
-  #if not(options.usegenmass): 
-   #datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'jj_l1_gen_pt',scaleDown,scale_y,res_x,res_y,histTMP)
-  #else: datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'jj_l1_gen_softDrop_mass',scaleDown,scale_y,res_x,res_y,histTMP)
+  print " - Creating 2D gaussian template scale down - "
+  histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+  if not(options.usegenmass): 
+   datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'jj_l1_gen_pt',scaleDown,scale_y,res_x,res_y,histTMP)
+  else: datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'jj_l1_gen_softDrop_mass',scaleDown,scale_y,res_x,res_y,histTMP)
 
-  #if histTMP.Integral()>0:
-   #histTMP.Scale(histI2D.Integral()/histTMP.Integral())
-   #histogram_scale_down.Add(histTMP)
+  if histTMP.Integral()>0:
+   histTMP.Scale(histI2D.Integral()/histTMP.Integral())
+   histogram_scale_down.Add(histTMP)
     
-  #histI2D.Delete()	  
-  #histTMP.Delete()
+  histI2D.Delete()	  
+  histTMP.Delete()
     
  if len(sampleTypes)<2: continue 
  elif plotter.filename.find(sampleTypes[1]) != -1: #alternative shape Herwig
