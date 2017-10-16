@@ -6,6 +6,7 @@ from math import log,exp,sqrt
 import os, sys, re, optparse,pickle,shutil,json
 import json
 import copy
+import thread
 from CMGTools.VVResonances.plotting.tdrstyle import *
 setTDRStyle()
 from CMGTools.VVResonances.plotting.TreePlotter import TreePlotter
@@ -63,9 +64,14 @@ def conditional(hist):
             hist.SetBinContent(j,i,hist.GetBinContent(j,i)/integral)
 
 def smoothTail(hist):
+    if hist.Integral() == 0:
+        print "histogram has zero integral "+hist.GetName()
+        return 0
     hist.Scale(1.0/hist.Integral())
-
+    print "y bins " +str(hist.GetNbinsY())
+    print "x bins " +str(hist.GetNbinsX())
     for i in range(1,hist.GetNbinsY()+1):
+        print i
         proj=hist.ProjectionX("q",i,i)
 #        for j in range(1,proj.GetNbinsX()+1):
 #            if proj.GetBinContent(j)/proj.Integral()<0.0005:
@@ -102,7 +108,7 @@ def smoothTail(hist):
                        beginsmooth = True 
                 if beginsmooth:
                     hist.SetBinContent(j,i,expo.Eval(x))
-
+    return 1
 
 
 (options,args) = parser.parse_args()
@@ -197,6 +203,7 @@ maxEvents = -1
 varsDataSet = 'jj_l1_gen_pt,'+variables[1]+','+variables[0]
 
 
+# for multithreading replace this loop with threads
 for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
 
  #if plotter.filename != 'QCD_Pt-15to7000': continue
