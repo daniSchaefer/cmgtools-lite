@@ -22,8 +22,8 @@ BRqW=1.
 
 dataTemplate="JetHT"
 #nonResTemplate="QCD_Pt_"
-nonResTemplate="QCD_Pt-"
-#nonResTemplate="QCD_HT"
+#nonResTemplate="QCD_Pt-"
+nonResTemplate="QCD_HT"
 
 
 
@@ -31,17 +31,14 @@ minMJJ=30.0
 maxMJJ=610.0
 
 minMVV=1000.0
-maxMVV=7000.0
+maxMVV=6000.0
 
 binsMJJ=290
 binsMVV=160
 
 cuts['acceptance']= "(jj_LV_mass>{minMVV}&&jj_LV_mass<{maxMVV}&&jj_l1_softDrop_mass>{minMJJ}&&jj_l1_softDrop_mass<{maxMJJ})".format(minMVV=minMVV,maxMVV=maxMVV,minMJJ=minMJJ,maxMJJ=maxMJJ)
-
 #cuts['acceptanceGEN']= "(jj_l1_gen_softDrop_mass>{minMJJ}&&jj_l1_gen_softDrop_mass<{maxMJJ}&&jj_gen_partialMass>{minMVV}&&jj_gen_partialMass<{maxMVV})".format(minMJJ=25,maxMJJ=700,minMVV=700,maxMVV=10000)                
 cuts['acceptanceGEN']='(jj_l1_gen_softDrop_mass>0&&jj_gen_partialMass>0)'
-
-
 cuts['acceptanceMJJ']= "(jj_l1_softDrop_mass>{minMJJ}&&jj_l1_softDrop_mass<{maxMJJ})".format(minMJJ=minMJJ,maxMJJ=maxMJJ) 
 #cuts['acceptanceGENMJJ']= "(jj_l1_gen_softDrop_mass>{minMJJ}&&jj_l1_gen_softDrop_mass<{maxMJJ}&&jj_LV_mass>{minMVV}&&jj_LV_mass<{maxMVV})".format(minMJJ=minMJJ-5,maxMJJ=maxMJJ+5,minMVV=minMVV,maxMVV=maxMVV)
 cuts['acceptanceGENMJJ']= '(jj_l1_gen_softDrop_mass>0&&jj_gen_partialMass>0)'
@@ -53,7 +50,7 @@ def makeSignalShapesMVV(filename,template):
  cut='*'.join([cuts['sigVV'],cuts['acceptanceMJJ']])
  rootFile=filename+"_MVV.root"
  cmd='vvMakeSignalMVVShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "jj_LV_mass"  samples'.format(template=template,cut=cut,rootFile=rootFile,minMJJ=minMJJ,maxMJJ=maxMJJ)
- #os.system(cmd)
+ os.system(cmd)
  jsonFile=filename+"_MVV.json"
  print 'Making JSON'
  cmd='vvMakeJSON.py  -o "{jsonFile}" -g "MEAN:pol1,SIGMA:pol2,ALPHA:pol3,N:pol0,SCALESIGMA:pol3,f:pol3" -m 1000 -M 6000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
@@ -76,7 +73,7 @@ def makeSignalShapesMJJ(filename,template):
    #cmd='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol4,alpha:pol3,n:pol0,alpha2:pol3,n2:pol0,slope:pol0,f:pol0" -m 1000 -M 6000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
    cmd='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol4,alpha:pol3,n:pol3,alpha2:pol3,n2:pol3" -m 1000 -M 6000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
   else:
-      cmd='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol3,sigma:pol1,alpha:pol0,n:pol0,slope:pol1,f:laur4,alpha2:pol0,n2:pol0" -m 601 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
+      cmd='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol3,sigma:pol1,alpha:pol0,n:pol0,slope:pol1,f:laur4,alpha2:pol0,n2:pol0" -m 1000 -M 6000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
 
   os.system(cmd)
 
@@ -93,7 +90,6 @@ def makeDetectorResponse(name,filename,template,addCut="1"):
  #first parameterize detector response
  for p in purities:
   print "=========== PURITY: ", p
-  #cut='*'.join([cuts['common'],cuts[p],'(jj_l1_gen_softDrop_mass>10&&jj_gen_partialMass>1000&&jj_gen_partialMass<7000)',addCut])
   cut='*'.join([cuts['common'],cuts[p],'(jj_l1_gen_softDrop_mass>0&&jj_gen_partialMass>0)',addCut])
   resFile=filename+"_"+name+"_detectorResponse_"+p+".root"		 
   #cmd='vvMake2DDetectorParam.py  -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "jj_LV_mass,jj_l1_softDrop_mass"  -g "jj_gen_partialMass,jj_l1_gen_softDrop_mass,jj_l1_gen_pt"  -b "150,200,250,300,350,400,450,500,600,700,800,900,1000,1500,2000,5000"   samples'.format(rootFile=resFile,samples=template,cut=cut,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,tag=name)
@@ -103,7 +99,7 @@ def makeDetectorResponse(name,filename,template,addCut="1"):
 		 
 def makeBackgroundShapesMJJKernel(name,filename,template,addCut="1"):
  
- #template += ",QCD_Pt-,QCD_HT"
+ template += ",QCD_Pt-,QCD_HT"
  for p in purities:
   resFile=filename+"_"+name+"_detectorResponse_"+p+".root"	
   print "=========== PURITY: ", p
@@ -117,7 +113,7 @@ def makeBackgroundShapesMJJKernel(name,filename,template,addCut="1"):
 
 def makeBackgroundShapesMVVKernel(name,filename,template,addCut="1"):
  
- #template += ",QCD_Pt-,QCD_HT"
+ template += ",QCD_Pt-,QCD_HT"
  for p in purities:
   resFile=filename+"_"+name+"_detectorResponse_"+p+".root"	
   print "=========== PURITY: ", p
@@ -129,7 +125,7 @@ def makeBackgroundShapesMVVKernel(name,filename,template,addCut="1"):
 
 def makeBackgroundShapesMJJSpline(name,filename,template,addCut="1"):
 
- #template += ",QCD_Pt-,QCD_HT"
+ template += ",QCD_Pt-,QCD_HT"
  for p in purities:
   print "=========== PURITY: ", p
   cut='*'.join([cuts['common'],cuts[p],addCut,cuts['acceptance']])
@@ -139,7 +135,7 @@ def makeBackgroundShapesMJJSpline(name,filename,template,addCut="1"):
 		
 def makeBackgroundShapesMVVConditional(name,filename,template,addCut=""):
 	
- #template += ",QCD_Pt-,QCD_HT"
+ template += ",QCD_Pt-,QCD_HT"
  for p in purities:
   resFile=filename+"_"+name+"_detectorResponse_"+p+".root"	
   print "=========== PURITY: ", p
@@ -167,25 +163,25 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1):
 
 									
 
-#makeSignalShapesMVV("JJ_XqW",qWTemplate)
-#makeSignalShapesMJJ("JJ_XqW",qWTemplate)
-#makeSignalYields("JJ_XqW",qWTemplate,BRqW,{'HP':0.99,'LP':1.03})
+makeSignalShapesMVV("JJ_XqW",qWTemplate)
+makeSignalShapesMJJ("JJ_XqW",qWTemplate)
+makeSignalYields("JJ_XqW",qWTemplate,BRqW,{'HP':0.99,'LP':1.03})
 
-#makeSignalShapesMVV("JJ_XqZ",qZTemplate)
-#makeSignalShapesMJJ("JJ_XqZ",qZTemplate)
-#makeSignalYields("JJ_XqZ",qZTemplate,BRqZ,{'HP':0.99,'LP':1.03})
+makeSignalShapesMVV("JJ_XqZ",qZTemplate)
+makeSignalShapesMJJ("JJ_XqZ",qZTemplate)
+makeSignalYields("JJ_XqZ",qZTemplate,BRqZ,{'HP':0.99,'LP':1.03})
 
-#makeDetectorResponse("nonRes","JJ",nonResTemplate,cuts['nonres'])
+makeDetectorResponse("nonRes","JJ",nonResTemplate,cuts['nonres'])
 #makeBackgroundShapesMJJSpline("nonRes","JJ",nonResTemplate,cuts['nonres'])
 makeBackgroundShapesMJJKernel("nonRes","JJ",nonResTemplate,cuts['nonres'])
-#makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'])
-#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,cuts['nonres'])
-#mergeBackgroundShapes("nonRes","JJ")
+makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'])
+makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,cuts['nonres'])
+mergeBackgroundShapes("nonRes","JJ")
 
 
-#makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],1.0)
-#makeNormalizations("data","JJ","QCD_HT",0,cuts['nonres'],1.0)
-#makeNormalizations("data","JJ",dataTemplate,1)
+makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],1.0)
+makeNormalizations("data","JJ","QCD_HT",0,cuts['nonres'],1.0)
+makeNormalizations("data","JJ",dataTemplate,1)
 
 
 
