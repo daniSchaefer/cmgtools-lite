@@ -49,6 +49,15 @@ def makeAllNonRes(name,filename,template,addCut=""):
         resFile=filename+"_"+name+"_"+p		 
         cmd='speedupMake2DNonResTemplates.py  -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "jj_LV_mass,jj_l1_softDrop_mass"  -g "jj_gen_partialMass,jj_l1_gen_softDrop_mass,jj_l1_gen_pt"  --binarray "150,200,250,300,350,400,450,500,600,700,800,900,1000,1500,2000,5000" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ}  samples'.format(rootFile=resFile,samples=template,cut=cut,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,binsMJJ=binsMJJ,maxMJJ=maxMJJ,minMJJ=minMJJ,tag=name)
         os.system(cmd)
+        
+        
+def makeAllNonResTest2(name,filename,template,addCut=""):
+    for p in purities:
+        print "=========== PURITY: ", p
+        cut='*'.join([cuts['common'],cuts[p],addCut,cuts['acceptanceGENMJJ']])
+        resFile=filename+"_"+name+"_"+p		 
+        cmd='speedupTest2.py  -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "jj_LV_mass,jj_l1_softDrop_mass"  -g "jj_gen_partialMass,jj_l1_gen_softDrop_mass,jj_l1_gen_pt"  --binarray "150,200,250,300,350,400,450,500,600,700,800,900,1000,1500,2000,5000" -b {binsMVV} -B {binsMJJ} -x {minMVV} -X {maxMVV} -y {minMJJ} -Y {maxMJJ}  samples'.format(rootFile=resFile,samples=template,cut=cut,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,binsMJJ=binsMJJ,maxMJJ=maxMJJ,minMJJ=minMJJ,tag=name)
+        os.system(cmd)        
 
 
 def makeBackgroundShapesMVVConditional(name,filename,template,addCut=""):
@@ -73,9 +82,9 @@ def mergeBackgroundShapes():
   
   
 #makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,cuts['nonres'])
-makeAllNonRes("nonRes","JJ",nonResTemplate,cuts['nonres'])
+#makeAllNonRes("nonRes","JJ",nonResTemplate,cuts['nonres'])
 
-
+makeAllNonResTest2("nonRes","JJ",nonResTemplate,cuts['nonres'])
 
 
 

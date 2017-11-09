@@ -223,8 +223,6 @@ if __name__=="__main__":
             dataset1D=plotterNW.makeDataSet(varsDataSet,options.cut+"*(jj_LV_mass>1000&&jj_LV_mass<7000)",maxEvents)
             print " - Creating 1D gaussian template - "   
             histTMP1D=ROOT.TH1F("histoTMP","histo",int(options.binsy),options.miny,options.maxy) 
-            #print scaleyHisto
-            #print resyHisto
             if not(options.usegenmass): 
                 datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset1D,'jj_l1_gen_softDrop_mass','jj_l1_gen_pt',scaleyHisto,resyHisto,histTMP1D)
             else: datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset1D,'jj_l1_gen_softDrop_mass','jj_l1_gen_softDrop_mass',scaleyHisto,resyHisto,histTMP1D)     
@@ -244,7 +242,8 @@ if __name__=="__main__":
     fkernel = ROOT.TFile(nameKernelFile,"RECREATE")
     mjet_mvv_nominal.Write()
     mjet_nominal.Write()
-    #histogram.Write()
+    histogram.SetName("histo_nominal_test")
+    histogram.Write()
     expanded.Write()
     #histogram1D.Scale(1/histogram1D.Integral())
     histogram1D.Write()
