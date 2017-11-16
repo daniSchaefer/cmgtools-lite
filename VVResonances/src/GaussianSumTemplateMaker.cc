@@ -50,10 +50,7 @@ GaussianSumTemplateMaker::GaussianSumTemplateMaker(const RooDataSet* dataset, co
    
            
         histoarray[i][j] += reweight*dataset->weight()*interpx*interpy/(2.5066*resx*resy);
-       }}}
-
-    
-    
+       }}}    
 
   } 
 
@@ -61,8 +58,6 @@ GaussianSumTemplateMaker::GaussianSumTemplateMaker(const RooDataSet* dataset, co
        for (int j=1;j<output->GetNbinsY()+1;++j) {  
          output->SetBinContent(i,j,histoarray[i][j]);
        }}
-
-
 }
 
 
