@@ -161,7 +161,7 @@ def doResolution():
 		lp.Draw("HISTsame")
 		lg.Draw('same')
 		pt.Draw("same")
-		c.SaveAs("/eos/user/t/thaarres/www/vvana/DetectorResolution/"+hp.GetName()+".png")
+		c.SaveAs("DetectorResolution/"+hp.GetName()+".png")
 	fLP.Close()
 	fHP.Close()	
 
@@ -204,14 +204,14 @@ def doScale(f):
 	 l.Draw("same")
 	 postfix="HP"
 	 if infile.find("LP")!=-1: postfix = "LP"
-	 c.SaveAs("/eos/user/t/thaarres/www/vvana/kernel/debug_JJ_nonRes_MJJ_"+postfix+"_withMirroringALL.png")
+	 c.SaveAs("debug_JJ_nonRes_MJJ_"+postfix+"_withMirroringALL.png")
 	 sleep(100)
 
 def doKernel(f):
 	c = getCanvas()
 	l = getLegend()
-	fromKernel = f.Get("histo")
-	fromSim    = f.Get("mjet")
+	fromKernel = f.Get("histo_nominal")
+	fromSim    = f.Get("mjet_nominal")
 	# fLP = TFile("JJ_nonRes_MJJ_LP.root","READ")
 	# fromKernelLP = fLP.Get("histo")
 	# fromSimLP    = fLP.Get("mjet")
@@ -242,8 +242,8 @@ def doKernel(f):
 	pt.AddText(postfix+"-only det. resp.")
 	# pt.AddText("HP+LP")
 	pt.Draw("same")
-	# c.SaveAs("/eos/user/t/thaarres/www/vvana/DetectorResolution/"+postfix+"CORR_kernelVSsim_"+postfix+".png")
-	# c.SaveAs("/eos/user/t/thaarres/www/vvana/DetectorResolution/CORR_kernelVSsim_HPandLP.png")
+	c.SaveAs(postfix+"CORR_kernelVSsim_"+postfix+".png")
+	#c.SaveAs("DetectorResolution/CORR_kernelVSsim_HPandLP.png")
 
 def do2DKernel(f):
         outdir = ""
@@ -379,17 +379,17 @@ def do2DKernel(f):
 def compare2DKernel(f):
 	colors= [1,418,434,802,618,1,7,8,9,40,41,42,43]
 	
-	fromKernel 			= f.Get("histo")
-	fromSim    			= f.Get("mjet_mvv")
+	fromKernel 			= f.Get("histo_nominal")
+	fromSim    			= f.Get("mjet_mvv_nominal")
 	
 	c = getCanvas()
 	c.cd()
 	fromKernel.Draw("COLZ")
-	c.SaveAs("/eos/user/t/thaarres/www/vvana/2Dkernel/mjetReso/NoAccGen_fromKernel.png")
+	c.SaveAs("2DKernel/NoAccGen_fromKernel.png")
 	c = getCanvas()
 	c.cd()
 	fromSim.Draw("COLZ")
-	c.SaveAs("/eos/user/t/thaarres/www/vvana/2Dkernel/mjetReso/NoAccGen_fromSim.png")
+	c.SaveAs("2DKernel/NoAccGen_fromSim.png")
 	 #X==JetMass Y==MVV
 
 
@@ -413,7 +413,7 @@ def compare2DKernel(f):
 	l.AddEntry(hAllYfromKernel    		,"Nominal (Pythia8)","L")
 
 	l.Draw("same")
-	c.SaveAs("/eos/user/t/thaarres/www/vvana/2Dkernel/mjetReso/NoAccGen_projY_mass_allmvvbins.png")
+	c.SaveAs("2DKernel/NoAccGen_projY_mass_allmvvbins.png")
 
 	histsAllX = []
 	hAllXfromKernel 		= fromKernel    .ProjectionX()
@@ -435,14 +435,14 @@ def compare2DKernel(f):
 		if h.GetName().find("sim")!=-1: h.DrawNormalized("Esame")
 		else: h.DrawNormalized("HISTsame")
 	l.Draw("same")
-	c.SaveAs("/eos/user/t/thaarres/www/vvana/2Dkernel/mjetReso/NoAccGen_projX_mvv_allmassbins.png")
+	c.SaveAs("2DKernel/NoAccGen_projX_mvv_allmassbins.png")
 
 
 
 # doResolution()
-# doKernel(f)
+doKernel(f)
 # doScale(f)
-do2DKernel(f)
+#do2DKernel(f)
 #compare2DKernel(f)
 #doMVVFit()
 f  .Close()

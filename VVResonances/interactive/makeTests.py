@@ -82,9 +82,9 @@ def mergeBackgroundShapes():
   
   
 #makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,cuts['nonres'])
-#makeAllNonRes("nonRes","JJ",nonResTemplate,cuts['nonres'])
+makeAllNonRes("nonRes","JJ",nonResTemplate,cuts['nonres'])
 
-makeAllNonResTest2("nonRes","JJ",nonResTemplate,cuts['nonres'])
+#makeAllNonResTest2("nonRes","JJ",nonResTemplate,cuts['nonres'])
 
 
 

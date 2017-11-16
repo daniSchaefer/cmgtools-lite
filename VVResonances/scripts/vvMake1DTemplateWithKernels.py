@@ -188,7 +188,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
    
    #histI=plotter.drawTH1(options.var,options.cut,"1",1,0,1000000000)   
    histI2=plotter.drawTH1('jj_l1_softDrop_mass',options.cut,"1",options.binsx,options.minx,options.maxx)
-
+   print options.cut
    c=ROOT.TCanvas("test","test",400,400)
    histI2.Draw("Hist")
    c.SaveAs("test1DTemplate.pdf")

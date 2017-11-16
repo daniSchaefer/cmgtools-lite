@@ -74,7 +74,14 @@ f.cd()
 superHX=data.drawTH2Binned(variables[0]+'/'+genVariables[0]+':'+genVariables[2],options.cut,"1",binsx,binsz)
 superHY=data.drawTH2Binned(variables[1]+'/'+genVariables[1]+':'+genVariables[2],options.cut,"1",binsx,binsz)
 
-
+print "Drawing debugging plot debug_dedectorParameters.pdf"
+canv = ROOT.TCanvas("c1","c1",800,600)
+canv.Divide(2,1)
+canv.cd(1)
+superHX.Draw("colz")
+canv.cd(2)
+superHY.Draw("colz")
+canv.SaveAs("debug_dedectorParameters.pdf")
 
 for bin in range(1,superHX.GetNbinsX()+1):
 
@@ -92,47 +99,47 @@ for bin in range(1,superHX.GetNbinsX()+1):
 
 #======================= fit the detector resolution and scale parameters ===============
 
-#fitscaleX = ROOT.TF1("fitscaleX","[0]+exp([2]-[1]*x/100.)",0,800)
-fitscaleX = ROOT.TF1("fitscaleX","[0]*(1-[1]/x)",0,800)
-fitresY   = ROOT.TF1("fitresY","[0]*(1-[1]/x)",0,800)
-fitresX   = ROOT.TF1("fitresX","[0]*(1-[1]/x)",0,800)
-fitscaleY   = ROOT.TF1("fitscaleY","[0]+ [1]*x+[2]*x*x + [3]*x*x*x+[4]*x*x*x*x",0,800)
-fitresY.SetParameters(0.1,0.01)
-#scalexHisto.Smooth(20)
-#resyHisto.Smooth(20)
-scalexHisto.Fit(fitscaleX)
-scalexHisto.Fit(fitscaleX)
-resxHisto.Fit(fitresX)
+##fitscaleX = ROOT.TF1("fitscaleX","[0]+exp([2]-[1]*x/100.)",0,800)
+#fitscaleX = ROOT.TF1("fitscaleX","[0]*(1-[1]/x)",0,800)
+#fitresY   = ROOT.TF1("fitresY","[0]*(1-[1]/x)",0,800)
+#fitresX   = ROOT.TF1("fitresX","[0]*(1-[1]/x)",0,800)
+#fitscaleY   = ROOT.TF1("fitscaleY","[0]+ [1]*x+[2]*x*x + [3]*x*x*x+[4]*x*x*x*x",0,800)
+#fitresY.SetParameters(0.1,0.01)
+##scalexHisto.Smooth(20)
+##resyHisto.Smooth(20)
 #scalexHisto.Fit(fitscaleX)
 #scalexHisto.Fit(fitscaleX)
-resyHisto.Fit(fitresY)
-scaleyHisto.Fit(fitscaleY)
+#resxHisto.Fit(fitresX)
+##scalexHisto.Fit(fitscaleX)
+##scalexHisto.Fit(fitscaleX)
+#resyHisto.Fit(fitresY)
+#scaleyHisto.Fit(fitscaleY)
 
-c = ROOT.TCanvas("c","c",800,800);
-c.Divide(2,2)
-#c.SetLogy()
-c.cd(1)
-scalexHisto.Draw("hist");
-fitscaleX.Draw("fsame")
-c.cd(2)
-resyHisto.Draw("hist")
-fitresY.Draw("fsame")
-c.cd(3)
-resxHisto.Draw("hist")
-fitresX.Draw("fsame")
-c.cd(4)
-scaleyHisto.Draw("hist");
-fitscaleY.Draw("fsame")
-c.SaveAs("test.pdf");
+#c = ROOT.TCanvas("c","c",800,800);
+#c.Divide(2,2)
+##c.SetLogy()
+#c.cd(1)
+#scalexHisto.Draw("hist");
+#fitscaleX.Draw("fsame")
+#c.cd(2)
+#resyHisto.Draw("hist")
+#fitresY.Draw("fsame")
+#c.cd(3)
+#resxHisto.Draw("hist")
+#fitresX.Draw("fsame")
+#c.cd(4)
+#scaleyHisto.Draw("hist");
+#fitscaleY.Draw("fsame")
+#c.SaveAs("test.pdf");
 
-for i in range(1,scalexHisto.GetNbinsX()+1):
-    x=scalexHisto.GetXaxis().GetBinCenter(i)
-    scalexHisto.SetBinContent(i,fitscaleX.Eval(x))
-    resxHisto.SetBinContent(i,fitresX.Eval(x))
-for i in range(1,resyHisto.GetNbinsX()+1):
-    x=resyHisto.GetXaxis().GetBinCenter(i)
-    resyHisto.SetBinContent(i,fitresY.Eval(x))
-    scaleyHisto.SetBinContent(i,fitscaleY.Eval(x))
+#for i in range(1,scalexHisto.GetNbinsX()+1):
+    #x=scalexHisto.GetXaxis().GetBinCenter(i)
+    #scalexHisto.SetBinContent(i,fitscaleX.Eval(x))
+    #resxHisto.SetBinContent(i,fitresX.Eval(x))
+#for i in range(1,resyHisto.GetNbinsX()+1):
+    #x=resyHisto.GetXaxis().GetBinCenter(i)
+    #resyHisto.SetBinContent(i,fitresY.Eval(x))
+    #scaleyHisto.SetBinContent(i,fitscaleY.Eval(x))
 #=================== end of test ==============================================================
         
 scalexHisto.Write()

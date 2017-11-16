@@ -377,8 +377,8 @@ for hist in histograms:
  print "Working on histogram " ,hist.GetName()
  hist.Write(hist.GetName()+"_coarse")
  #smooth
- print "Smoothing tail for " ,hist.GetName()
- smoothTail(hist)
+ #print "Smoothing tail for " ,hist.GetName()
+ #smoothTail(hist)
  print "Creating conditional histogram for ",hist.GetName()
  conditional(hist)
  print "Expanding for " ,hist.GetName()
