@@ -187,14 +187,14 @@ if __name__=="__main__":
             print options.cut
         
             histI2=plotter.drawTH1('jj_l1_softDrop_mass',options.cut+"*(jj_LV_mass>1000&&jj_LV_mass<7000)","1",options.binsy,options.miny,options.maxy)
-            c=ROOT.TCanvas("test","test",400,400)
-            histI2.Scale(1/histI2.Integral())
-            testhistI2.Scale(1/testhistI2.Integral())
-            histI2.Draw("Hist")
-            testhistI2.SetLineColor(ROOT.kBlue)
-            testhistI2.SetFillColor(0)
-            testhistI2.Draw("histsame")
-            c.SaveAs("test1DTemplatespeedup.pdf")
+            #c=ROOT.TCanvas("test","test",400,400)
+            #histI2.Scale(1/histI2.Integral())
+            #testhistI2.Scale(1/testhistI2.Integral())
+            #histI2.Draw("Hist")
+            #testhistI2.SetLineColor(ROOT.kBlue)
+            #testhistI2.SetFillColor(0)
+            #testhistI2.Draw("histsame")
+            #c.SaveAs("test1DTemplatespeedup.pdf")
             
             mjet_mvv_nominal.Add(histI2D)
             
