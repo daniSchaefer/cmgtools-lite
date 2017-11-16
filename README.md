@@ -9,7 +9,7 @@ cd CMGToolsForStat74X
 cmsrel CMSSW_7_4_7
 cd CMSSW_7_4_7/src
 cmsenv
-git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+git clone git@github.com:cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
 cd HiggsAnalysis/CombinedLimit
 cd $CMSSW_BASE/src/HiggsAnalysis/CombinedLimit
 git fetch origin
@@ -21,12 +21,12 @@ Checkout the VV statistical tools
 
 ```
 cd ../..
-git clone https://github.com/jngadiub/cmgtools-lite.git -b qstarStat CMGTools
+git clone git@github.com:Diboson3D/cmgtools-lite.git CMGTools
 scram b -j 8
 ```
 
 Run the main code to produce the inputs to the combine
- 
+
 ```
 cd VVResonances/interactive
 ln -s samples_location samples
