@@ -17,7 +17,7 @@ timeCheck = "30"
 userName=os.environ['USER']
 
 ######## comment out for lxplus ##############
-#useCondorBatch =True
+useCondorBatch =True
 mypath = "/portal/ekpbms2/home/dschaefer/tmp/"
 startpath="/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive"
 
@@ -44,7 +44,7 @@ def getBinning(binsMVV):
             l.append(int(w))
     return l
 
-useCondorBatch = True
+
 
 def makeSubmitFileCondor(exe,jobname,jobflavour):
     print "make options file for condor job submission "

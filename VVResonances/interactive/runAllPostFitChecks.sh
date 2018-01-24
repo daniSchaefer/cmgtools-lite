@@ -33,15 +33,15 @@
 # ##################################################################################################
 
 # for the default systematics ####################################################################
-aw=("workspace_tau21DDT.root" "/home/dschaefer/DiBoson3D/workspaces/JJ_BulkGWW_HPHP_13TeV_workspace_ptSyst_fitNominal.root" "workspace_testBinning.root" "workspace_testBatch_HPHP.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_pythia_nominal_dataherwig.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_datamadgraph.root")
-al=("tau21DDT" "datapythia_HPHP" "testBinning" "datapythia_testbatch" "dataherwig_HPHP" "datamadgraph_HPHP")
+aw=("workspace_thea.root" "/home/dschaefer/DiBoson3D/workspaces/JJ_BulkGWW_HPHP_13TeV_workspace_ptSyst_fitNominal.root" "workspace_testBinning.root" "workspace_testBatch_HPHP.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_pythia_nominal_dataherwig.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_datamadgraph.root")
+al=("thea" "datapythia_HPHP" "testBinning" "datapythia_testbatch" "dataherwig_HPHP" "datamadgraph_HPHP")
 o="/home/dschaefer/DiBoson3D/GoodnessOfFitTests/"
 pdfs="nonResNominal_JJ_HPHP_13TeV,nonRes_PTZDown_JJ_HPHP_13TeV,nonRes_OPTZUp_JJ_HPHP_13TeV,nonRes_PTZUp_JJ_HPHP_13TeV,nonRes_OPTZDown_JJ_HPHP_13TeV,nonRes_PTXYUp_JJ_HPHP_13TeV,nonRes_PTXYDown_JJ_HPHP_13TeV,nonRes_OPTXYUp_JJ_HPHP_13TeV,nonRes_OPTXYDown_JJ_HPHP_13TeV"
 #pdfs="nonResNominal_JJ_HPLP_13TeV,nonRes_PTZDown_JJ_HPLP_13TeV,nonRes_OPTZUp_JJ_HPLP_13TeV,nonRes_PTZUp_JJ_HPLP_13TeV,nonRes_OPTZDown_JJ_HPLP_13TeV,nonRes_PTXYUp_JJ_HPLP_13TeV,nonRes_PTXYDown_JJ_HPLP_13TeV,nonRes_OPTXYUp_JJ_HPLP_13TeV,nonRes_OPTXYDown_JJ_HPLP_13TeV"
 ##################################################################################################
 
 
-for i in `seq 2 2`;
+for i in `seq 0 0`;
 do
 echo ${aw[i]}
 # python runFitPlots.py -p z -f -n ${aw[i]}  -l ${al[i]} -o ${o} --log ${al[i]}.log --pdf ${pdfs} 

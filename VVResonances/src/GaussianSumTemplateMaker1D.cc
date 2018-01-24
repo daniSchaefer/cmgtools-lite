@@ -39,9 +39,17 @@ GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D(const RooDataSet* dataset
     scalex=hscalex->Interpolate(genpt)*genx;
     resx=hresx->Interpolate(genpt)*genx;
     for (int i=1;i<output->GetNbinsX()+1;++i) {
-      x=output->GetXaxis()->GetBinCenter(i);
-      output->Fill(x,reweight*dataset->weight()*gaus(x,scalex,resx));
-      //std::cout << genpt << " " << genx << std::endl;
+      double w = output->GetXaxis()->GetBinWidth(i);  
+      double xmin=output->GetXaxis()->GetBinLowEdge(i);
+      double xmax= xmin+w;
+      double interval = 20.;
+      for (int j=0;j<=int(w/interval);j++)
+      {
+        x = xmin + j* interval;
+        if( x >= xmax) continue;
+        //x = output->GetXaxis()->GetBinCenter(i);
+        output->Fill(x,reweight*dataset->weight()*gaus(x,scalex,resx));
+      }
     }
   }
 }

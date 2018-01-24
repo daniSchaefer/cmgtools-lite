@@ -45,8 +45,9 @@ def conditional(hist):
 
 if __name__=="__main__":
 
-    fromkernel = "JJ_tau21DDT_nonRes_COND2D_HPHP_l2.root" #'JJ_pythia_tails3D_nonRes_2D_HPHP.root'#'test_HPHP.root' 'JJ_nonRes_2D_HPHP.root' #'JJ_nonRes_COND2D_HPHP_l1.root'#"JJ_nonRes_2D_HP.root"
+    fromkernel = "JJ_nonRes_COND2D_HPHP_l1.root" #'JJ_pythia_tails3D_nonRes_2D_HPHP.root'#'test_HPHP.root' 'JJ_nonRes_2D_HPHP.root' #'JJ_nonRes_COND2D_HPHP_l1.root'#"JJ_nonRes_2D_HP.root"
     f2 = ROOT.TFile(fromkernel,"READ")
+    #f3 = ROOT.TFile("JJ_nonRes_COND2D_HPHP_l1.root","READ")
     kernelHisto = f2.Get("histo_nominal_coarse")
     dataHisto = f2.Get("mjet_mvv_nominal")
     kernelHisto.Scale(dataHisto.Integral()/kernelHisto.Integral())
@@ -69,7 +70,7 @@ if __name__=="__main__":
     
     
     #oneD = ROOT.TFile("/home/dschaefer/tmp/JJ_nonRes_MVV_HPLP.root","READ")
-    oneD = ROOT.TFile("JJ_testBinning_nonRes_MVV_HPHP.root","READ")
+    oneD = ROOT.TFile("JJ_testGaussianKernel_nonRes_MVV_HPHP.root","READ")
     oneDdata = oneD.Get("mvv_nominal")
     oneDhisto = oneD.Get("histo_nominal")
     plotTwoHisto(oneDhisto,"mVV.pdf",True,"",oneDdata)
@@ -150,14 +151,14 @@ if __name__=="__main__":
 
     px = kernelHisto.ProjectionX("x")
     hist2 = dataHisto.ProjectionX("projxdata")
-    #px.Scale(1/px.Integral())
-    #hist2.Scale(1/hist2.Integral())
+    px.Scale(1/px.Integral())
+    hist2.Scale(1/hist2.Integral())
     plotTwoHisto(px,"Xprojection.pdf",False,"",hist2)
    
     hist2 = dataHisto.ProjectionY("projydata")    
     py = kernelHisto.ProjectionY("y")
-    #py.Scale(1/py.Integral())
-    #hist2.Scale(1/hist2.Integral())
+    py.Scale(1/py.Integral())
+    hist2.Scale(1/hist2.Integral())
     plotTwoHisto(py,"Yprojection.pdf",True,"",hist2)
     
    

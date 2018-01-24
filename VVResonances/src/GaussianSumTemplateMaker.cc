@@ -29,14 +29,30 @@ GaussianSumTemplateMaker::GaussianSumTemplateMaker(const RooDataSet* dataset, co
   int nbinsY = output->GetNbinsY();
   
   double xs[nbinsX+1];
-  double ys[nbinsY+1];
+  //double ys[nbinsY+1];
   double histoarray[nbinsX+1][nbinsY+1] = {};
   for (int i=1;i<output->GetNbinsX()+1;++i) {
       xs[i]=output->GetXaxis()->GetBinCenter(i);
   }
+//   for (int j=1;j<nbinsY+1;++j) {
+// 	ys[j]=output->GetYaxis()->GetBinCenter(j);
+//   }
+  std::vector<double> yv;
+  std::vector<int> biny;
   for (int j=1;j<nbinsY+1;++j) {
-	ys[j]=output->GetYaxis()->GetBinCenter(j);
+      double w = output->GetYaxis()->GetBinWidth(j);  
+      double ymin=output->GetYaxis()->GetBinLowEdge(j);
+      double ymax= ymin+w;
+      double interval = 20.;
+      for (int k=0;k<=int(w/interval);k++)
+      {
+        double y = ymin + k* interval;
+        if( y >= ymax) continue;
+        yv.push_back(y);
+        biny.push_back(j);
+      }
   }
+  
   
   int binw=0;
   unsigned int nevents = dataset->numEntries();
@@ -63,17 +79,17 @@ GaussianSumTemplateMaker::GaussianSumTemplateMaker(const RooDataSet* dataset, co
     resx=hresx->Interpolate(genpt)*genx;
     resy=hresy->Interpolate(genpt)*geny;
      for (int i=1;i<output->GetNbinsX()+1;++i) {
-       for (int j=1;j<output->GetNbinsY()+1;++j) {
+       for (unsigned int j=0;j< yv.size();++j) {
         double normx = fabs((xs[i]-scalex)/resx);
         unsigned int indexx = int(normx*1000);
-        double normy = fabs((ys[j]-scaley)/resy);
+        double normy = fabs((yv[j]-scaley)/resy);
         unsigned int indexy = int(normy*1000);
         if(indexx < 9999 && indexy < 9999 ){
         double interpx = gausint[indexx] + ( gausint[indexx] - gausint[indexx+1])*(normx*1000-indexx);
         double interpy = gausint[indexy] + ( gausint[indexy] - gausint[indexy+1])*(normy*1000-indexy);
    
-           
-        histoarray[i][j] += reweight*dataset->weight()*interpx*interpy/(2.5066*resx*resy);
+        int bin = biny.at(j);   
+        histoarray[i][bin] += reweight*dataset->weight()*interpx*interpy/(2.5066*resx*resy);
         
         
        }}}
