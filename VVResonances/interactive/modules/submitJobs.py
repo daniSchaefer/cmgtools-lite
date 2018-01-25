@@ -23,7 +23,7 @@ startpath="/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactiv
 
 def writeJDL(arguments,mem,time,name):
     #jobs = JDLCreator('condocker')  #run jobs on condocker cloude site
-    jobs = JDLCreator('condocker')
+    jobs = JDLCreator()
     jobs.wall_time = time
     jobs.memory = mem 
     jobs.requirements = "(TARGET.ProvidesCPU) && (TARGET.ProvidesEkpResources)"
@@ -117,7 +117,7 @@ def submitJobs(minEv,maxEv,cmd,OutputFileNames,queue,jobname,path):
 	   if useCondorBatch:
                os.system("mv  job_*.sh "+jobname+".sh")
                ########## comment out for lxplus #########
-               writeJDL('',1*1000,20*60,jobname+'.sh')
+               writeJDL('',2*1000,2*60*60,jobname+'.sh')
                os.system("condor_submit "+jobname+".jdl") 
           #####################################################
              #  makeSubmitFileCondor(jobname+".sh",jobname,"workday")
