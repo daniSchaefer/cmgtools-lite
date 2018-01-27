@@ -182,7 +182,7 @@ def doMJFit():
 		gHPLP.GetXaxis().SetRangeUser(1000., 5000.)
 		
                 
-                if var.find("n2")!=-1: gHPLP.GetYaxis().SetRangeUser(1., 3.)
+                if var.find("n2")!=-1: gHPLP.GetYaxis().SetRangeUser(0., 10.)
 		if var.find("n")!=-1: gHPLP.GetYaxis().SetRangeUser(1., 3.)
 		if var.find("alpha2")!=-1: gHPLP.GetYaxis().SetRangeUser(0.1, 5.1)
 		if var.find("alpha")!=-1: gHPLP.GetYaxis().SetRangeUser(0.1, 5.5)
@@ -535,6 +535,7 @@ def compSignalMVV():
 	c = getCanvas()
 	
 	histsHP[0].GetXaxis().SetTitle("M_{jj} (GeV)")
+	
 	histsHP[0].GetYaxis().SetTitle("A.U")
 	histsHP[0].GetYaxis().SetNdivisions(9,1,0)
 	histsHP[0].GetYaxis().SetTitleOffset(1.5)
@@ -565,7 +566,7 @@ def compSignalMVV():
 		hp.GetYaxis().SetTitle("HP/LP")
 		hp.GetYaxis().SetTitleSize(0.7)
 		hp.GetYaxis().SetLabelSize(0.16)
-		
+		 
 		hp.GetXaxis().SetTitleSize(0.7)
 		c.cd(i+1)
 		hp.Draw("M")
@@ -578,8 +579,8 @@ def compSignalMVV():
 	c.SaveAs(path+"comparePurities_MVVratio.png")
 		
 if __name__ == '__main__':
-	#doMJFit()
-	doMVVFit()
+	doMJFit()
+	#doMVVFit()
 	#doYield()
 	# doResolution()
 	# doKernelMVV()

@@ -368,10 +368,10 @@ class Fitter(object):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
         self.w.factory("mean[80,50,200]")
         self.w.factory("sigma[10,3,40]")
-        self.w.factory("alpha[1,0.5,10]")
-        self.w.factory("n[2]")
+        self.w.factory("alpha[1,0.1,50]")
+        self.w.factory("n[2,0,100]")
         self.w.factory("alpha2[1,0.5,10]")
-        self.w.factory("n2[2]")
+        self.w.factory("n2[2,0,100]")
         self.w.factory("slope[0.0]")
         self.w.factory("f[0.0]")
 
@@ -491,7 +491,7 @@ class Fitter(object):
 	gsigma = ROOT.RooFormulaVar("gsigma","gsigma","@0*@1", ROOT.RooArgList(self.w.var('SIGMA'),self.w.var('SCALESIGMA')))
 	getattr(self.w,'import')(gsigma,ROOT.RooFit.Rename('gsigma'))
         self.w.factory("ALPHA[0.85,0.60,1.20]")
-        self.w.factory("N[7]") #From @dani: N=126 from thea 126.9
+        self.w.factory("N[6,0.1,10]") #From @dani: N=126 from thea 126.9
 	self.w.factory("Gaussian::signalResonanceGaus(%s,MEAN,gsigma)"%poi)
 	self.w.factory("CBShape::signalResonanceCB(%s,MEAN,SIGMA,ALPHA,N)"%poi)
 	self.w.factory('SUM::'+name+'(f[0.00,0.00,0.85]*signalResonanceGaus,signalResonanceCB)')

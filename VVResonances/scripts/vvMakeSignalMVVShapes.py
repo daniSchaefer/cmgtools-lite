@@ -40,6 +40,7 @@ parser.add_option("-c","--cut",dest="cut",help="Cut to apply for shape",default=
 parser.add_option("-o","--output",dest="output",help="Output JSON",default='')
 parser.add_option("-V","--MVV",dest="mvv",help="mVV variable",default='')
 parser.add_option("-f","--scaleFactors",dest="scaleFactors",help="Additional scale factors separated by comma",default='')
+parser.add_option("--fix",dest="fixPars",help="Fixed parameters",default="")
 parser.add_option("-m","--minMVV",dest="min",type=float,help="mVV variable",default=1)
 parser.add_option("-M","--maxMVV",dest="max",type=float, help="mVV variable",default=1)
 parser.add_option("-r","--minMX",dest="minMX",type=float, help="smallest Mx to fit ",default=1000.0)
@@ -94,11 +95,16 @@ for mass in sorted(samples.keys()):
        
     fitter=Fitter(['MVV'])
     fitter.signalResonanceCBGaus('model','MVV',mass)
+    if options.fixPars!="":
+        fixedPars =options.fixPars.split(',')
+        print fixedPars
+        for par in fixedPars:
+            parVal = par.split(':')
+            fitter.w.var(parVal[0]).setVal(float(parVal[1]))
+            fitter.w.var(parVal[0]).setConstant(1)
     fitter.w.var("MH").setVal(mass)
     #histo = plotter.drawTH1(options.mvv,options.cut+"*(jj_LV_mass>%f&&jj_LV_mass<%f)"%(0.75*mass,1.25*mass),"1",1000,options.min,options.max)
     binning= truncate(getBinning(options.binsMVV,options.min,options.max,1000),0.75*mass,1.25*mass)
-    print binning
-    print len(binning)
     histo = plotter.drawTH1Binned(options.mvv,options.cut+"*(jj_LV_mass>%f&&jj_LV_mass<%f)"%(0.75*mass,1.25*mass),"1",binning)
     Fhists.cd()
     histo.Write("%i"%mass)
