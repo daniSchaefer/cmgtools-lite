@@ -115,7 +115,7 @@ def makeSignalShapesMJ(filename,template,leg):
       if template.find("Wprime")!=-1:
           fixPars="alpha:1.505,n:2,n2:2"
       if template.find("Zprime")!=-1:
-          fixPars="n:2.85,alpha:1.083"    
+          fixPars="n:2.85,alpha:1.083,n2:3.36"    
       cmd='vvMakeSignalMJShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "jj_{leg}_softDrop_mass" -m {minMJ} -M {maxMJ} -e {doExp} -f "{fixPars}" --minMX {minMX} --maxMX {maxMX} samples'.format(template=template,cut=cut,rootFile=rootFile,leg=leg,minMJ=minMJ,maxMJ=maxMJ,doExp=doExp,minMX=minMX,maxMX=maxMX,fixPars=fixPars)
       cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol4,alpha:pol0,n:pol0,alpha2:pol3,n2:pol0,slope:pol0,f:pol3" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
   else:
@@ -295,8 +295,8 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1,jobName
         os.system(cmd)
 	
 #makeSignalShapesMVV("JJ_WprimeWZ",WprimeTemplate)
-#makeSignalShapesMJ("JJ_WprimeWZ",WprimeTemplate,'l1')
-#makeSignalShapesMJ("JJ_WprimeWZ",WprimeTemplate,'l2')
+makeSignalShapesMJ("JJ_WprimeWZ",WprimeTemplate,'l1')
+makeSignalShapesMJ("JJ_WprimeWZ",WprimeTemplate,'l2')
 #makeSignalYields("JJ_WprimeWZ",WprimeTemplate,BRWZ,{'HPHP':0.99*0.99,'HPLP':0.99*1.03,'LPLP':1.03*1.03})
 
 #makeSignalShapesMVV("JJ_BulkGWW",BulkGravWWTemplate)
@@ -305,8 +305,8 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1,jobName
 #makeSignalYields("JJ_BulkGWW",BulkGravWWTemplate,BRWW,{'HPHP':0.99*0.99,'HPLP':0.99*1.03,'LPLP':1.03*1.03})
 
 #makeSignalShapesMVV("JJ_ZprimeWW",ZprimeWWTemplate)
-makeSignalShapesMJ("JJ_ZprimeWW",ZprimeWWTemplate,'l1')
-makeSignalShapesMJ("JJ_ZprimeWW",ZprimeWWTemplate,'l2')
+#makeSignalShapesMJ("JJ_ZprimeWW",ZprimeWWTemplate,'l1')
+#makeSignalShapesMJ("JJ_ZprimeWW",ZprimeWWTemplate,'l2')
 #makeSignalYields("JJ_ZprimeWW",ZprimeWWTemplate,BRWW,{'HPHP':0.99*0.99,'HPLP':0.99*1.03,'LPLP':1.03*1.03})
 
 

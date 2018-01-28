@@ -182,8 +182,8 @@ def doMJFit():
 		gHPLP.GetXaxis().SetRangeUser(1000., 5000.)
 		
                 
-                if var.find("n2")!=-1: gHPLP.GetYaxis().SetRangeUser(0., 10.)
-		if var.find("n")!=-1: gHPLP.GetYaxis().SetRangeUser(1., 3.)
+                if var.find("n2")!=-1: gHPLP.GetYaxis().SetRangeUser(0., 5.)
+		if var.find("n")!=-1: gHPLP.GetYaxis().SetRangeUser(1., 5.)
 		if var.find("alpha2")!=-1: gHPLP.GetYaxis().SetRangeUser(0.1, 5.1)
 		if var.find("alpha")!=-1: gHPLP.GetYaxis().SetRangeUser(0.1, 5.5)
 		if var.find("alphaZ2")!=-1: gHPLP.GetYaxis().SetRangeUser(0.1, 10)

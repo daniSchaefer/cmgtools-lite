@@ -21,8 +21,8 @@ model2="WprimeWZ"
 #model="BulkGravToZZ"
 #model2="BulkGZZ"
 
-model="ZprimeWW"
-model2="ZprimeWW"
+#model="ZprimeWW"
+#model2="ZprimeWW"
 
 
 #python checkSignalFits.py -s ${model} --fitResults "debug_JJ_${model2}_MVV.json.root"  -c "${cuts}*${acceptanceMJ}*${HPHP}"  -V "jj_LV_mass" -m 1000 -M 5000 -e 0 samples
