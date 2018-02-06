@@ -155,13 +155,14 @@ def getChi2(pdf,data,norm):
         if dr[i] < 0.1e-10:
             #print i
             continue
-        #if ROOT.TMath.Abs(dr[i] - pr[i]) > 100:
-            #print " I " +str(i) + " " + str(dr[i] - pr[i])+" bins  "
-            #print "data  "+str(dr[i])
-            #print "pdf  "+str(pr[i])
-            #print "bins " +str(getMV(i))
+        if ROOT.TMath.Abs(dr[i] - pr[i]) > 100:
+            print " I " +str(i) + " " + str(dr[i] - pr[i])+" bins  "
+            print "data  "+str(dr[i])
+            print "pdf  "+str(pr[i])
+            print "bins " +str(getMV(i))
         ndof+=1
-        chi2+= pow((dr[i] - pr[i]),2)/pow(error_dr[i],2)
+        #chi2+= pow((dr[i] - pr[i]),2)/pow(error_dr[i],2)
+        chi2+= 2* pr[i] - dr[i] + dr[i]* ROOT.TMath.Log(dr[i]/pr[i])
     return [chi2,ndof]
 
 
@@ -229,6 +230,7 @@ def doZprojection(pdfs,data,norm,proj=0):
         h[0].GetYaxis().SetNdivisions(5)
     h[0].Draw("hist")
     dh.SetBinErrorOption(ROOT.TH1.kPoisson)
+    #dh.Sumw2()
     dh.SetMarkerStyle(1)
     dh.Draw("same")
     leg.AddEntry(dh,"data","lp")
@@ -497,6 +499,8 @@ def addPullPlot(hdata,hprefit,hpostfit):
             continue
         denom_pre = hdata.GetBinError(i)
         denom_post = hdata.GetBinError(i)
+        print "value " +str(hdata.GetBinContent(i))
+        print "error post fit " +str( denom_post)
         #denom_pre = ROOT.TMath.Sqrt(hdata.GetBinContent(i))
         #denom_post = ROOT.TMath.Sqrt(hdata.GetBinContent(i))
         ypostfit = (hdata.GetBinContent(i) - hpostfit.GetBinContent(i))/denom_post
