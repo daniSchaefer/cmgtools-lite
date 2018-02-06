@@ -39,7 +39,7 @@ for sig in signals:
    card.addFixedYieldFromFile("nonRes",1,"JJ_"+p+".root","nonRes")
 
    #DATA
-   card.importBinnedData("JJ_"+p+".root","data",["MJ1","MJ2","MJJ"])
+   card.importBinnedData("JJ_herwig_"+p+".root","data",["MJ1","MJ2","MJJ"])
  
    #SYSTEMATICS
 

@@ -155,14 +155,11 @@ def getChi2(pdf,data,norm):
         if dr[i] < 0.1e-10:
             #print i
             continue
-        if ROOT.TMath.Abs(dr[i] - pr[i]) > 100:
-            print " I " +str(i) + " " + str(dr[i] - pr[i])+" bins  "
-            print "data  "+str(dr[i])
-            print "pdf  "+str(pr[i])
-            print "bins " +str(getMV(i))
+        if ROOT.TMath.Abs(dr[i] - pr[i])/ROOT.TMath.Sqrt(dr[i]) > 50:
+            print " bin  "+str(getMV(i)) + " data  " +str(dr[i])+ " kernel "+str(pr[i]) + " diff "+ str(dr[i] - pr[i])
         ndof+=1
         #chi2+= pow((dr[i] - pr[i]),2)/pow(error_dr[i],2)
-        chi2+= 2* pr[i] - dr[i] + dr[i]* ROOT.TMath.Log(dr[i]/pr[i])
+        chi2+= 2*( pr[i] - dr[i] + dr[i]* ROOT.TMath.Log(dr[i]/pr[i]))
     return [chi2,ndof]
 
 

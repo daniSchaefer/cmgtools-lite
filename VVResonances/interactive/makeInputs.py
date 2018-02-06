@@ -65,7 +65,7 @@ BRZZ=1.*0.001*0.6991*0.6991
 BRWZ=1.*0.001*0.6991*0.676
 
 dataTemplate="JetHT"
-nonResTemplate="QCD_Pt_" #high stat
+nonResTemplate="QCD_Pt-" #high stat
 # nonResTemplate="QCD_Pt-" #low stat --> use this for tests
 #nonResTemplate="Dijet" #to compare shapes
 
@@ -342,8 +342,8 @@ else:
 	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
 	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
 	
-mergeBackgroundShapes("nonRes","JJ")
-#makeNormalizations("nonRes","JJ_withTrigger",nonResTemplate,0,cuts['nonres']+'*'+cuts['trigger'],1.0,"nR")
+#mergeBackgroundShapes("nonRes","JJ")
+makeNormalizations("nonRes","JJ_herwig",nonResTemplate,0,cuts['nonres'],1.0,"nR")
 #### makeNormalizations("data","JJ",dataTemplate,1,'1',1.0,"normD") #run on data. Currently run on pseudodata only (below)
-#from modules.submitJobs import makePseudodata
-#for p in purities: makePseudodata("JJ_withTrigger_nonRes_%s.root"%p,p) #remove this when running on data!!
+from modules.submitJobs import makePseudodata
+for p in purities: makePseudodata("JJ_herwig_nonRes_%s.root"%p,p) #remove this when running on data!!

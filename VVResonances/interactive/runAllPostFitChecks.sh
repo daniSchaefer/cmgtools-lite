@@ -33,7 +33,7 @@
 # ##################################################################################################
 
 # for the default systematics ####################################################################
-aw=("/home/dschaefer/DiBoson3D/finalKernels/workspace_testSyst.root" "/home/dschaefer/DiBoson3D/finalKernels/JJ_WprimeWZ_madgraph_HPHP.root" "/home/dschaefer/DiBoson3D/finalKernels/workspace_WprimeWZ_herwig.root" "workspace_testBatch_HPHP.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_pythia_nominal_dataherwig.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_datamadgraph.root")
+aw=("/home/dschaefer/DiBoson3D/finalKernels/workspace_testSyst.root" "/home/dschaefer/DiBoson3D/finalKernels/JJ_WprimeWZ_madgraph_HPHP.root" "/home/dschaefer/DiBoson3D/finalKernels/workspace_herwig.root" "workspace_testBatch_HPHP.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_pythia_nominal_dataherwig.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_datamadgraph.root")
 al=("testSyst_HPHP" "datamadgraph_HPHP" "dataherwig_HPHP" "datapythia_testbatch" "dataherwig_HPHP" "datamadgraph_HPHP")
 o="/home/dschaefer/DiBoson3D/GoodnessOfFitTests/"
 
@@ -42,7 +42,7 @@ pdfs="nonResNominal_JJ_WprimeWZ_HPHP_13TeV,nonRes_PTZDown_JJ_WprimeWZ_HPHP_13TeV
 ##################################################################################################
 
 
-for i in `seq 0 2`;
+for i in `seq 2 2`;
 do
 echo ${aw[i]}
 # python runFitPlots.py -p z -f -n ${aw[i]}  -l ${al[i]} -o ${o} --log ${al[i]}.log --pdf ${pdfs} 
