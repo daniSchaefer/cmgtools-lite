@@ -3,6 +3,7 @@ ROOT.gROOT.SetBatch(True)
 import os, sys, re, optparse,pickle,shutil,json
 import time
 from array import array
+import copy
 
 parser = optparse.OptionParser()
 parser.add_option("-o","--output",dest="output",help="Output folder name",default='')
@@ -121,9 +122,21 @@ def reduceBinsToRange(Bins,r):
     return result
 
 
+def getMV(binnumber):
+    i=0
+    for xk, xv in xBins_redux.iteritems():
+         for yk, yv in yBins_redux.iteritems():
+             for zk,zv in zBins_redux.iteritems():
+                 if i==binnumber:
+                     return [xv,yv,zv]
+                 i+=1
+    
+
 def getChi2(pdf,data,norm):
     pr=[]
     dr=[]
+    error_dr=[]
+    testbins = []
     for xk, xv in xBins_redux.iteritems():
          MJ1.setVal(xv)
          for yk, yv in yBins_redux.iteritems():
@@ -131,15 +144,24 @@ def getChi2(pdf,data,norm):
              for zk,zv in zBins_redux.iteritems():
                  MJJ.setVal(zv)
                  dr.append(data.weight(argset))
+                 error_dr.append(ROOT.TMath.Sqrt(data.weight(argset)))
                  binV = zBinsWidth[zk]*xBinsWidth[xk]*yBinsWidth[yk]
                  pr.append( pdf.getVal(argset)*binV*norm)
+                 #print zv
     ndof = 0
     chi2 = 0
+    #print bins
     for i in range(0,len(pr)):
-        if dr[i]==0:
+        if dr[i] < 0.1e-10:
+            #print i
             continue
+        #if ROOT.TMath.Abs(dr[i] - pr[i]) > 100:
+            #print " I " +str(i) + " " + str(dr[i] - pr[i])+" bins  "
+            #print "data  "+str(dr[i])
+            #print "pdf  "+str(pr[i])
+            #print "bins " +str(getMV(i))
         ndof+=1
-        chi2+= pow((dr[i] - pr[i]),2)/pr[i]
+        chi2+= pow((dr[i] - pr[i]),2)/pow(error_dr[i],2)
     return [chi2,ndof]
 
 
@@ -731,9 +753,9 @@ if __name__=="__main__":
              doYprojection(postfit,data,norm)
              doZprojection(postfit,data,norm)
              chi2,ndof = getChi2(pdf_shape_postfit,data,norm)
-             print chi2
-             print ndof
-             print chi2/ndof
+             print "chi2 " +str( chi2)
+             print "ndof " +str(ndof)
+             print "chi2/ndof " +str(chi2/ndof)
      #print "xbins = "+str(xBins)
      #print "yBins_redux ="+str(yBins_redux)
      #print "xBinslowedge "+str(xBinslowedge)
