@@ -121,6 +121,28 @@ def reduceBinsToRange(Bins,r):
     return result
 
 
+def getChi2(pdf,data,norm):
+    pr=[]
+    dr=[]
+    for xk, xv in xBins_redux.iteritems():
+         MJ1.setVal(xv)
+         for yk, yv in yBins_redux.iteritems():
+             MJ2.setVal(yv)
+             for zk,zv in zBins_redux.iteritems():
+                 MJJ.setVal(zv)
+                 dr.append(data.weight(argset))
+                 binV = zBinsWidth[zk]*xBinsWidth[xk]*yBinsWidth[yk]
+                 pr.append( pdf.getVal(argset)*binV*norm)
+    ndof = 0
+    chi2 = 0
+    for i in range(0,len(pr)):
+        if dr[i]==0:
+            continue
+        ndof+=1
+        chi2+= pow((dr[i] - pr[i]),2)/pr[i]
+    return [chi2,ndof]
+
+
 
 
 def doZprojection(pdfs,data,norm,proj=0):
@@ -152,7 +174,6 @@ def doZprojection(pdfs,data,norm,proj=0):
                     if "pdfdata" in p.GetName():
                             lv[i][zv] += p.weight(argset)#p.evaluate()*binV
                     else:
-                            # lv[i][xv] += p.evaluate()*binV 
                             lv[i][zv] += p.getVal(argset)*binV
                     i+=1
     for i in range(0,len(pdfs)):
@@ -165,7 +186,7 @@ def doZprojection(pdfs,data,norm,proj=0):
     leg = ROOT.TLegend(0.88,0.65,0.7,0.88)
     c = ROOT.TCanvas("c","c",800,400)
     if postfit:
-        pad1 = ROOT.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
+        pad1 = ROOT.TPad("pad1", "pad1", 0, 0.4, 1, 1.0)
         pad1.SetBottomMargin(0.01)
         pad1.SetLogy()
         pad1.Draw()
@@ -185,7 +206,7 @@ def doZprojection(pdfs,data,norm,proj=0):
         h[0].GetYaxis().SetLabelSize(0.06)
         h[0].GetYaxis().SetNdivisions(5)
     h[0].Draw("hist")
-    
+    dh.SetBinErrorOption(ROOT.TH1.kPoisson)
     dh.SetMarkerStyle(1)
     dh.Draw("same")
     leg.AddEntry(dh,"data","lp")
@@ -205,8 +226,16 @@ def doZprojection(pdfs,data,norm,proj=0):
     leg.SetLineColor(0)
     leg.Draw("same")
     if postfit:
+        ktest0 = h[0].KolmogorovTest(dh,"DX")
+        ktest1 = h[1].KolmogorovTest(dh,"DX")
+        print "chi2 test :" 
+        print ktest0
+        print ktest1
+        latex = ROOT.TLatex()
+        latex.DrawLatex(2000,100,"kolmogorov test "+str(ktest0))
+        latex.DrawLatex(2000,10,"kolmogorov test "+str(ktest1))
         c.cd()
-        pad2 = ROOT.TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
+        pad2 = ROOT.TPad("pad2", "pad2", 0, 0.05, 1, 0.4)
         pad2.SetTopMargin(0.1)
         pad2.SetBottomMargin(0.3)
         pad2.SetGridy()
@@ -215,8 +244,16 @@ def doZprojection(pdfs,data,norm,proj=0):
         graphs = addPullPlot(dh,h[0],h[1])
         graphs[0].Draw("AP")
         graphs[1].Draw("P")
+        line1 = ROOT.TLine()
+        line1.SetLineStyle(3)
+        x = dh.GetXaxis().GetBinLowEdge(1)
+        X = dh.GetXaxis().GetBinUpEdge(dh.GetNbinsX())
+        line1.DrawLine(x,2,X,2)
+        line1.DrawLine(x,-2,X,-2)
+        c.SaveAs(options.output+"PostFit"+options.label+"_x"+(options.xrange.split(","))[0]+"To"+(options.xrange.split(","))[1]+"_y"+(options.yrange.split(","))[0]+"To"+(options.yrange.split(","))[1]+".png")
         c.SaveAs(options.output+"PostFit"+options.label+"_x"+(options.xrange.split(","))[0]+"To"+(options.xrange.split(","))[1]+"_y"+(options.yrange.split(","))[0]+"To"+(options.yrange.split(","))[1]+".pdf")
     else:    
+        c.SaveAs(options.output+"Zproj"+options.label+"_x"+(options.xrange.split(","))[0]+"To"+(options.xrange.split(","))[1]+"_y"+(options.yrange.split(","))[0]+"To"+(options.yrange.split(","))[1]+".png")
         c.SaveAs(options.output+"Zproj"+options.label+"_x"+(options.xrange.split(","))[0]+"To"+(options.xrange.split(","))[1]+"_y"+(options.yrange.split(","))[0]+"To"+(options.yrange.split(","))[1]+".pdf")
 
 
@@ -271,7 +308,7 @@ def doXprojection(pdfs,data,norm,hin=0):
     leg = ROOT.TLegend(0.88,0.65,0.77,0.89)
     c = ROOT.TCanvas("c","c",800,400)
     if postfit:
-        pad1 = ROOT.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
+        pad1 = ROOT.TPad("pad1", "pad1", 0, 0.4, 1, 1.0)
         pad1.SetBottomMargin(0.01)
         pad1.Draw()
         pad1.cd()    
@@ -309,7 +346,7 @@ def doXprojection(pdfs,data,norm,hin=0):
     leg.Draw("same")
     if postfit:
         c.cd()
-        pad2 = ROOT.TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
+        pad2 = ROOT.TPad("pad2", "pad2", 0, 0.05, 1, 0.4)
         pad2.SetTopMargin(0.1)
         pad2.SetBottomMargin(0.3)
         pad2.SetGridy()
@@ -318,8 +355,16 @@ def doXprojection(pdfs,data,norm,hin=0):
         graphs = addPullPlot(proj,h[0],h[1])
         graphs[0].Draw("AP")
         graphs[1].Draw("P")
+        line1 = ROOT.TLine()
+        line1.SetLineStyle(3)
+        x = proj.GetXaxis().GetBinLowEdge(1)
+        X = proj.GetXaxis().GetBinUpEdge(proj.GetNbinsX())
+        line1.DrawLine(x,2,X,2)
+        line1.DrawLine(x,-2,X,-2)
+        c.SaveAs(options.output+"PostFit"+options.label+"_y"+(options.yrange.split(","))[0]+"To"+(options.yrange.split(","))[1]+"_z"+(options.zrange.split(","))[0]+"To"+(options.zrange.split(","))[1]+".png") 
         c.SaveAs(options.output+"PostFit"+options.label+"_y"+(options.yrange.split(","))[0]+"To"+(options.yrange.split(","))[1]+"_z"+(options.zrange.split(","))[0]+"To"+(options.zrange.split(","))[1]+".pdf") 
     else:    
+        c.SaveAs(options.output+"Xproj"+options.label+"_y"+(options.yrange.split(","))[0]+"To"+(options.yrange.split(","))[1]+"_z"+(options.zrange.split(","))[0]+"To"+(options.zrange.split(","))[1]+".png")   
         c.SaveAs(options.output+"Xproj"+options.label+"_y"+(options.yrange.split(","))[0]+"To"+(options.yrange.split(","))[1]+"_z"+(options.zrange.split(","))[0]+"To"+(options.zrange.split(","))[1]+".pdf")   
     
 
@@ -363,7 +408,7 @@ def doYprojection(pdfs,data,norm):
     leg = ROOT.TLegend(0.88,0.65,0.77,0.89)
     c = ROOT.TCanvas("c","c",800,400)
     if postfit:
-        pad1 = ROOT.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
+        pad1 = ROOT.TPad("pad1", "pad1", 0, 0.4, 1, 1.0)
         pad1.SetBottomMargin(0.01)
         pad1.Draw()
         pad1.cd()               
@@ -394,8 +439,10 @@ def doYprojection(pdfs,data,norm):
     #proj.Scale(n)#/proj.Integral())
     proj.Draw("same")
     if postfit:
+        ktest0 = h[0].KolmogorovTest(proj,"DX")
+        ktest1 = h[1].KolmogorovTest(proj,"DX")
         c.cd()
-        pad2 = ROOT.TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
+        pad2 = ROOT.TPad("pad2", "pad2", 0, 0.05, 1, 0.4)
         pad2.SetTopMargin(0.1)
         pad2.SetBottomMargin(0.3)
         pad2.SetGridy()
@@ -404,24 +451,38 @@ def doYprojection(pdfs,data,norm):
         graphs = addPullPlot(proj,h[0],h[1])
         graphs[0].Draw("AP")
         graphs[1].Draw("P")
+        line1 = ROOT.TLine()
+        line1.SetLineStyle(3)
+        x = proj.GetXaxis().GetBinLowEdge(1)
+        X = proj.GetXaxis().GetBinUpEdge(proj.GetNbinsX())
+        line1.DrawLine(x,2,X,2)
+        line1.DrawLine(x,-2,X,-2)
+        c.SaveAs(options.output+"PostFit"+options.label+"_x"+(options.xrange.split(","))[0]+"To"+(options.xrange.split(","))[1]+"_z"+(options.zrange.split(","))[0]+"To"+(options.zrange.split(","))[1]+".png")
         c.SaveAs(options.output+"PostFit"+options.label+"_x"+(options.xrange.split(","))[0]+"To"+(options.xrange.split(","))[1]+"_z"+(options.zrange.split(","))[0]+"To"+(options.zrange.split(","))[1]+".pdf")
     else:
-        c.SaveAs(options.output+"Yproj"+options.label+"_x"+(options.xrange.split(","))[0]+"To"+(options.xrange.split(","))[1]+"_z"+(options.zrange.split(","))[0]+"To"+(options.zrange.split(","))[1]+".pdf")   
+        c.SaveAs(options.output+"Yproj"+options.label+"_x"+(options.xrange.split(","))[0]+"To"+(options.xrange.split(","))[1]+"_z"+(options.zrange.split(","))[0]+"To"+(options.zrange.split(","))[1]+".png")  
+        c.SaveAs(options.output+"Yproj"+options.label+"_x"+(options.xrange.split(","))[0]+"To"+(options.xrange.split(","))[1]+"_z"+(options.zrange.split(","))[0]+"To"+(options.zrange.split(","))[1]+".pdf") 
  
 
 def addPullPlot(hdata,hprefit,hpostfit):
     print "make pull plots: (data-fit)/sigma_data"
     N = hdata.GetNbinsX()
-    gpost = ROOT.TGraph(0)
-    gpre  = ROOT.TGraph(0)
-    for i in range(1,N):
+    gpost = ROOT.TGraphAsymmErrors(0)
+    gpre  = ROOT.TGraphAsymmErrors(0)
+    for i in range(1,N+1):
         m = hdata.GetXaxis().GetBinCenter(i)
         if hdata.GetBinContent(i) == 0:
             continue
-        ypostfit = (hdata.GetBinContent(i) - hpostfit.GetBinContent(i))/hdata.GetBinError(i)
-        yprefit  = (hdata.GetBinContent(i) - hprefit.GetBinContent(i))/hdata.GetBinError(i)
+        denom_pre = hdata.GetBinError(i)
+        denom_post = hdata.GetBinError(i)
+        #denom_pre = ROOT.TMath.Sqrt(hdata.GetBinContent(i))
+        #denom_post = ROOT.TMath.Sqrt(hdata.GetBinContent(i))
+        ypostfit = (hdata.GetBinContent(i) - hpostfit.GetBinContent(i))/denom_post
+        yprefit  = (hdata.GetBinContent(i) - hprefit.GetBinContent(i))/denom_pre
         gpost.SetPoint(i-1,m,ypostfit)
         gpre.SetPoint(i-1,m,yprefit)
+    #gpost.Divide(hdata,hpostfit,"pois")
+    #gpre.Divide(hdata,hprefit,"pois")
     gpost.SetLineColor(colors[1])
     gpre.SetLineColor(colors[0])
     gpost.SetMarkerColor(colors[1])
@@ -441,9 +502,13 @@ def addPullPlot(hdata,hprefit,hpostfit):
     gpre.GetYaxis().SetLabelSize(0.15)
     gpre.GetXaxis().SetNdivisions(6)
     gpre.GetYaxis().SetNdivisions(4)
-    gpre.SetMaximum(2.5)
-    gpre.SetMinimum(-4.5)
-    gpre.GetXaxis().SetRangeUser(hdata.GetXaxis().GetBinLowEdge(1),hdata.GetXaxis().GetBinLowEdge(N))
+    gpre.SetMaximum(6)
+    gpre.SetMinimum(-6)
+    x = hprefit.GetXaxis().GetBinLowEdge(1)
+    X = hprefit.GetXaxis().GetBinUpEdge(N)
+    gpre.GetXaxis().SetLimits(x,X)
+    gpost.GetXaxis().SetLimits(x,X)
+    print "set fit range " +str(x) + " "+str(X)
     return [gpre,gpost] 
  
 
@@ -503,26 +568,19 @@ def plotDiffMjet1Mjet2(pdfs,data,norm):
 
 if __name__=="__main__":
      #finMC = ROOT.TFile("/home/dschaefer/tmp/JJ_nonRes_COND2D_HPHP_l1_nominal.root","READ")
-     finMC = ROOT.TFile("/home/dschaefer/DiBoson3D/test_kernelSmoothing_pythia/JJ_pythia_HPHP.root","READ");
-     if options.name.find("Binning")!=-1:
-        finMC = ROOT.TFile("JJ_testBinning_HPHP.root","READ"); 
+     #finMC = ROOT.TFile("/home/dschaefer/DiBoson3D/test_kernelSmoothing_pythia/JJ_pythia_HPHP.root","READ");
+     #if options.name.find("Binning")!=-1:
+     finMC = ROOT.TFile("/home/dschaefer/DiBoson3D/finalKernels/JJ_HPHP.root","READ"); 
      hinMC = finMC.Get("nonRes");
      #hinMC = finMC.Get("histo_nominal");
-     
+     sig = "WprimeWZ"
      
      xBins= getListOfBins(hinMC,"x")
      xBinslowedge = getListOfBinsLowEdge(hinMC,'x')
-     print xBins
-     print xBinslowedge
-     
      yBins= getListOfBins(hinMC,"y")
      yBinslowedge = getListOfBinsLowEdge(hinMC,'y')
-     
-     print yBins
-     print yBinslowedge
      zBins= getListOfBins(hinMC,"z")
      #finMC.Close()
-     print zBins
     
      xBinslowedge = getListOfBinsLowEdge(hinMC,'x')
      xBinsWidth   = getListOfBinsWidth(hinMC,"x")
@@ -536,16 +594,12 @@ if __name__=="__main__":
      workspace = f.Get("w")
      f.Close()
      #workspace.Print()
-     #norm = workspace.obj("CMS_VV_JJ_nonRes_norm_HPHP_Pdf")
-     #print norm.getVal()
      model = workspace.pdf("model_b")
     
      data = workspace.data("data_obs")
      norm = data.sumEntries()
      print "sum entries norm "+str(norm)
 
-     #norm = (args["pdf_binJJ_HPHP_13TeV_bonly"].getComponents())["n_exp_binJJ_HPHP_13TeV_proc_nonRes"].getVal()
-     #print "norm before fit "+str(norm)
      if options.postfit:
         fitresult = model.fitTo(data,ROOT.RooFit.SumW2Error(True),ROOT.RooFit.Minos(0),ROOT.RooFit.Verbose(0),ROOT.RooFit.Save(1) ,ROOT.RooFit.NumCPU(8))
         if options.log!="":
@@ -574,14 +628,13 @@ if __name__=="__main__":
          purity="HPLP"
      for p in options.pdf.split(","):
          allpdfs.append(args[p])
-         print p
-     pdf = args["nonResNominal_JJ_"+purity+"_13TeV"]
-     pdf_shape_postfit  = args["shapeBkg_nonRes_JJ_"+purity+"_13TeV"]
+     pdf = args["nonResNominal_JJ_"+sig+"_"+purity+"_13TeV"]
+     pdf_shape_postfit  = args["shapeBkg_nonRes_JJ_"+sig+"_"+purity+"_13TeV"]
      #pdf_shape_postfit.funcList().Print()
      #pdf_shape_postfit.coefList().Print()
      pdf_shape_postfit.SetName("pdf_postfit_shape")       
      # get data from workspace 
-     norm = (args["pdf_binJJ_"+purity+"_13TeV_bonly"].getComponents())["n_exp_binJJ_"+purity+"_13TeV_proc_nonRes"].getVal()
+     norm = (args["pdf_binJJ_"+sig+"_"+purity+"_13TeV_bonly"].getComponents())["n_exp_binJJ_"+sig+"_"+purity+"_13TeV_proc_nonRes"].getVal()
      # check normalization with from pdf generated data:
      #pdf_shape_postfit.syncTotal()
      #################################################
@@ -677,8 +730,12 @@ if __name__=="__main__":
              doXprojection(postfit,data,norm)
              doYprojection(postfit,data,norm)
              doZprojection(postfit,data,norm)
-     print "xbins = "+str(xBins)
-     print "yBins_redux ="+str(yBins_redux)
-     print "xBinslowedge "+str(xBinslowedge)
-     print "zBins_redux ="+str(zBins_redux)
+             chi2,ndof = getChi2(pdf_shape_postfit,data,norm)
+             print chi2
+             print ndof
+             print chi2/ndof
+     #print "xbins = "+str(xBins)
+     #print "yBins_redux ="+str(yBins_redux)
+     #print "xBinslowedge "+str(xBinslowedge)
+     #print "zBins_redux ="+str(zBins_redux)
 

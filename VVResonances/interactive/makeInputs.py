@@ -42,6 +42,8 @@ cuts={}
 
 cuts['common'] = '((HLT_JJ)*(run>500) + (run<500))*(njj>0&&Flag_goodVertices&&Flag_CSCTightHaloFilter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&jj_LV_mass>700&&abs(jj_l1_eta-jj_l2_eta)<1.3&&jj_l1_softDrop_mass>0.&&jj_l2_softDrop_mass>0.)'
 
+cuts['trigger'] = '(HLT_BIT_HLT_PFHT900_v || HLT_BIT_HLT_AK8PFJet360_TrimMass30_v)'
+
 cuts['HPHP'] = '('+cat['HP1']+'&&'+cat['HP2']+')'
 cuts['LPLP'] = '('+cat['LP1']+'&&'+cat['LP2']+')'
 cuts['HPLP'] = '(('+cat['HP1']+'&&'+cat['LP2']+')||('+cat['LP1']+'&&'+cat['HP2']+'))'
@@ -51,7 +53,7 @@ cuts['nonres'] = '1'
 
 purities=['HPHP','HPLP','LPLP','NP']
 purities=['HPHP','HPLP']
-purities=['HPLP']
+purities=['HPHP']
 
 BulkGravWWTemplate="BulkWW"
 BulkGravZZTemplate="BulkGravToZZToZhadZhad_narrow"
@@ -94,7 +96,7 @@ def makeSignalShapesMVV(filename,template):
  fixPars = "N:129.6"
  if template.find("Wprime")!=-1:
      fixPars = "N:4.13,ALPHA:1.194"
- if template.find("Zprime")!=-1:
+ if template.find("Zprime")!=-1 or template.find("Bulk")!=-1:
      fixPars = "N:6.65"
  cmd='vvMakeSignalMVVShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "jj_LV_mass" {BinningMVV} --fix "{fixPars}"   -m {minMVV} -M {maxMVV} --minMX {minMX} --maxMX {maxMX} samples '.format(template=template,cut=cut,rootFile=rootFile,minMVV=minMVV,maxMVV=maxMVV,minMX=minMX,maxMX=maxMX,BinningMVV=HCALbinsMVVSignal,fixPars=fixPars)
  os.system(cmd)
@@ -267,8 +269,10 @@ def mergeBackgroundShapes(name,filename):
  for p in purities:
   inputx=filename+"_"+name+"_COND2D_"+p+"_l1.root"	
   inputy=filename+"_"+name+"_COND2D_"+p+"_l2.root"	
-  inputz=filename+"_"+name+"_MVV_"+p+".root"      
-  rootFile=filename+"_"+name+"_2D_"+p+".root"
+  #inputz=filename+"_"+name+"_MVV_"+p+".root"  
+  inputz= "test_nonRes_MVV_HPHP.root"
+  #rootFile=filename+"_"+name+"_2D_"+p+".root"
+  rootFile="test_"+filename+"_"+name+"_2D_"+p+".root"
   print "Reading " ,inputx
   print "Reading " ,inputy
   print "Reading " ,inputz
@@ -295,8 +299,8 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1,jobName
         os.system(cmd)
 	
 #makeSignalShapesMVV("JJ_WprimeWZ",WprimeTemplate)
-makeSignalShapesMJ("JJ_WprimeWZ",WprimeTemplate,'l1')
-makeSignalShapesMJ("JJ_WprimeWZ",WprimeTemplate,'l2')
+#makeSignalShapesMJ("JJ_WprimeWZ",WprimeTemplate,'l1')
+#makeSignalShapesMJ("JJ_WprimeWZ",WprimeTemplate,'l2')
 #makeSignalYields("JJ_WprimeWZ",WprimeTemplate,BRWZ,{'HPHP':0.99*0.99,'HPLP':0.99*1.03,'LPLP':1.03*1.03})
 
 #makeSignalShapesMVV("JJ_BulkGWW",BulkGravWWTemplate)
@@ -324,22 +328,22 @@ makeSignalShapesMJ("JJ_WprimeWZ",WprimeTemplate,'l2')
 ## makeBackgroundShapesMJSpline("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'])
 ## ------------------------------
 
-#if runParallel and submitToBatch:
-	#wait = False
-	#makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'],"1D",wait)
-	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
-	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
-	#print "Exiting system! When all jobs are finished, please run mergeKernelJobs below"
-	#sys.exit()
-	#mergeKernelJobs()
-#else:
-	#wait = True
+if runParallel and submitToBatch:
+	wait = False
+	makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'],"1D",wait)
+	makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
+	makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
+	print "Exiting system! When all jobs are finished, please run mergeKernelJobs below"
+	sys.exit()
+	mergeKernelJobs()
+else:
+	wait = True
 	#makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'],"1D",wait)
 	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
 	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
 	
-#mergeBackgroundShapes("nonRes","JJ")
-#makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],1.0,"nR")
+mergeBackgroundShapes("nonRes","JJ")
+#makeNormalizations("nonRes","JJ_withTrigger",nonResTemplate,0,cuts['nonres']+'*'+cuts['trigger'],1.0,"nR")
 #### makeNormalizations("data","JJ",dataTemplate,1,'1',1.0,"normD") #run on data. Currently run on pseudodata only (below)
 #from modules.submitJobs import makePseudodata
-#for p in purities: makePseudodata("JJ_nonRes_%s.root"%p,p) #remove this when running on data!!
+#for p in purities: makePseudodata("JJ_withTrigger_nonRes_%s.root"%p,p) #remove this when running on data!!

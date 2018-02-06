@@ -33,11 +33,12 @@
 # ##################################################################################################
 
 # for the default systematics ####################################################################
-aw=("workspace_thea.root" "/home/dschaefer/DiBoson3D/workspaces/JJ_BulkGWW_HPHP_13TeV_workspace_ptSyst_fitNominal.root" "workspace_testBinning.root" "workspace_testBatch_HPHP.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_pythia_nominal_dataherwig.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_datamadgraph.root")
-al=("thea" "datapythia_HPHP" "testBinning" "datapythia_testbatch" "dataherwig_HPHP" "datamadgraph_HPHP")
+aw=("/home/dschaefer/DiBoson3D/finalKernels/workspace_testSyst.root" "/home/dschaefer/DiBoson3D/finalKernels/JJ_WprimeWZ_madgraph_HPHP.root" "/home/dschaefer/DiBoson3D/finalKernels/workspace_WprimeWZ_herwig.root" "workspace_testBatch_HPHP.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_pythia_nominal_dataherwig.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_datamadgraph.root")
+al=("testSyst_HPHP" "datamadgraph_HPHP" "dataherwig_HPHP" "datapythia_testbatch" "dataherwig_HPHP" "datamadgraph_HPHP")
 o="/home/dschaefer/DiBoson3D/GoodnessOfFitTests/"
-pdfs="nonResNominal_JJ_HPHP_13TeV,nonRes_PTZDown_JJ_HPHP_13TeV,nonRes_OPTZUp_JJ_HPHP_13TeV,nonRes_PTZUp_JJ_HPHP_13TeV,nonRes_OPTZDown_JJ_HPHP_13TeV,nonRes_PTXYUp_JJ_HPHP_13TeV,nonRes_PTXYDown_JJ_HPHP_13TeV,nonRes_OPTXYUp_JJ_HPHP_13TeV,nonRes_OPTXYDown_JJ_HPHP_13TeV"
-#pdfs="nonResNominal_JJ_HPLP_13TeV,nonRes_PTZDown_JJ_HPLP_13TeV,nonRes_OPTZUp_JJ_HPLP_13TeV,nonRes_PTZUp_JJ_HPLP_13TeV,nonRes_OPTZDown_JJ_HPLP_13TeV,nonRes_PTXYUp_JJ_HPLP_13TeV,nonRes_PTXYDown_JJ_HPLP_13TeV,nonRes_OPTXYUp_JJ_HPLP_13TeV,nonRes_OPTXYDown_JJ_HPLP_13TeV"
+
+pdfs="nonResNominal_JJ_WprimeWZ_HPHP_13TeV,nonRes_PTZDown_JJ_WprimeWZ_HPHP_13TeV,nonRes_OPTZUp_JJ_WprimeWZ_HPHP_13TeV,nonRes_PTZUp_JJ_WprimeWZ_HPHP_13TeV,nonRes_OPTZDown_JJ_WprimeWZ_HPHP_13TeV,nonRes_PTXYUp_JJ_WprimeWZ_HPHP_13TeV,nonRes_PTXYDown_JJ_WprimeWZ_HPHP_13TeV,nonRes_OPTXYUp_JJ_WprimeWZ_HPHP_13TeV,nonRes_OPTXYDown_JJ_WprimeWZ_HPHP_13TeV"
+#pdfs="nonResNominal_JJ_WprimeWZ_HPLP_13TeV,nonRes_PTZDown_JJ_WprimeWZ_HPLP_13TeV,nonRes_OPTZUp_JJ_WprimeWZ_HPLP_13TeV,nonRes_PTZUp_JJ_WprimeWZ_HPLP_13TeV,nonRes_OPTZDown_JJ_WprimeWZ_HPLP_13TeV,nonRes_PTXYUp_JJ_WprimeWZ_HPLP_13TeV,nonRes_PTXYDown_JJ_WprimeWZ_HPLP_13TeV,nonRes_OPTXYUp_JJ_WprimeWZ_HPLP_13TeV,nonRes_OPTXYDown_JJ_WprimeWZ_HPLP_13TeV"
 ##################################################################################################
 
 
@@ -46,32 +47,22 @@ do
 echo ${aw[i]}
 # python runFitPlots.py -p z -f -n ${aw[i]}  -l ${al[i]} -o ${o} --log ${al[i]}.log --pdf ${pdfs} 
 # python runFitPlots.py -p y -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs}
-  python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} 
-#   python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -z 1350,1400
-#    python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -z 1400,1450
-#    python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 55,150 -y 55,150
-#    python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 150,215 -y 150,215
-    
-
-#  python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -z 1000,1300
-#  python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -z 1300,2000
-#  python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -z 2000,5000
-#  python runFitPlots.py -p z -f -n ${aw[i]} -l ${al[i]} -x 150,215 -y 150,215 -o ${o} --pdf ${pdfs}
-# # python runFitPlots.py -p z -f -n ${aw[i]} -l ${al[i]} -x 150,215 -y 55,150 -o ${o} --pdf ${pdfs}
-# #  
-#  python runFitPlots.py -p x -f -n ${aw[i]} -l ${al[i]} -z 1000,1300 -o ${o} --pdf ${pdfs}
-#  python runFitPlots.py -p x -f -n ${aw[i]} -l ${al[i]} -z 1300,2000 -o ${o} --pdf ${pdfs}
-#  python runFitPlots.py -p x -f -n ${aw[i]} -l ${al[i]} -z 2000,5000 -o ${o} --pdf ${pdfs}
-# # 
-# # python runFitPlots.py -p y -f -n ${aw[i]} -l ${al[i]} -z 1000,1300 -o ${o} --pdf ${pdfs}
-# # python runFitPlots.py -p y -f -n ${aw[i]} -l ${al[i]} -z 1300,2000 -o ${o} --pdf ${pdfs}
-# # python runFitPlots.py -p y -f -n ${aw[i]} -l ${al[i]} -z 2000,5000 -o ${o} --pdf ${pdfs}
-# # 
-# # python runFitPlots.py -p x -f -n ${aw[i]} -l ${al[i]} -y 150,215 -o ${o} --pdf ${pdfs}
-# # python runFitPlots.py -p x -f -n ${aw[i]} -l ${al[i]} -y 55,150 -o ${o} --pdf ${pdfs}
-# # 
-#  python runFitPlots.py -p y -f -n ${aw[i]} -l ${al[i]} -x 150,215 -o ${o} --pdf ${pdfs}
-#  python runFitPlots.py -p y -f -n ${aw[i]} -l ${al[i]} -x 55,150 -o ${o} --pdf ${pdfs}
+   python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} 
+# #   python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -z 1350,1400
+# #    python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -z 1400,1450
+#      python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 55,80 -y 55,80
+#      python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 80,150 -y 80,150
+#      python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 150,215 -y 150,215
+#      python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 150,215 -y 55,80
+#      python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 80,150 -y 150,215
+#     
+#     
+#     python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 55,65 -y 55,65
+#     python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 65,85 -y 65,85
+#     python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 85,105 -y 85,105
+#     python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 105,125 -y 105,125
+#     python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 125,145 -y 125,145
+#    python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 65,105 
 # 
 done
 echo "############ end of script #################"

@@ -238,7 +238,8 @@ class TreePlotter(PlotterBase):
         variables=var.split(',')
 	
         #self.cache=ROOT.TFile("/home/%s/tmp/cache%i.root"%(commands.getoutput("whoami"),random.randint(0, 1e+6)),"RECREATE")
-        self.cache=ROOT.TFile(os.getcwd()+"/tmp/cache%i.root"%(random.randint(0,1e+6)),"RECREATE")
+        cachefile = os.getcwd()+"/tmp/cache%i.root"%(random.randint(0,1e+6))
+        self.cache=ROOT.TFile(cachefile,"RECREATE")
         os.system("echo 'save chache file to '")
         os.system("echo "+os.getcwd())
         w=ROOT.RooWorkspace("w","w")
@@ -275,6 +276,7 @@ class TreePlotter(PlotterBase):
             #if maxN >0 and N>maxN:
             #    return data
         del self.cache
+        os.system("rm "+cachefile)
         return data    
 
 

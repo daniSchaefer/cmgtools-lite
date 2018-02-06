@@ -53,6 +53,8 @@ def getValues(mass,params,File):
     val = {}
     for p in params:
         val[p] = getVal(mass,p,File)
+    if options.sample.find("WJets")!=-1:
+        val["mean"]=83.
     return val
 
 def setPDF(vals,variabletype, sampletype, doExp, Fitter):
@@ -140,9 +142,12 @@ if __name__=="__main__":
         ext=fnameParts[1]
         if ext.find("root") ==-1:
             continue
-
-        mass = float(fname.split('_')[-1])
-        if mass < options.minMX or mass > options.maxMX: continue	
+        
+        if fname.split('_')[-1] == "HT600toInf":
+            mass = 1000
+        else:
+            mass = float(fname.split('_')[-1])
+        #if mass < options.minMX or mass > options.maxMX: continue	
 
             
 
@@ -154,7 +159,10 @@ if __name__=="__main__":
 
     #Now we have the samples: Sort the masses and make histograms
     c = ROOT.TCanvas("c","c",2000,1600)
-    c.Divide(4,3)
+    if options.sample.find("WJets")==-1:
+        #c.Divide(1,0)
+    #else:
+        c.Divide(4,3)
     h={}
     fitters=[]
     frames=[]
@@ -180,7 +188,8 @@ if __name__=="__main__":
         #for b in range(1,histo.GetNbinsX()):
            #if histo.GetBinContent(b) < 1:
                #histo.SetBinContent(b,0)
-        c.cd(N+1)
+        if options.sample.find("WJets")==-1:       
+            c.cd(N+1)
         pad1 = ROOT.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
         pad1.SetBottomMargin(0.01)
         pad1.Draw()                                                                                       
@@ -202,7 +211,10 @@ if __name__=="__main__":
         chi2 = ROOT.TLatex()
         y = histo.GetBinContent(histo.GetMaximumBin())*2/3.
         chi2.DrawLatex(x,y,"#chi^{2} = "+str(round(res[3],2)))
-        c.cd(N+1)
+        if options.sample.find("WJets")==-1:
+            c.cd(N+1)
+        else:
+            c.cd()
         pad2 = ROOT.TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
         pad2.SetTopMargin(0.1)
         pad2.SetBottomMargin(0.3)
@@ -219,4 +231,7 @@ if __name__=="__main__":
     fname = options.fitResults.replace(".root",".pdf")
     if options.mvv.find("l2")!=-1 and fname.find("l1")!=-1:
         fname = fname.replace("l1","l2")
+    if options.sample.find("WJets")!=-1:
+        fname = "WJetsToQQ.pdf"
     c.SaveAs(fname)
+    c.SaveAs(fname.replace(".pdf",".png"))

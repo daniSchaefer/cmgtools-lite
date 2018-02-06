@@ -117,7 +117,7 @@ def submitJobs(minEv,maxEv,cmd,OutputFileNames,queue,jobname,path):
 	   if useCondorBatch:
                os.system("mv  job_*.sh "+jobname+".sh")
                ########## comment out for lxplus #########
-               writeJDL('',2*1000,2*60*60,jobname+'.sh')
+               writeJDL('',2*1000,4*60*60,jobname+'.sh')
                os.system("condor_submit "+jobname+".jdl") 
           #####################################################
              #  makeSubmitFileCondor(jobname+".sh",jobname,"workday")
