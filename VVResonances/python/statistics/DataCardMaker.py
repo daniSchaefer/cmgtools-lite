@@ -680,7 +680,7 @@ class DataCardMaker:
             scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
             scaleSysts.append(syst)
         for syst,factor in resolution.iteritems():
-            self.w.factory(syst+"[0,-0.5,0.5]")
+            self.w.factory(syst+"[0,-0.9,0.9]")
             resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
             resolutionSysts.append(syst)
         
