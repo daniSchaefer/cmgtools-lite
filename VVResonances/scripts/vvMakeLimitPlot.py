@@ -103,6 +103,7 @@ for mass,info in data.iteritems():
     line_plus2.SetPoint(N,mass,info['+2sigma'])
     line_minus1.SetPoint(N,mass,info['-1sigma'])
     line_minus2.SetPoint(N,mass,info['-2sigma'])
+    print str(mass ) + " mean  "+str(info['exp']) + "  1 sigma  "+str(info['+1sigma'])+"  2 sigma "+str(info['+2sigma'])
 
     if options.blind==1:
         bandObs.SetPoint(N,mass,info['obs'])

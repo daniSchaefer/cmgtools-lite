@@ -151,7 +151,7 @@ class Fitter(object):
 
     def expo(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-        self.w.factory("RooExponential::"+name+"("+poi+",c_0[-1,-1000,0])")
+        self.w.factory("RooExponential::"+name+"("+poi+",c_0[-1,-5000,0])")
 
 
     def gaus(self,name = 'model',poi='x'):
@@ -335,9 +335,9 @@ class Fitter(object):
         self.w.factory("mean[80,50,200]")
         self.w.factory("sigma[10,2,40]")
         self.w.factory("alpha[3,0.5,10]")
-        self.w.factory("n[2]")
+        self.w.factory("n[2,0.0,10.]")
         self.w.factory("alpha2[3,0.5,10]")
-        self.w.factory("n2[2]")
+        self.w.factory("n2[2,0.0,10.]")
 
         peak = ROOT.RooDoubleCB(name+'S','modelS',self.w.var(poi),self.w.var('mean'),self.w.var('sigma'),self.w.var('alpha'),self.w.var('n'),self.w.var("alpha2"),self.w.var("n2"))
         getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name+'S'))
@@ -378,7 +378,17 @@ class Fitter(object):
         peak = ROOT.RooDoubleCB(name,'modelS',self.w.var(poi),self.w.var('mean'),self.w.var('sigma'),self.w.var('alpha'),self.w.var('n'),self.w.var("alpha2"),self.w.var("n2"))
         getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name))
 
+    def jetResonanceVjets(self,name = 'model',poi='x'):
+        ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
+        self.w.factory("mean[80,50,150]")
+        self.w.factory("sigma[15,3,30]")
+        self.w.factory("alpha[1.8,0.0,5]")
+        self.w.factory("n[0.8,0.,2.]")
+        self.w.factory("alpha2[1,0.,20]")
+        self.w.factory("n2[6,0,100]")
 
+        peak = ROOT.RooDoubleCB(name,'modelS',self.w.var(poi),self.w.var('mean'),self.w.var('sigma'),self.w.var('alpha'),self.w.var('n'),self.w.var("alpha2"),self.w.var("n2"))
+        getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name+'W'))
 
 
     def jetResonance2(self,name = 'model',poi='x'):
@@ -428,7 +438,7 @@ class Fitter(object):
         self.w.factory("alphaW2[1,0.1,10]")
         self.w.factory("n[5]")
 
-        self.w.factory("meanTop[160,140,190]")
+        self.w.factory("meanTop[160,100,190]")
         self.w.factory("sigmaTop[30,5,100]")
         self.w.factory("alphaTop[1,0.1,10]")
         self.w.factory("alphaTop2[1,0.1,10]")
@@ -1015,6 +1025,8 @@ class Fitter(object):
 	self.w.pdf(model).plotOn(self.frame)
         self.c=ROOT.TCanvas("c","c")
         self.c.cd()
+        if (filename.find("Jet")!=-1) and poi.find("MVV")!=-1:
+            self.c.SetLogy()
         self.frame.Draw()
         self.frame.GetYaxis().SetTitle('')
         self.frame.GetXaxis().SetTitle(xtitle)

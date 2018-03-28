@@ -56,7 +56,7 @@ class DataCardMaker:
 
         SCALEVar="_".join(["MEAN",name,self.tag])
         self.w.factory("expr::{name}('({param})*(1+{vv_syst})',MH,{vv_systs})".format(name=SCALEVar,param=info['MEAN'],vv_syst=scaleStr,vv_systs=','.join(scaleSysts)))
-
+        
         SIGMAVar="_".join(["SIGMA",name,self.tag])
         self.w.factory("expr::{name}('({param})*(1+{vv_syst})',MH,{vv_systs})".format(name=SIGMAVar,param=info['SIGMA'],vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
 
@@ -86,6 +86,7 @@ class DataCardMaker:
 
         scaleSysts=[]
         resolutionSysts=[]
+        print "blaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         for syst,factor in scale.iteritems():
             self.w.factory(syst+"[0,-0.1,0.1]")
             scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
@@ -93,6 +94,8 @@ class DataCardMaker:
         for syst,factor in resolution.iteritems():
             self.w.factory(syst+"[0,-0.5,0.5]")
             resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            print syst+"[0,-0.5,0.5]"
+            print resolutionStr
             resolutionSysts.append(syst)
        
         MVV=variable            
@@ -107,6 +110,7 @@ class DataCardMaker:
 
         SIGMAVar="_".join(["SIGMA",name,self.tag])
         self.w.factory("expr::{name}('({param})*(1+{vv_syst})',MH,{vv_systs})".format(name=SIGMAVar,param=info['SIGMA'],vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
+        print SIGMAVar
 
         ALPHAVar="_".join(["ALPHA",name,self.tag])
         self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=ALPHAVar,param=info['ALPHA']))
@@ -306,6 +310,7 @@ class DataCardMaker:
         for syst,factor in resolution.iteritems():
             self.w.factory(syst+"[0,-0.5,0.5]")
             resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+
             resolutionSysts.append(syst)
        
         MJJ=variable            
@@ -318,6 +323,8 @@ class DataCardMaker:
         SCALEVar="_".join(["mean",name,self.tag])
         self.w.factory("expr::{name}('({param})*(1+{vv_syst})',MH,{vv_systs})".format(name=SCALEVar,param=info['mean'],vv_syst=scaleStr,vv_systs=','.join(scaleSysts)).replace("MH",varToReplace))
 
+        print "expr::{name}('({param})*(1+{vv_syst})',MH,{vv_systs})".format(name=SCALEVar,param=info['mean'],vv_syst=scaleStr,vv_systs=','.join(scaleSysts)).replace("MH",varToReplace)
+        
         SIGMAVar="_".join(["sigma",name,self.tag])
         self.w.factory("expr::{name}('({param})*(1+{vv_syst})',MH,{vv_systs})".format(name=SIGMAVar,param=info['sigma'],vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)).replace("MH",varToReplace))
 
@@ -561,7 +568,9 @@ class DataCardMaker:
     def addMVVBackgroundShapeQCD(self,name,variable,logTerm=False,newTag="",preconstrains={}):
        
         MVV=variable
-        self.w.factory(MVV+"[0,10000]")
+        self.w.var(MVV)
+        if self.w.var(MVV)==None:
+            self.w.factory(MVV+"[0,10000]")
 
 
         if newTag !="":
@@ -569,45 +578,203 @@ class DataCardMaker:
         else:
             tag=name+"_"+self.tag
 
-
-
         p0="_".join(["p0",tag])
-        if "p0" in preconstrains.keys():
-            val = preconstrains['p0']['val']
-            err = preconstrains['p0']['err']
-            self.addSystematic(p0,"param",[val,err])
-        else:
-            val = 15.0
-        self.w.factory("{name}[{val},10,60]".format(name=p0,val=val))
+        systp0 = "CMS_VV_JJ_"+p0
+        #if "p0" in preconstrains.keys():
+            #val = preconstrains['p0']['val']
+            #err = preconstrains['p0']['err']*200
+            ##self.addSystematic(p0,"param",[val,err])
+        #else:
+            #val = 15.0
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=systp0,val=0,err=0.5))
+       
 
         p1="_".join(["p1",tag])
-        if "p1" in preconstrains.keys():
-            val = preconstrains['p1']['val']
-            err = preconstrains['p1']['err']
-            self.addSystematic(p1,"param",[val,err])
-        else:
-            val = 0.001
-        self.w.factory("{name}[{val},0,5]".format(name=p1,val=val))
-
+        systp1= "CMS_VV_JJ_"+p1
+        #if "p1" in preconstrains.keys():
+            #val = preconstrains['p1']['val']
+            #err = preconstrains['p1']['err']*100
+            ##self.addSystematic(p1,"param",[val,err])
+        #else:
+            #val = 0.001
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=systp1,val=0,err=0.5))
+        #print p1
+        #print val 
+        #print err
 
         p2="_".join(["p2",tag])
-        if "p2" in preconstrains.keys():
-            val = preconstrains['p2']['val']
-            err = preconstrains['p2']['err']
-            self.addSystematic(p2,"param",[val,err])
-        else:
-            val = 0.001
-
-
+        systp2= "CMS_VV_JJ_"+p2
+        #if "p2" in preconstrains.keys():
+            #val = preconstrains['p2']['val']
+            #err = preconstrains['p2']['err']*100
+            ##self.addSystematic(p2,"param",[val,err])
+        #else:
+            #val = 0.001
         
         if logTerm:
-            self.w.factory("{name}[{val},0,1000]".format(name=p2,val=val))
+            self.w.factory("{name}[{val},-{err},{err}]".format(name=systp2,val=0,err=0.5))
         else:    
-            self.w.factory("{name}[0]".format(name=p2))
+            self.w.factory("{name}[0]".format(name=systp2))
 
         pdfName="_".join([name,self.tag])
-        qcd = ROOT.RooQCDPdf(pdfName,pdfName,self.w.var(MVV),self.w.var(p0),self.w.var(p1),self.w.var(p2))
+        qcd = ROOT.RooQCDPdf(pdfName,pdfName,self.w.var(MVV),self.w.var(systp0),self.w.var(systp1),self.w.var(systp2))
         getattr(self.w,'import')(qcd,ROOT.RooFit.Rename(pdfName))
+        
+        
+    def addMjetBackgroundShapeVJets(self,name,variable,newTag="",preconstrains={}):
+        Mjet=variable
+        self.w.factory(Mjet+"[0,10000]")
+        if newTag !="":
+            tag=newTag
+        else:
+            tag=name+"_"+self.tag
+
+        p0="_".join(["c_0",tag])
+        if "c_0" in preconstrains.keys():
+            val = preconstrains['c_0']['val']
+            err = preconstrains['c_0']['err']
+            #self.addSystematic(p0,"param",[val,err])
+        else:
+            val = 15.0
+            print "attention set value to default in addMjetBackgroundShapeVJets"
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=p0,val=val,err=err))
+        p1="_".join(["c_1",tag])
+        if "c_1" in preconstrains.keys():
+            val = preconstrains['c_1']['val']
+            err = preconstrains['c_1']['err']
+            #self.addSystematic(p1,"param",[val,err])
+        else:
+            val = 0.001
+            print "attention set value to default in addMjetBackgroundShapeVJets"
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=p1,val=val,err=err))
+
+        p2="_".join(["c_2",tag])
+        if "c_2" in preconstrains.keys():
+            val = preconstrains['c_2']['val']
+            err = preconstrains['c_2']['err']
+            #self.addSystematic(p2,"param",[val,err])
+        else:
+            val = 0.001
+            print "attention set value to default in addMjetBackgroundShapeVJets"
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=p2,val=val,err=err))
+        pdfName="_".join([name,self.tag])
+        wjet = ROOT.RooErfPowPdf(pdfName,pdfName,self.w.var(Mjet),self.w.var(p0),self.w.var(p1),self.w.var(p2))
+        getattr(self.w,'import')(wjet,ROOT.RooFit.Rename(pdfName))
+
+
+    def addMjetBackgroundShapeVJetsRes(self,name,variable,newTag="",preconstrains={},scale ={},resolution={}):
+        print "start importing shapes for resonant Vjets backgorund "+str(name)
+        
+        Mjet=variable
+        self.w.var(Mjet)
+        if self.w.var(Mjet)==None:
+            self.w.factory(Mjet+"[0,10000]")
+        
+        scaleStr='0'
+        resolutionStr='0'
+
+        scaleSysts=[]
+        resolutionSysts=[]
+        for syst,factor in scale.iteritems():
+            self.w.factory(syst+"[0,-0.1,0.1]")
+            scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            scaleSysts.append(syst)
+        for syst,factor in resolution.iteritems():
+            self.w.factory(syst+"[0,-0.5,0.5]")
+            resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            resolutionSysts.append(syst)
+        
+        
+        
+        if newTag !="":
+            tag=newTag
+        else:
+            tag=name+"_"+self.tag
+
+        mean="_".join(["mean",tag])
+        if "mean" in preconstrains.keys():
+            val = preconstrains['mean']['val']
+            err = preconstrains['mean']['err']
+            if err==None:
+                err =0
+            ##self.addSystematic(mean,"param",[val,err])
+        #else:
+            #val = 15.0
+            #print "attention set value to default in addMjetBackgroundShapeVJetsRes"
+        #self.w.factory("{name}[{val},-{err},{err}]".format(name=mean,val=val,err=err))
+        print " tessssssssssssssssssssssssssssssssssssssssssssssssssssssssssst"
+        print mean
+        self.w.factory("expr::{name}('{param}*(1+{vv_syst})',{vv_systs})".format(name=mean,param=val,vv_syst=scaleStr,vv_systs=','.join(scaleSysts)))
+        
+        
+        sigma="_".join(["sigma",tag])
+        if "sigma" in preconstrains.keys():
+            val = preconstrains['sigma']['val']
+            err = preconstrains['sigma']['err']
+            if err==None:
+                err =0
+            #self.addSystematic(sigma,"param",[val,err])
+        else:
+            val = 15.0
+            print "attention set value to default in addMjetBackgroundShapeVJetsRes"
+        #self.w.factory("{name}[{val},-{err},{err}]".format(name=sigma,val=val,err=err))
+        #print sigma
+        self.w.factory("expr::{name}('({param})*(1+{vv_syst})',{vv_systs})".format(name=sigma,param=val,vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
+        #print "expr::{name}('{param}*(1+{vv_syst})',{vv_systs})".format(name=sigma,param=val,vv_syst=scaleStr,vv_systs=','.join(resolutionSysts))
+        print "  W jet resolution !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        
+        
+        alpha="_".join(["alpha",tag])
+        if "alpha" in preconstrains.keys():
+            val = preconstrains['alpha']['val']
+            err = preconstrains['alpha']['err']
+            if err==None:
+                err =0
+            #self.addSystematic(alpha,"param",[val,err])
+        else:
+            val = 15.0
+            print "attention set value to default in addMjetBackgroundShapeVJets"
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=alpha,val=val,err=err))
+        
+       
+        n="_".join(["n",tag])
+        if "n" in preconstrains.keys():
+            val = preconstrains['n']['val']
+            err = preconstrains['n']['err']
+            if err==None:
+                err =0
+            #self.addSystematic(n,"param",[val,err])
+        else:
+            val = 15.0
+            print "attention set value to default in addMjetBackgroundShapeVJets"
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=n,val=val,err=err))
+        alpha2="_".join(["alpha2",tag])
+        if "mean" in preconstrains.keys():
+            val = preconstrains['alpha2']['val']
+            err = preconstrains['alpha2']['err']
+            if err==None:
+                err =0
+            #self.addSystematic(alpha2,"param",[val,err])
+        else:
+            val = 15.0
+            print "attention set value to default in addMjetBackgroundShapeVJets"
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=alpha2,val=val,err=err))
+        n2="_".join(["n2",tag])
+        if "n2" in preconstrains.keys():
+            val = preconstrains['n2']['val']
+            err = preconstrains['n2']['err']
+            if err==None:
+                err =0
+            #self.addSystematic(n2,"param",[val,err])
+        else:
+            val = 15.0
+            print "attention set value to default in addMjetBackgroundShapeVJets"
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=n2,val=val,err=err))
+        pdfName="_".join([name,self.tag])
+        
+        
+        wjet = ROOT.RooDoubleCB(pdfName,pdfName,self.w.var(Mjet),self.w.function(mean),self.w.function(sigma),self.w.var(alpha),self.w.var(n),self.w.var(alpha2),self.w.var(n2))
+        getattr(self.w,'import')(wjet,ROOT.RooFit.Rename(pdfName))
 
 
 
@@ -849,10 +1016,10 @@ class DataCardMaker:
         pdfName="_".join([name,self.tag])
         pdfName1="_".join([pdf1,self.tag])
         pdfName2="_".join([pdf2,self.tag])
-        if sumVarExpr=='':
-            self.w.factory(sumVar+"[0,1]")
-        else:    
-            self.w.factory("expr::"+sumVar+"("+sumVarExpr+")")
+        #if sumVarExpr=='':
+        #    self.w.factory(sumVar+"[0,1]")
+        #else:    
+        #    self.w.factory("expr::"+sumVar+"("+sumVarExpr+")")
         self.w.factory("SUM::{name}({f}*{name1},{name2})".format(name=pdfName,name1=pdfName1,f=sumVar,name2=pdfName2))
 
 
@@ -877,11 +1044,18 @@ class DataCardMaker:
         self.w.factory("PROD::{name}({name1},{name2})".format(name=pdfName,name1=pdfName1,name2=pdfName2))
 
     def product3D(self,name,pdf1,pdf2,pdf3):
+        print self.tag
         pdfName="_".join([name,self.tag])
         pdfName1="_".join([pdf1,self.tag])
         pdfName2="_".join([pdf2,self.tag])
         pdfName3="_".join([pdf3,self.tag])
+        print pdfName
+        print pdfName1
+        print pdfName2
+        print pdfName3
         self.w.factory("PROD::{name}({name1},{name2},{name3})".format(name=pdfName,name1=pdfName1,name2=pdfName2,name3=pdfName3))
+        
+   
 
 
 

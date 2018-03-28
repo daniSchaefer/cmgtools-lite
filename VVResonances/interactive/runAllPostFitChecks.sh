@@ -33,36 +33,21 @@
 # ##################################################################################################
 
 # for the default systematics ####################################################################
-aw=("/home/dschaefer/DiBoson3D/finalKernels/workspace_testSyst.root" "/home/dschaefer/DiBoson3D/finalKernels/JJ_WprimeWZ_madgraph_HPHP.root" "/home/dschaefer/DiBoson3D/finalKernels/workspace_herwig.root" "workspace_testBatch_HPHP.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_pythia_nominal_dataherwig.root" "/home/dschaefer/DiBoson3D/workspaces/workspace_datamadgraph.root")
-al=("testSyst_HPHP" "datamadgraph_HPHP" "dataherwig_HPHP" "datapythia_testbatch" "dataherwig_HPHP" "datamadgraph_HPHP")
+aw=("workspace_test.root" "/home/dschaefer/DiBoson3D/finalKernels/workspace_pythia.root" "/home/dschaefer/DiBoson3D/finalKernels/JJ_WprimeWZ_madgraph_HPHP.root" "/home/dschaefer/DiBoson3D/finalKernels/workspace_herwig.root" )
+al=("test_HPHP" "datapythia_HPHP" "datamadgraph_HPHP" "dataherwig_HPHP" )
 o="/home/dschaefer/DiBoson3D/GoodnessOfFitTests/"
+histos=("/home/dschaefer/DiBoson3D/finalKernels/JJ_pythia_HPHP.root" "/home/dschaefer/DiBoson3D/finalKernels/JJ_pythia_HPHP.root" "/home/dschaefer/DiBoson3D/finalKernels/JJ_madgraph_HPHP.root" "/home/dschaefer/DiBoson3D/finalKernels/JJ_herwig_HPHP.root")
+
 
 pdfs="nonResNominal_JJ_WprimeWZ_HPHP_13TeV,nonRes_PTZDown_JJ_WprimeWZ_HPHP_13TeV,nonRes_OPTZUp_JJ_WprimeWZ_HPHP_13TeV,nonRes_PTZUp_JJ_WprimeWZ_HPHP_13TeV,nonRes_OPTZDown_JJ_WprimeWZ_HPHP_13TeV,nonRes_PTXYUp_JJ_WprimeWZ_HPHP_13TeV,nonRes_PTXYDown_JJ_WprimeWZ_HPHP_13TeV,nonRes_OPTXYUp_JJ_WprimeWZ_HPHP_13TeV,nonRes_OPTXYDown_JJ_WprimeWZ_HPHP_13TeV"
 #pdfs="nonResNominal_JJ_WprimeWZ_HPLP_13TeV,nonRes_PTZDown_JJ_WprimeWZ_HPLP_13TeV,nonRes_OPTZUp_JJ_WprimeWZ_HPLP_13TeV,nonRes_PTZUp_JJ_WprimeWZ_HPLP_13TeV,nonRes_OPTZDown_JJ_WprimeWZ_HPLP_13TeV,nonRes_PTXYUp_JJ_WprimeWZ_HPLP_13TeV,nonRes_PTXYDown_JJ_WprimeWZ_HPLP_13TeV,nonRes_OPTXYUp_JJ_WprimeWZ_HPLP_13TeV,nonRes_OPTXYDown_JJ_WprimeWZ_HPLP_13TeV"
 ##################################################################################################
 
 
-for i in `seq 2 2`;
+for i in `seq 0 0`;
 do
 echo ${aw[i]}
-# python runFitPlots.py -p z -f -n ${aw[i]}  -l ${al[i]} -o ${o} --log ${al[i]}.log --pdf ${pdfs} 
-# python runFitPlots.py -p y -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs}
-   python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} 
-# #   python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -z 1350,1400
-# #    python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -z 1400,1450
-#      python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} 
-#   python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 205,207 -y 91,93
-#      python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 150,215 -y 150,215
-#      python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 150,215 -y 55,80
-#      python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 80,150 -y 150,215
-#     
-#     
-#     python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 55,65 -y 55,65
-#     python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 65,85 -y 65,85
-#     python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 85,105 -y 85,105
-#     python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 105,125 -y 105,125
-#     python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 125,145 -y 125,145
-#    python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -x 65,105 
-# 
+      python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} --hkernel ${histos[i]}
+#   python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -z 1000,1050 -y 55,60 -x 55,60
 done
 echo "############ end of script #################"

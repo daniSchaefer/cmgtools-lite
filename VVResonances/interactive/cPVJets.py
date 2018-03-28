@@ -44,11 +44,16 @@ if __name__=="__main__":
     lumi = 35900.
     purity="HPHP"
     pdflist = "nonRes_PTZDown_JJ_"+sig+"_"+purity+"_13TeV,nonRes_OPTZUp_JJ_"+sig+"_"+purity+"_13TeV,nonRes_PTZUp_JJ_"+sig+"_"+purity+"_13TeV,nonRes_OPTZDown_JJ_"+sig+"_"+purity+"_13TeV,nonRes_PTXYUp_JJ_"+sig+"_"+purity+"_13TeV,nonRes_PTXYDown_JJ_"+sig+"_"+purity+"_13TeV,nonRes_OPTXYUp_JJ_"+sig+"_"+purity+"_13TeV,nonRes_OPTXYDown_JJ_"+sig+"_"+purity+"_13TeV"
-    infiles = ["/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive/JJ_WJets_HPHP.root","/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive/JJ_ZJets_HPHP.root","/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive/JJ_ttbar_HPHP.root"]
+    infiles = ["/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive/JJ_WJets_resl1_HPHP.root","/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive/JJ_ZJets_resl1_HPHP.root"]#,"/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive/JJ_ttbar_HPHP.root"]
+    infiles = ["/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive/JJ_ZJets_resl1_HPHP.root"]
     
     # get "data" of Vjets events
     f =(ROOT.TFile(infiles[0],"READ"))
     V_jets_histo  =  f.Get("WJets")
+    if V_jets_histo==None:
+        V_jets_histo  =  f.Get("ZJets")
+    if V_jets_histo==None:
+        V_jets_histo  =  f.Get("ttbar")
     V_jets_histo.Scale(lumi)
     nEvents= V_jets_histo.Integral()
     for i in range(1,len(infiles)):
@@ -61,6 +66,7 @@ if __name__=="__main__":
             tmp_histo = tmp.Get("ttbar")
         tmp_histo.Scale(lumi)
         nEvents += tmp_histo.Integral()
+        V_jets_histo.Add(tmp_histo)
    
     # get binning (necessary to make plots)
     binsxy = getListOfBinsLowEdge(V_jets_histo,"x")
@@ -105,9 +111,13 @@ if __name__=="__main__":
     arglist = ROOT.RooArgList(args)
      
     # get pdf for Wjets component from workspace:
-    vjets_shape = workspace.pdf("shapeBkg_Wjet_JJ_WprimeWZ_HPHP_13TeV")
-    vjets_shape.SetName("WJets_postfit") 
-     
+    wjets_shape = workspace.pdf("shapeBkg_Wjet_JJ_WprimeWZ_HPHP_13TeV")
+    wjets_shape.SetName("WJets_postfit")
+    zjets_shape = workspace.pdf("shapeBkg_Zjet_JJ_WprimeWZ_HPHP_13TeV")
+    ratio_wz = ROOT.RooRealVar("ratio","ratio",1.)
+    #vjets_shape = ROOT.RooAddPdf("vjets_postfit","vjets_postfit",wjets_shape,zjets_shape,ratio_wz)
+    vjets_shape = zjets_shape
+    vjets_shape.SetName("v_jets_postfit")
      
     # make plots with QCD components and alternative shapes:
      
@@ -117,21 +127,21 @@ if __name__=="__main__":
     #doXprojection(allpdfs,vjets,nEvents,binsxy,xBins,xBins,zBins_redux,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
     #doYprojection(allpdfs,vjets,nEvents,binsxy,xBins_redux,xBins,zBins_redux,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
      
-    #if vjets_shape!=None:
-        ##vjets_shape.fitTo(vjets)
-        #doZprojection([vjets_shape,pdf_shape],vjets,nEvents,binsz,xBins_redux,yBins_redux,zBins,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
-        #doXprojection([vjets_shape,pdf_shape],vjets,nEvents,binsxy,xBins_redux,yBins_redux,zBins_redux,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
-        #doYprojection([vjets_shape,pdf_shape],vjets,nEvents,binsxy,yBins_redux,xBins_redux,zBins_redux,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
+    if vjets_shape!=None:
+        #vjets_shape.fitTo(vjets)
+        doZprojection([vjets_shape,pdf_shape],vjets,nEvents,binsz,xBins_redux,yBins_redux,zBins,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
+        doXprojection([vjets_shape,pdf_shape],vjets,nEvents,binsxy,xBins_redux,yBins_redux,zBins_redux,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
+        doYprojection([vjets_shape,pdf_shape],vjets,nEvents,binsxy,yBins_redux,xBins_redux,zBins_redux,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
         
         
         
-    data = getNominalData(bkg_histo,nEvents_qcd,[V_jets_histo],[nEvents],binsxy,binsz,args,category)
-    model_b.fitTo(data)
-    doZprojection([model_b,pdf_shape],data,nEvents+nEvents_qcd,binsz,xBins_redux,yBins_redux,zBins,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
-    doXprojection([model_b,pdf_shape],data,nEvents+nEvents_qcd,binsxy,xBins_redux,yBins_redux,zBins_redux,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
-    doYprojection([model_b,pdf_shape],data,nEvents+nEvents_qcd,binsxy,yBins_redux,xBins_redux,zBins_redux,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
+    #data = getNominalData(bkg_histo,nEvents_qcd,[V_jets_histo],[nEvents],binsxy,binsz,args,category)
+    #model_b.fitTo(data)
+    #doZprojection([model_b,pdf_shape],data,nEvents+nEvents_qcd,binsz,xBins_redux,yBins_redux,zBins,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
+    #doXprojection([model_b,pdf_shape],data,nEvents+nEvents_qcd,binsxy,xBins_redux,yBins_redux,zBins_redux,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
+    #doYprojection([model_b,pdf_shape],data,nEvents+nEvents_qcd,binsxy,yBins_redux,xBins_redux,zBins_redux,xBinsWidth,xBinsWidth,zBinsWidth,MJ1,MJ2,MJJ,args,options)
     
-    print "set number of background events to " +str(nEvents_qcd)
-    print "number of wjets events "+str(nEvents)
-    print "normalise pdfs to "+str(nEvents+nEvents_qcd)
+    #print "set number of background events to " +str(nEvents_qcd)
+    #print "number of wjets events "+str(nEvents)
+    #print "normalise pdfs to "+str(nEvents+nEvents_qcd)
     

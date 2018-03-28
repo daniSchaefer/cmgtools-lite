@@ -26,6 +26,14 @@ parser.add_option("-f","--fix",dest="fixPars",help="Fixed parameters",default=""
 samples={}
 
 label = options.output.split(".root")[0]
+t  = label.split("_")
+el=""
+for words in t:
+    if words.find("HP")!=-1 or words.find("LP")!=-1:
+        continue
+    el+=words+"_"
+label = el
+
 
 for filename in os.listdir(args[0]):
     if not (filename.find(options.sample)!=-1):
@@ -82,70 +90,70 @@ for name in samples.keys():
         fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_Res.png")
         params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}, "alpha":{ "val": fitter.w.var("alpha").getVal(), "err": fitter.w.var("alpha")},"alpha2":{"val": fitter.w.var("alpha2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()},"n2": {"val": fitter.w.var("n2").getVal(), "err": fitter.w.var("n2").getError()}}
         
-        print 'fitting non-resonant contribution: ' 
+        print 'calculate non-resonant contribution: ' 
         plotter=TreePlotter(args[0]+'/'+samples[name]+'.root','tree')
         plotter.addCorrectionFactor('genWeight','tree')
         plotter.addCorrectionFactor('puWeight','tree')
         
             
-        fitter=Fitter(['x'])
-        fitter.erfexp('model','x')
+        #fitter=Fitter(['x'])
+        #fitter.erfexp('model','x')
 
-        if options.fixPars!="":
-            fixedPars =options.fixPars.split(',')
-            for par in fixedPars:
-                if par!="c_0" and par!="c_1" and par!="c_2":
-                    continue
-                parVal = par.split(':')
-                fitter.w.var(parVal[0]).setVal(float(parVal[1]))
-                fitter.w.var(parVal[0]).setConstant(1)
+        #if options.fixPars!="":
+            #fixedPars =options.fixPars.split(',')
+            #for par in fixedPars:
+                #if par!="c_0" and par!="c_1" and par!="c_2":
+                    #continue
+                #parVal = par.split(':')
+                #fitter.w.var(parVal[0]).setVal(float(parVal[1]))
+                #fitter.w.var(parVal[0]).setConstant(1)
 
         histo = plotter.drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==0)","1",80,options.mini,options.maxi)
         if leg.find("l1")!=-1:
             NnonRes[0] += histo.Integral()
         else:
             NnonRes[1] += histo.Integral()
-        fitter.importBinnedData(histo,['x'],'data')
-        fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
-        fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0),ROOT.RooFit.Minos(1)])
-        fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_nonRes.png")
+        #fitter.importBinnedData(histo,['x'],'data')
+        #fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
+        #fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0),ROOT.RooFit.Minos(1)])
+        #fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_nonRes.png")
         
-        params[label+"_nonRes_"+leg]={"c_0":{"val": fitter.w.var("c_0").getVal(), "err": fitter.w.var("c_0").getError()}, "c_1": {"val": fitter.w.var("c_1").getVal(), "err": fitter.w.var("c_1").getError()},"c_2": {"val" :fitter.w.var("c_2").getVal(), "err": fitter.w.var("c_2").getError()}}
+        #params[label+"_nonRes_"+leg]={"c_0":{"val": fitter.w.var("c_0").getVal(), "err": fitter.w.var("c_0").getError()}, "c_1": {"val": fitter.w.var("c_1").getVal(), "err": fitter.w.var("c_1").getError()},"c_2": {"val" :fitter.w.var("c_2").getVal(), "err": fitter.w.var("c_2").getError()}}
     
         ########################### make fits in bins of mVV as test of correlations #######################
         #print 'fitting resonant contribution: ' 
-        addcuts = ["*(jj_LV_mass>=1000 && jj_LV_mass<7000)","*(jj_LV_mass>=400 && jj_LV_mass<800)","*(jj_LV_mass>=800 && jj_LV_mass<1000)","*(jj_LV_mass>=1000 && jj_LV_mass<1100)","*(jj_LV_mass>=1100 && jj_LV_mass<1400)","*(jj_LV_mass>=1400 && jj_LV_mass<7000)"]
-        plotter=TreePlotter(args[0]+'/'+samples[name]+'.root','tree')
-        plotter.addCorrectionFactor('genWeight','tree')
-        plotter.addCorrectionFactor('puWeight','tree')
-        Nj=0
-        fitter=Fitter(['x'])
-        frame = fitter.w.var('x').frame(55,215)
-        fitters=[]
-        pdfs =[]
-        log=open("forCorr_"+options.output.replace(".root","")+".py","w")
-        for c in addcuts:
-            fitters.append(Fitter(['x']))
-            fitters[Nj].jetResonanceVjets('model','x')
-            histo = plotter.drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)"+c,"1",80,options.mini,options.maxi)
-            fitters[Nj].importBinnedData(histo,['x'],'data')
-            fitters[Nj].fit('model','data',[ROOT.RooFit.SumW2Error(0)])
-            fitters[Nj].fit('model','data',[ROOT.RooFit.SumW2Error(0),ROOT.RooFit.Minos(1)])
-            fitters[Nj].projection("model","data","x","debug_"+leg+"_"+options.output+"_Corr"+str(Nj)+".png")
-            pdfs.append(fitters[Nj].w.pdf("model"))
-            params[label+"_Res_"+leg+"_"+str(Nj)]={"mean": {"val": fitters[Nj].w.var("mean").getVal(), "err": fitters[Nj].w.var("mean").getError()}, "sigma": {"val": fitters[Nj].w.var("sigma").getVal(), "err": fitters[Nj].w.var("sigma").getError()}, "alpha":{ "val": fitters[Nj].w.var("alpha").getVal(), "err": fitters[Nj].w.var("alpha").getError()},"alpha2":{"val": fitters[Nj].w.var("alpha2").getVal(),"err": fitters[Nj].w.var("alpha2").getError()},"n":{ "val": fitters[Nj].w.var("n").getVal(), "err": fitters[Nj].w.var("n").getError()},"n2": {"val": fitters[Nj].w.var("n2").getVal(), "err": fitters[Nj].w.var("n2").getError()}}
-            pdfs[Nj].SetName("model_"+str(Nj))
-            Nj+=1
-        for par in params:
-            log.write(str(par)+ " = " +str(params[par])+"\n")
-        for pdf in pdfs:
-            print pdf
-            pdf.plotOn(frame)
-        print frame
-        ctest = ROOT.TCanvas("ctest","ctest",400,400)
-        frame.Draw()
-        ctest.Update()
-        ctest.SaveAs("testCorreslations_"+options.output+".png")
+        #addcuts = ["*(jj_LV_mass>=1000 && jj_LV_mass<7000)","*(jj_LV_mass>=400 && jj_LV_mass<800)","*(jj_LV_mass>=800 && jj_LV_mass<1000)","*(jj_LV_mass>=1000 && jj_LV_mass<1100)","*(jj_LV_mass>=1100 && jj_LV_mass<1400)","*(jj_LV_mass>=1400 && jj_LV_mass<7000)"]
+        #plotter=TreePlotter(args[0]+'/'+samples[name]+'.root','tree')
+        #plotter.addCorrectionFactor('genWeight','tree')
+        #plotter.addCorrectionFactor('puWeight','tree')
+        #Nj=0
+        #fitter=Fitter(['x'])
+        #frame = fitter.w.var('x').frame(55,215)
+        #fitters=[]
+        #pdfs =[]
+        #log=open("forCorr_"+options.output.replace(".root","")+".py","w")
+        #for c in addcuts:
+            #fitters.append(Fitter(['x']))
+            #fitters[Nj].jetResonanceVjets('model','x')
+            #histo = plotter.drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)"+c,"1",80,options.mini,options.maxi)
+            #fitters[Nj].importBinnedData(histo,['x'],'data')
+            #fitters[Nj].fit('model','data',[ROOT.RooFit.SumW2Error(0)])
+            #fitters[Nj].fit('model','data',[ROOT.RooFit.SumW2Error(0),ROOT.RooFit.Minos(1)])
+            #fitters[Nj].projection("model","data","x","debug_"+leg+"_"+options.output+"_Corr"+str(Nj)+".png")
+            #pdfs.append(fitters[Nj].w.pdf("model"))
+            #params[label+"_Res_"+leg+"_"+str(Nj)]={"mean": {"val": fitters[Nj].w.var("mean").getVal(), "err": fitters[Nj].w.var("mean").getError()}, "sigma": {"val": fitters[Nj].w.var("sigma").getVal(), "err": fitters[Nj].w.var("sigma").getError()}, "alpha":{ "val": fitters[Nj].w.var("alpha").getVal(), "err": fitters[Nj].w.var("alpha").getError()},"alpha2":{"val": fitters[Nj].w.var("alpha2").getVal(),"err": fitters[Nj].w.var("alpha2").getError()},"n":{ "val": fitters[Nj].w.var("n").getVal(), "err": fitters[Nj].w.var("n").getError()},"n2": {"val": fitters[Nj].w.var("n2").getVal(), "err": fitters[Nj].w.var("n2").getError()}}
+            #pdfs[Nj].SetName("model_"+str(Nj))
+            #Nj+=1
+        #for par in params:
+            #log.write(str(par)+ " = " +str(params[par])+"\n")
+        #for pdf in pdfs:
+            #print pdf
+            #pdf.plotOn(frame)
+        #print frame
+        #ctest = ROOT.TCanvas("ctest","ctest",400,400)
+        #frame.Draw()
+        #ctest.Update()
+        #ctest.SaveAs("testCorreslations_"+options.output+".png")
     
     
         ####################################################################################################
@@ -194,7 +202,7 @@ for name in samples.keys():
             fitter.w.var(parVal[0]).setVal(float(parVal[1]))
             fitter.w.var(parVal[0]).setConstant(1)
 
-    histo = plotter.drawTH1("jj_LV_mass",options.cut,"1",36,1000,5000)
+    histo = plotter.drawTH1("jj_LV_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)","1",36,1000,5000)
     c = ROOT.TCanvas("c",'C',400,400)
     histo.Draw("hist")
     c.SaveAs("test.pdf")

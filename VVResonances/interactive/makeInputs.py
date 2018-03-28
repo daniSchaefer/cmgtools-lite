@@ -40,7 +40,12 @@ cat['NP2'] = '(jj_l2_tau2/jj_l2_tau1+(0.082*TMath::Log((jj_l2_softDrop_mass*jj_l
 
 cuts={}
 
+# from clemens correct met filters: 
+cat_metFilters = "(((run>2000*Flag_eeBadScFilter)+(run<2000))&&Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&Flag_BadPFMuonFilter&&Flag_BadChargedCandidateFilter&&Flag_ecalBadCalibFilter)"
+
 cuts['common'] = '((HLT_JJ)*(run>500) + (run<500))*(njj>0&&Flag_goodVertices&&Flag_CSCTightHaloFilter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&jj_LV_mass>700&&abs(jj_l1_eta-jj_l2_eta)<1.3&&jj_l1_softDrop_mass>0.&&jj_l2_softDrop_mass>0.)'
+
+cuts['common18'] = '((HLT_JJ)*(run>500) + (run<500))*(njj>0&&Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&jj_LV_mass>700&&abs(jj_l1_eta-jj_l2_eta)<1.3&&jj_l1_softDrop_mass>0.&&jj_l2_softDrop_mass>0.)'
 
 cuts['trigger'] = '(HLT_BIT_HLT_PFHT900_v || HLT_BIT_HLT_AK8PFJet360_TrimMass30_v)'
 
@@ -50,15 +55,23 @@ cuts['HPLP'] = '(('+cat['HP1']+'&&'+cat['LP2']+')||('+cat['LP1']+'&&'+cat['HP2']
 cuts['NP'] = '(('+cat['LP1']+'&&'+cat['NP2']+')||('+cat['NP1']+'&&'+cat['LP2']+'))'
 
 cuts['nonres'] = '1'
+cuts['resl1'] = '(jj_l1_mergedVTruth==1)'
+cuts['resl2'] = '(jj_l2_mergedVTruth==1)'
 
 purities=['HPHP','HPLP','LPLP','NP']
 purities=['HPHP','HPLP']
-purities=['HPHP']
+#purities=['HPHP']
 
 BulkGravWWTemplate="BulkWW"
 BulkGravZZTemplate="BulkGravToZZToZhadZhad_narrow"
 WprimeTemplate= "WprimeToWZ"
+WJetsTemplate= "WJetsToQQ_HT600"
+ZJetsTemplate= "ZJetsToQQ_HT600"
+VJetsTemplate= "Jets"
+TTbarTemplate= "TTHad_pow"
 ZprimeWWTemplate= "ZprimeWW"
+WJetsTemplate17= "WJetsToQQ_HT800"
+ZJetsTemplate17= "ZJetsToQQ_HT800"
 # use arbitrary cross section 0.001 so limits converge better
 BRWW=1.*0.001
 BRZZ=1.*0.001*0.6991*0.6991
@@ -82,6 +95,7 @@ binsMJ=80
 binsMVV=100
 if dijetBinning:
     binsMVV = 36
+    #binsMJ=40
 
 cuts['acceptance']= "(jj_LV_mass>{minMVV}&&jj_LV_mass<{maxMVV}&&jj_l1_softDrop_mass>{minMJ}&&jj_l1_softDrop_mass<{maxMJ}&&jj_l2_softDrop_mass>{minMJ}&&jj_l2_softDrop_mass<{maxMJ})".format(minMVV=minMVV,maxMVV=maxMVV,minMJ=minMJ,maxMJ=maxMJ)
 cuts['acceptanceGEN']='(jj_l1_gen_softDrop_mass>20&&jj_l2_gen_softDrop_mass>20&&jj_l1_gen_softDrop_mass<300&&jj_l2_gen_softDrop_mass<300&&jj_gen_partialMass>600&&jj_gen_partialMass<6000)'
@@ -267,12 +281,12 @@ def mergeKernelJobs():
 def mergeBackgroundShapes(name,filename):
 
  for p in purities:
-  inputx=filename+"_"+name+"_COND2D_"+p+"_l1.root"	
-  inputy=filename+"_"+name+"_COND2D_"+p+"_l2.root"	
+  inputx="testmjetBinning_"+filename+"_"+name+"_COND2D_"+p+"_l1.root"	
+  inputy="testmjetBinning_"+filename+"_"+name+"_COND2D_"+p+"_l2.root"	
   #inputz=filename+"_"+name+"_MVV_"+p+".root"  
   inputz= "test_nonRes_MVV_HPHP.root"
   #rootFile=filename+"_"+name+"_2D_"+p+".root"
-  rootFile="test_"+filename+"_"+name+"_2D_"+p+".root"
+  rootFile="testmjetBinning_"+filename+"_"+name+"_2D_"+p+".root"
   print "Reading " ,inputx
   print "Reading " ,inputy
   print "Reading " ,inputz
@@ -288,6 +302,8 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1,jobName
    rootFile=filename+"_"+name+"_"+p+".root"
    print "Saving to ",rootFile  
    cut='*'.join([cuts['common'],cuts[p],addCut,cuts['acceptance']])
+   if filename.find("ttbar")!=-1 or template.find("HT800")!=-1:
+        cut='*'.join([cuts['common18'],cuts[p],addCut,cuts['acceptance']]) 
    if submitToBatch:
            # template += ",QCD_Pt-,QCD_HT"
 	   from modules.submitJobs import makeData,mergeData
@@ -297,6 +313,32 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',factor=1,jobName
         cmd='vvMakeData.py -s "{samples}" -d {data} -c "{cut}"  -o "{rootFile}" -v "jj_l1_softDrop_mass,jj_l2_softDrop_mass,jj_LV_mass" -b "{bins},{bins},{BINS}" -m "{mini},{mini},{MINI}" -M "{maxi},{maxi},{MAXI}" -f {factor} -n "{name}"  samples'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV,bins=binsMJ,MINI=minMVV,MAXI=maxMVV,mini=minMJ,maxi=maxMJ,factor=factor,name=name,data=data)
         cmd=cmd+HCALbinsMVV
         os.system(cmd)
+        
+def fitVJets(filename,template):
+  for p in purities:
+    #cut='*'.join([cuts['common'],cuts[p],cuts['acceptance']])
+    cut='*'.join([cuts['common'],cuts[p],cuts['acceptance']])
+    if template.find('HT800')!=-1:
+        cut='*'.join([cuts['common18'],cuts[p],cuts['acceptance']])
+    rootFile=filename+"_"+p+".root"
+    fixPars=""
+    if filename.find("W")!=-1:
+        fixPars="n:0.8"
+    cmd='vvMakeVjetsShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -m {minMJ} -M {maxMJ} -f "{fixPars}" --store "/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive/{filename}_{purity}_jecv6.py" samples'.format(template=template,cut=cut,rootFile=rootFile,minMJ=minMJ,maxMJ=maxMJ,fixPars=fixPars,filename=filename,purity=p)
+    os.system(cmd)
+    
+def fitTTbar(filename,template):
+  for p in purities:
+    cut='*'.join([cuts['common18'],cuts[p]])
+    #cut='*'.join([cuts['common18'],cuts[p],cuts["acceptance"]])
+    rootFile=filename+"_"+p+".root"
+    fixPars=""
+    cmd='vvMakeTTbar.py -s "{template}" -c "{cut}"  -o "{rootFile}" -m {minMJ} -M {maxMJ} -f "{fixPars}" --store "/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive/{filename}_{purity}.py" samples'.format(template=template,cut=cut,rootFile=rootFile,minMJ=minMJ,maxMJ=maxMJ,fixPars=fixPars,filename=filename,purity=p)
+    os.system(cmd)
+
+fitVJets("JJ_WJets",WJetsTemplate17)
+fitVJets("JJ_ZJets",ZJetsTemplate17)
+#fitTTbar("JJ_ttbar",TTbarTemplate)
 	
 #makeSignalShapesMVV("JJ_WprimeWZ",WprimeTemplate)
 #makeSignalShapesMJ("JJ_WprimeWZ",WprimeTemplate,'l1')
@@ -341,9 +383,14 @@ else:
 	#makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'],"1D",wait)
 	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
 	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
-	
+
+#makeBackgroundShapesMVVKernel("wjets","JJ",WJetsTemplate,"","1D",False)	
 #mergeBackgroundShapes("nonRes","JJ")
-makeNormalizations("nonRes","JJ_herwig",nonResTemplate,0,cuts['nonres'],1.0,"nR")
+#makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],1.0,"nR")
+#makeNormalizations("WJets","JJ",WJetsTemplate17,0,"",1.0,"nR")
+#makeNormalizations("WJets","JJ",WJetsTemplate,0,"",1.0,"nR")
+#makeNormalizations("ZJets","JJ",ZJetsTemplate,0,"",41.5/581.5,"nR")
+#makeNormalizations("ttbar","JJ",TTbarTemplate,0,"",1.,"nR")
 #### makeNormalizations("data","JJ",dataTemplate,1,'1',1.0,"normD") #run on data. Currently run on pseudodata only (below)
-from modules.submitJobs import makePseudodata
-for p in purities: makePseudodata("JJ_herwig_nonRes_%s.root"%p,p) #remove this when running on data!!
+#from modules.submitJobs import makePseudodata
+#for p in purities: makePseudodata("JJ_nonRes_%s.root"%p,p) #remove this when running on data!!

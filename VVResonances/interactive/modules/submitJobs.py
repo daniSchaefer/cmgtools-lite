@@ -1351,7 +1351,8 @@ def makePseudodata(infile,purity):
 	print "Making pseudodata from infile " ,infile
 	fin = ROOT.TFile.Open(infile,'READ')
 	hmcin = fin.Get('nonRes')
-	
+	print hmcin.Integral()
+	#hmcin.Scale(1/hmcin.Integral())
 	xbins = array("f",getListOfBinsLowEdge(hmcin,"x"))
 	zbins = array("f",getListOfBinsLowEdge(hmcin,"z"))
 	print xbins
@@ -1360,11 +1361,11 @@ def makePseudodata(infile,purity):
 	fout = ROOT.TFile.Open('JJ_%s.root'%purity,'RECREATE')
 	hout = ROOT.TH3F('data','data',len(xbins)-1,xbins,len(xbins)-1,xbins,len(zbins)-1,zbins)
 	hmcout = ROOT.TH3F('nonRes','nonRes',len(xbins)-1,xbins,len(xbins)-1,xbins,len(zbins)-1,zbins)
-	xbins2 = array("f",getListOfBinsLowEdge(hmcout,"x"))
-	zbins2 = array("f",getListOfBinsLowEdge(hmcout,"z"))
-	print xbins2
+	#xbins2 = array("f",getListOfBinsLowEdge(hmcout,"x"))
+	#zbins2 = array("f",getListOfBinsLowEdge(hmcout,"z"))
+	#print xbins2
 	hmcout.Add(hmcin)
-	
+
 	
 	
 	for k in range(1,hmcin.GetNbinsZ()+1):
@@ -1372,7 +1373,8 @@ def makePseudodata(infile,purity):
 	  for i in range(1,hmcin.GetNbinsX()+1):
 	   evs = hmcin.GetBinContent(i,j,k)*35900.
 	   #if evs >= 1:
-	   err = math.sqrt(evs)
+	   #err = math.sqrt(evs)
+	   err = hmcin.GetBinError(i,j,k)*35900.
 	   hout.SetBinContent(i,j,k,evs)
 	   hout.SetBinError(i,j,k,err)
 	

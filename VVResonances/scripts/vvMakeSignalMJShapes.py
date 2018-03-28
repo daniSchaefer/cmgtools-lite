@@ -48,8 +48,11 @@ for filename in os.listdir(args[0]):
     if ext.find("root") ==-1:
         continue
         
-
-    mass = float(fname.split('_')[-1])
+    if fname.split('_')[-1].find("HT")!=-1:
+        mass = 1500
+    else:
+        mass = float(fname.split('_')[-1])
+    
     if mass < options.minMX or mass > options.maxMX: continue	
 
         

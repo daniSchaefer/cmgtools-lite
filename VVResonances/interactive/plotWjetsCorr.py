@@ -31,9 +31,10 @@ def setMjetFunc(param, label):
 
 
 def setMjetFuncUp(param,label=""):
-    m=5
+    m=0
     up_mean    = ROOT.RooRealVar("mean_"+label,"mean_"+label,param['mean']["val"]       + param['mean']["err"]  *m)
-    up_sigma   = ROOT.RooRealVar("sigma_"+label,"sigma_"+label,param['sigma']["val"]    + param['sigma']["err"] *m)
+    #up_sigma   = ROOT.RooRealVar("sigma_"+label,"sigma_"+label,param['sigma']["val"]    + param['sigma']["err"] *m)
+    up_sigma   = ROOT.RooRealVar("sigma_"+label,"sigma_"+label,param['sigma']["val"]  *1.2)
     up_alpha   = ROOT.RooRealVar("alpha_"+label,"alpha_"+label,param['alpha']["val"]    + param['alpha']["err"] *m)
     up_n       = ROOT.RooRealVar("n_"+label,"n_"+label,param['n']["val"]                + param['n']["err"]     *m)
     up_alpha2  = ROOT.RooRealVar("alpha2_"+label,"alpha2_"+label,param['alpha2']["val"] + param['alpha2']["err"]*m)
@@ -41,9 +42,10 @@ def setMjetFuncUp(param,label=""):
     return [up_mean,up_sigma,up_alpha,up_n,up_alpha2,up_n2]
 
 def setMjetFuncDown(param,label=""):
-    m=5
+    m=0
     down_mean    = ROOT.RooRealVar("mean_"+label,"mean_"+label,param['mean']["val"]       - param['mean']["err"]  *m)
-    down_sigma   = ROOT.RooRealVar("sigma_"+label,"sigma_"+label,param['sigma']["val"]    - param['sigma']["err"] *m)
+    #down_sigma   = ROOT.RooRealVar("sigma_"+label,"sigma_"+label,param['sigma']["val"]    - param['sigma']["err"] *m)
+    down_sigma   = ROOT.RooRealVar("sigma_"+label,"sigma_"+label,param['sigma']["val"]  *0.8)
     down_alpha   = ROOT.RooRealVar("alpha_"+label,"alpha_"+label,param['alpha']["val"]    - param['alpha']["err"] *m)
     down_n       = ROOT.RooRealVar("n_"+label,"n_"+label,param['n']["val"]                - param['n']["err"]     *m)
     down_alpha2  = ROOT.RooRealVar("alpha2_"+label,"alpha2_"+label,param['alpha2']["val"] - param['alpha2']["err"]*m)

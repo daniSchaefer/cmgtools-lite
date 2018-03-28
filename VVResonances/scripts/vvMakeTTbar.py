@@ -113,7 +113,7 @@ for name in samples.keys():
     
         ########################### make fits in bins of mVV as test of correlations #######################
         #print 'fitting resonant contribution: ' 
-        addcuts = ["*(jj_LV_mass>=1000 && jj_LV_mass<7000)","*(jj_LV_mass>=400 && jj_LV_mass<800)","*(jj_LV_mass>=800 && jj_LV_mass<1000)","*(jj_LV_mass>=1000 && jj_LV_mass<1100)","*(jj_LV_mass>=1100 && jj_LV_mass<1400)","*(jj_LV_mass>=1400 && jj_LV_mass<7000)"]
+        addcuts = ["*(jj_LV_mass>=1000 && jj_LV_mass<1050)","*(jj_LV_mass>=1050 && jj_LV_mass<1100)","*(jj_LV_mass>=1100 && jj_LV_mass<1150)","*(jj_LV_mass>=1150 && jj_LV_mass<1200)","*(jj_LV_mass>=1200 && jj_LV_mass<1250)","*(jj_LV_mass>=1250 && jj_LV_mass<1300)"]
         plotter=TreePlotter(args[0]+'/'+samples[name]+'.root','tree')
         plotter.addCorrectionFactor('genWeight','tree')
         plotter.addCorrectionFactor('puWeight','tree')
