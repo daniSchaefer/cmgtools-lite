@@ -121,7 +121,7 @@ for sig in signals:
     card.addSystematic("CMS_scale_j","param",[0.0,0.02])
     card.addSystematic("CMS_res_j","param",[0.0,0.05])
     card.addSystematic("CMS_scale_prunedj","param",[0.0,0.02])
-    card.addSystematic("CMS_res_prunedj","param",[-0.2,0.02])
+    card.addSystematic("CMS_res_prunedj","param",[-0.2,0.001])
     #card.addSystematic("CMS_res_prunedj","param",[-0.1,0.05])
     #card.addSystematic("CMS_scale_prunedj","param",[0.0,0.0])
     #card.addSystematic("CMS_res_prunedj1","param",[-0.2,0.2])

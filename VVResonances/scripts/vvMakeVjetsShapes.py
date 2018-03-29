@@ -172,30 +172,40 @@ for leg in legs:
     
         ####################################################################################################
     
-        #print 'fitting all contributions: ' 
-        #plotter=TreePlotter(args[0]+'/'+samples[name]+'.root','tree')
-        #plotter.addCorrectionFactor('genWeight','tree')
-        #plotter.addCorrectionFactor('puWeight','tree')
+        print 'fitting all contributions: ' 
+        plotters=[]
+    for name in samples.keys():
+        print leg
+        print 'fitting resonant contribution: ' 
+        print "append "+samples[name]
+        plotters.append(TreePlotter(args[0]+'/'+samples[name]+'.root','tree'))
+        plotters[-1].setupFromFile(args[0]+'/'+fname+'.pck')
+        plotters[-1].addCorrectionFactor('xsec','tree')
+        plotters[-1].addCorrectionFactor('genWeight','tree')
+        plotters[-1].addCorrectionFactor('puWeight','tree')
         
-            
-        #fitter=Fitter(['x'])
-        #fitter.jetResonance('model','x')
+    for p in plotters:
+        sigmas.append(p.tree.GetMaximum("xsec")/p.weightinv)
+        p.addCorrectionFactor(1.0/sigmas[-1],'flat')    
+        
+    plotter=MergedPlotter(plotters)        
+    fitter=Fitter(['x'])
+    fitter.jetResonance('model','x')
 
-        #if options.fixPars!="":
-            #fixedPars =options.fixPars.split(',')
-            #print fixedPars
-            #for par in fixedPars:
-                #parVal = par.split(':')
-                #fitter.w.var(parVal[0]).setVal(float(parVal[1]))
-                #fitter.w.var(parVal[0]).setConstant(1)
+    if options.fixPars!="":
+        fixedPars =options.fixPars.split(',')
+        print fixedPars
+        for par in fixedPars:
+            parVal = par.split(':')
+            fitter.w.var(parVal[0]).setVal(float(parVal[1]))
+            fitter.w.var(parVal[0]).setConstant(1)
 
-        #histo = plotter.drawTH1(leg,options.cut,"1",int((options.maxi-options.mini)/4),options.mini,options.maxi)
-
-        #fitter.importBinnedData(histo,['x'],'data')
-        #fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
-        #fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0),ROOT.RooFit.Minos(1)])
-        #fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_All.png")
-        ##params["CBexp"]={"mean":fitter.w.var("mean").getVal(), "sigma":fitter.w.var("sigma").getVal(), "alpha":fitter.w.var("alpha").getVal(),"alpha2":fitter.w.var("alpha2").getVal(),"n":fitter.w.var("n").getVal(),"n2":fitter.w.var("n2").getVal(),"slope":fitter.w.var("slope").getVal(),"f":fitter.w.var("f").getVal()}
+    histo = plotter.drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)","1",80,options.mini,options.maxi)
+    fitter.importBinnedData(histo,['x'],'data')
+    fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
+    fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0),ROOT.RooFit.Minos(1)])
+    fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_Res.png")
+    params[label+"_test_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}, "alpha":{ "val": fitter.w.var("alpha").getVal(), "err": fitter.w.var("alpha")},"alpha2":{"val": fitter.w.var("alpha2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()},"n2": {"val": fitter.w.var("n2").getVal(), "err": fitter.w.var("n2").getError()}}
         
     
     #print 'fitting MVV: ' 

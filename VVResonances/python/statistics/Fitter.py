@@ -381,7 +381,7 @@ class Fitter(object):
     def jetResonanceVjets(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
         self.w.factory("mean[80,50,150]")
-        self.w.factory("sigma[10,0.,40]")
+        self.w.factory("sigma[15,3,30]")
         self.w.factory("alpha[1.8,0.0,20]")
         #self.w.factory("n[0.8,0.,2.]")
         self.w.factory("n[0.8,0.,10.]")
@@ -927,10 +927,10 @@ class Fitter(object):
             for i in range(1,bins+2):
                 #v = mmin + i * (mmax-mmin)/float(N)
                 binningx.append(axis.GetBinLowEdge(i))
-            #print binningx
+            print binningx
             self.w.var(p).setMin(mini)
             self.w.var(p).setMax(maxi)
-            #print " set binning "+str(binningx)
+            print " set binning "+str(binningx)
             self.w.var(p).setBinning(ROOT.RooBinning(len(binningx)-1,array("d",binningx)))
             #a = self.w.var(p).getBinning()
             #for b in range(0,a.numBins()+1):
@@ -1030,7 +1030,7 @@ class Fitter(object):
         self.frame.GetYaxis().SetTitle('')
         self.frame.GetXaxis().SetTitle(xtitle)
         self.frame.SetTitle('')
-        #if poi.find("MVV")!=-1:
+        #if (filename.find("Jet")!=-1) and poi.find("MVV")!=-1:
         #    self.c.SetLogy()
         self.c.Draw()
                         

@@ -326,7 +326,7 @@ def fitVJets(filename,template):
     if filename.find("W")!=-1:
         fixPars="n:0.8"
     if filename.find("V")!=-1:
-        fixPars="n:0.8,alpha:1.89"
+        fixPars="n:0.8"
     cmd='vvMakeVjetsShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -m {minMJ} -M {maxMJ} -f "{fixPars}" --store "/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive/{filename}_{purity}_jecv6.py" samples'.format(template=template,cut=cut,rootFile=rootFile,minMJ=minMJ,maxMJ=maxMJ,fixPars=fixPars,filename=filename,purity=p)
     os.system(cmd)
     

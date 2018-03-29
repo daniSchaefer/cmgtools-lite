@@ -92,10 +92,10 @@ class DataCardMaker:
             scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
             scaleSysts.append(syst)
         for syst,factor in resolution.iteritems():
-            self.w.factory(syst+"[0,-0.5,0.5]")
+            self.w.factory(syst+"[0,-0.8,0.8]")
             resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
-            print syst+"[0,-0.5,0.5]"
-            print resolutionStr
+            #print syst+"[0,-0.5,0.5]"
+            #print resolutionStr
             resolutionSysts.append(syst)
        
         MVV=variable            
