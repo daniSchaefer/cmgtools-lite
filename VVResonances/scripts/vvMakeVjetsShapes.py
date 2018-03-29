@@ -19,8 +19,8 @@ parser.add_option("-o","--output",dest="output",help="Output JSON",default='')
 parser.add_option("-m","--min",dest="mini",type=float,help="min MJJ",default=40)
 parser.add_option("-M","--max",dest="maxi",type=float,help="max MJJ",default=160)
 parser.add_option("--store",dest="store",type=str,help="store fitted parameters in this file",default="")
-parser.add_option("--corrFactorW",dest="store",type=str,help="add correction factor xsec",default=1.)
-parser.add_option("--corrFactorZ",dest="store",type=str,help="add correction factor xsec",default=1.)
+parser.add_option("--corrFactorW",dest="corrFactorW",type=str,help="add correction factor xsec",default=1.)
+parser.add_option("--corrFactorZ",dest="corrFactorZ",type=str,help="add correction factor xsec",default=1.)
 parser.add_option("-f","--fix",dest="fixPars",help="Fixed parameters",default="")
 
 
