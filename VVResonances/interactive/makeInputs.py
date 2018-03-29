@@ -60,7 +60,7 @@ cuts['resl2'] = '(jj_l2_mergedVTruth==1)'
 
 purities=['HPHP','HPLP','LPLP','NP']
 purities=['HPHP','HPLP']
-purities=['HPHP']
+#purities=['HPHP']
 
 BulkGravWWTemplate="BulkWW"
 BulkGravZZTemplate="BulkGravToZZToZhadZhad_narrow"
