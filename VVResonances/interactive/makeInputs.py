@@ -60,7 +60,7 @@ cuts['resl2'] = '(jj_l2_mergedVTruth==1)'
 
 purities=['HPHP','HPLP','LPLP','NP']
 purities=['HPHP','HPLP']
-#purities=['HPHP']
+purities=['HPHP']
 
 BulkGravWWTemplate="BulkWW"
 BulkGravZZTemplate="BulkGravToZZToZhadZhad_narrow"
@@ -72,6 +72,7 @@ TTbarTemplate= "TTHad_pow"
 ZprimeWWTemplate= "ZprimeWW"
 WJetsTemplate17= "WJetsToQQ_HT800"
 ZJetsTemplate17= "ZJetsToQQ_HT800"
+VJetsTemplate17= "JetsToQQ_HT800"
 # use arbitrary cross section 0.001 so limits converge better
 BRWW=1.*0.001
 BRZZ=1.*0.001*0.6991*0.6991
@@ -324,6 +325,8 @@ def fitVJets(filename,template):
     fixPars=""
     if filename.find("W")!=-1:
         fixPars="n:0.8"
+    if filename.find("V")!=-1:
+        fixPars="n:0.8,alpha:1.89"
     cmd='vvMakeVjetsShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -m {minMJ} -M {maxMJ} -f "{fixPars}" --store "/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive/{filename}_{purity}_jecv6.py" samples'.format(template=template,cut=cut,rootFile=rootFile,minMJ=minMJ,maxMJ=maxMJ,fixPars=fixPars,filename=filename,purity=p)
     os.system(cmd)
     
@@ -336,8 +339,9 @@ def fitTTbar(filename,template):
     cmd='vvMakeTTbar.py -s "{template}" -c "{cut}"  -o "{rootFile}" -m {minMJ} -M {maxMJ} -f "{fixPars}" --store "/usr/users/dschaefer/CMSSW_7_4_7/src/CMGTools/VVResonances/interactive/{filename}_{purity}.py" samples'.format(template=template,cut=cut,rootFile=rootFile,minMJ=minMJ,maxMJ=maxMJ,fixPars=fixPars,filename=filename,purity=p)
     os.system(cmd)
 
-fitVJets("JJ_WJets",WJetsTemplate17)
-fitVJets("JJ_ZJets",ZJetsTemplate17)
+#fitVJets("JJ_WJets",WJetsTemplate17)
+#fitVJets("JJ_ZJets",ZJetsTemplate17)
+fitVJets("JJ_VJets",VJetsTemplate17)
 #fitTTbar("JJ_ttbar",TTbarTemplate)
 	
 #makeSignalShapesMVV("JJ_WprimeWZ",WprimeTemplate)
@@ -387,7 +391,7 @@ else:
 #makeBackgroundShapesMVVKernel("wjets","JJ",WJetsTemplate,"","1D",False)	
 #mergeBackgroundShapes("nonRes","JJ")
 #makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],1.0,"nR")
-#makeNormalizations("WJets","JJ",WJetsTemplate17,0,"",1.0,"nR")
+#makeNormalizations("VJets","JJ",VJetsTemplate17,0,"",1.0,"nR")
 #makeNormalizations("WJets","JJ",WJetsTemplate,0,"",1.0,"nR")
 #makeNormalizations("ZJets","JJ",ZJetsTemplate,0,"",41.5/581.5,"nR")
 #makeNormalizations("ttbar","JJ",TTbarTemplate,0,"",1.,"nR")

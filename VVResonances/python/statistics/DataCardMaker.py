@@ -695,15 +695,7 @@ class DataCardMaker:
         if "mean" in preconstrains.keys():
             val = preconstrains['mean']['val']
             err = preconstrains['mean']['err']
-            if err==None:
-                err =0
-            ##self.addSystematic(mean,"param",[val,err])
-        #else:
-            #val = 15.0
-            #print "attention set value to default in addMjetBackgroundShapeVJetsRes"
-        #self.w.factory("{name}[{val},-{err},{err}]".format(name=mean,val=val,err=err))
-        print " tessssssssssssssssssssssssssssssssssssssssssssssssssssssssssst"
-        print mean
+     
         self.w.factory("expr::{name}('{param}*(1+{vv_syst})',{vv_systs})".format(name=mean,param=val,vv_syst=scaleStr,vv_systs=','.join(scaleSysts)))
         
         
@@ -720,17 +712,11 @@ class DataCardMaker:
         #self.w.factory("{name}[{val},-{err},{err}]".format(name=sigma,val=val,err=err))
         #print sigma
         self.w.factory("expr::{name}('({param})*(1+{vv_syst})',{vv_systs})".format(name=sigma,param=val,vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
-        #print "expr::{name}('{param}*(1+{vv_syst})',{vv_systs})".format(name=sigma,param=val,vv_syst=scaleStr,vv_systs=','.join(resolutionSysts))
-        print "  W jet resolution !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-        
         
         alpha="_".join(["alpha",tag])
         if "alpha" in preconstrains.keys():
             val = preconstrains['alpha']['val']
-            err = preconstrains['alpha']['err']
-            if err==None:
-                err =0
-            #self.addSystematic(alpha,"param",[val,err])
+            err =  0
         else:
             val = 15.0
             print "attention set value to default in addMjetBackgroundShapeVJets"
@@ -740,20 +726,16 @@ class DataCardMaker:
         n="_".join(["n",tag])
         if "n" in preconstrains.keys():
             val = preconstrains['n']['val']
-            err = preconstrains['n']['err']
-            if err==None:
-                err =0
+            err = 0
             #self.addSystematic(n,"param",[val,err])
         else:
             val = 15.0
             print "attention set value to default in addMjetBackgroundShapeVJets"
         self.w.factory("{name}[{val},-{err},{err}]".format(name=n,val=val,err=err))
         alpha2="_".join(["alpha2",tag])
-        if "mean" in preconstrains.keys():
+        if "alpha2" in preconstrains.keys():
             val = preconstrains['alpha2']['val']
-            err = preconstrains['alpha2']['err']
-            if err==None:
-                err =0
+            err = 0
             #self.addSystematic(alpha2,"param",[val,err])
         else:
             val = 15.0
@@ -762,9 +744,7 @@ class DataCardMaker:
         n2="_".join(["n2",tag])
         if "n2" in preconstrains.keys():
             val = preconstrains['n2']['val']
-            err = preconstrains['n2']['err']
-            if err==None:
-                err =0
+            err = 0
             #self.addSystematic(n2,"param",[val,err])
         else:
             val = 15.0
