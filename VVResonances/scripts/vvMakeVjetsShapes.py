@@ -116,7 +116,7 @@ for leg in legs:
         if name.find("Z")!=-1:
             corr = options.corrFactorZ
         sigmas.append(p.tree.GetMaximum("xsec")/p.weightinv)
-        p.addCorrectionFactor(1.0/sigmas[-1]*str(corr),'flat') 
+        p.addCorrectionFactor(1.0/sigmas[-1]*float(corr),'flat') 
             
         #fitter=Fitter(['x'])
         #fitter.erfexp('model','x')
@@ -197,7 +197,7 @@ for leg in legs:
         if name.find("Z")!=-1:
             corr = options.corrFactorZ
         sigmas.append(p.tree.GetMaximum("xsec")/p.weightinv)
-        p.addCorrectionFactor(1.0/sigmas[-1]*str(corr),'flat')    
+        p.addCorrectionFactor(1.0/sigmas[-1]*float(corr),'flat')    
         
     plotter=MergedPlotter(plotters)        
     fitter=Fitter(['x'])
@@ -232,7 +232,7 @@ for p in plotters:
     if name.find("Z")!=-1:
         corr = options.corrFactorZ
     sigmas.append(p.tree.GetMaximum("xsec")/p.weightinv)
-    p.addCorrectionFactor(1.0/sigmas[-1]*str(corr),'flat')    
+    p.addCorrectionFactor(1.0/sigmas[-1]*float(corr),'flat')    
    
 plotter=MergedPlotter(plotters)        
 fitter=Fitter(['MVV'])

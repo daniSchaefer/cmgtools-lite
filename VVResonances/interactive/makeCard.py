@@ -80,9 +80,9 @@ for sig in signals:
         
     # add systematics for mjj part of resoant vjets contribution
     
-    card.addSystematic("CMS_VV_JJ_p0_Vjets_mjj_JJ_WprimeWZ_"+p+"_13TeV","param",[JJ_VJets__MVV['p0']['val'],JJ_VJets__MVV['p0']['err']*20])
-    card.addSystematic("CMS_VV_JJ_p1_Vjets_mjj_JJ_WprimeWZ_"+p+"_13TeV","param",[JJ_VJets__MVV['p1']['val'],JJ_VJets__MVV['p1']['err']*10])
-    card.addSystematic("CMS_VV_JJ_p2_Vjets_mjj_JJ_WprimeWZ_"+p+"_13TeV","param",[JJ_VJets__MVV['p2']['val'],JJ_VJets__MVV['p2']['err']*10])
+    card.addSystematic("CMS_VV_JJ_p0_Vjets_mjj_JJ_WprimeWZ_"+p+"_13TeV","param",[JJ_VJets__MVV['p0']['val'],1])
+    card.addSystematic("CMS_VV_JJ_p1_Vjets_mjj_JJ_WprimeWZ_"+p+"_13TeV","param",[JJ_VJets__MVV['p1']['val'],1])
+    card.addSystematic("CMS_VV_JJ_p2_Vjets_mjj_JJ_WprimeWZ_"+p+"_13TeV","param",[JJ_VJets__MVV['p2']['val'],1])
         # end V+jets background ####################################################
     
     
@@ -91,7 +91,7 @@ for sig in signals:
     rootFile="JJ_nonRes_2D_"+p+".root"
 
     card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile,"histo",['PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','OPTZ:CMS_VV_JJ_nonRes_OPTZ','PTZ:CMS_VV_JJ_nonRes_PTZ'],False,0)    
-    card.addFixedYieldFromFile("nonRes",1,"JJ_"+p+".root","nonRes")
+    card.addFixedYieldFromFile("nonRes",2,"JJ_"+p+".root","nonRes")
 
    #DATA
     card.importBinnedData("JJ_"+p+".root","data",["MJ1","MJ2","MJJ"])
