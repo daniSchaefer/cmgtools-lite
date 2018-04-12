@@ -25,7 +25,7 @@ parser.add_option("-V","--MVV",dest="mvv",help="mVV variable",default='')
 parser.add_option("-m","--min",dest="mini",type=float,help="min MJJ",default=40)
 parser.add_option("-M","--max",dest="maxi",type=float,help="max MJJ",default=160)
 parser.add_option("-e","--exp",dest="doExp",type=int,help="useExponential",default=1)
-parser.add_option("-f","--fix",dest="fixPars",help="Fixed parameters",default="")
+parser.add_option("-f","--fix",dest="fixPars",help="Fixed parameters",default="1")
 parser.add_option("-r","--minMX",dest="minMX",type=float, help="smallest Mx to fit ",default=1000.0)
 parser.add_option("-R","--maxMX",dest="maxMX",type=float, help="largest Mx to fit " ,default=7000.0)
 
@@ -77,31 +77,18 @@ for mass in sorted(samples.keys()):
         
     fitter=Fitter(['x'])
     if options.doExp==1:
-        #if options.sample.find("Wprime")!=-1:
-            #print "fit double peak "
-            #fitter.jetDoublePeakZ('model','x')
-        #else:
             fitter.jetResonance('model','x')
-        
-#        fitter.w.var("alpha").setVal(1.41)
-#        fitter.w.var("alpha").setConstant(1)
     else:
-        #if options.sample.find("Wprime")!=-1:
-            #print "fit double peak "
-            #fitter.jetDoublePeakZ('model','x')
-        #else:
             fitter.jetResonanceNOEXP('model','x')
-#        fitter.w.var("alpha").setVal(0.50)
-#        fitter.w.var("alpha").setConstant(1)
 
 
-    if options.fixPars!="":
+    if options.fixPars!="1":
         fixedPars =options.fixPars.split(',')
-        print fixedPars
         for par in fixedPars:
             parVal = par.split(':')
-            fitter.w.var(parVal[0]).setVal(float(parVal[1]))
-            fitter.w.var(parVal[0]).setConstant(1)
+	    if len(parVal) > 1:
+             fitter.w.var(parVal[0]).setVal(float(parVal[1]))
+             fitter.w.var(parVal[0]).setConstant(1)
 
 
 #    fitter.w.var("MH").setVal(mass)
@@ -113,7 +100,6 @@ for mass in sorted(samples.keys()):
     fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_"+str(mass)+".png")
 
     for var,graph in graphs.iteritems():
-        print var
         value,error=fitter.fetch(var)
         graph.SetPoint(N,mass,value)
         graph.SetPointError(N,0.0,error)

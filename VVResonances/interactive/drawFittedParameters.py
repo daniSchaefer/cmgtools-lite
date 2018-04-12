@@ -19,7 +19,7 @@ def beautify(h1,color,linestyle=1,markerstyle=8):
 	h1.SetLineStyle(linestyle)
 	h1.SetMarkerStyle(markerstyle)
 	
-def getLegend(x1=0.80010112,y1=0.123362,x2=0.90202143,y2=0.279833):
+def getLegend(x1=0.70010112,y1=0.123362,x2=0.90202143,y2=0.279833):
   legend = TLegend(x1,y1,x2,y2)
   legend.SetTextSize(0.032)
   legend.SetLineColor(0)
@@ -204,8 +204,8 @@ def doMJFit():
 		#sleep(10)
 		
 def doResolution():
-	fLP = TFile("JJ_nonRes_detectorResponse_HPLP.root","READ")
-	fHP = TFile("JJ_nonRes_detectorResponse_HPHP.root","READ")
+	# fLP = TFile("JJ_nonRes_detectorResponse_HPLP.root","READ")
+	fHP = TFile("JJ_nonRes_detectorResponse.root","READ")
 	cols = [611,414]
 	hps = []	
 	hp_hSx 	=fHP.Get("scalexHisto")
@@ -237,99 +237,99 @@ def doResolution():
 		h.GetYaxis().SetTitleOffset(1.4)
 	
 	
-	lps =[]
-	lp_hSx 	=fLP.Get("scalexHisto")
-	lp_hSy 	=fLP.Get("scaleyHisto")
-	lp_hRx 	=fLP.Get("resxHisto")  
-	lp_hRy 	=fLP.Get("resyHisto")  
-	# lp_h2D_x =fLP.Get("dataX")    
-	# lp_h2D_y =fLP.Get("dataY")    
-	lps.append(lp_hSx)
-	lps.append(lp_hSy)
-	lps.append(lp_hRx)
-	lps.append(lp_hRy)
-	for h in lps: 
-		h.SetLineColor(cols[1])
-		h.SetLineWidth(3)
-		h.GetXaxis().SetTitle("Gen p_{T} (GeV)")
-	
-	lg = getLegend()
-	lg.AddEntry(hp_hSx,"HPHP","L")
-	lg.AddEntry(lp_hSx,"HPLP","L")
+	# lps =[]
+# 	lp_hSx 	=fLP.Get("scalexHisto")
+# 	lp_hSy 	=fLP.Get("scaleyHisto")
+# 	lp_hRx 	=fLP.Get("resxHisto")
+# 	lp_hRy 	=fLP.Get("resyHisto")
+# 	# lp_h2D_x =fLP.Get("dataX")
+# 	# lp_h2D_y =fLP.Get("dataY")
+# 	lps.append(lp_hSx)
+# 	lps.append(lp_hSy)
+# 	lps.append(lp_hRx)
+# 	lps.append(lp_hRy)
+# 	for h in lps:
+# 		h.SetLineColor(cols[1])
+# 		h.SetLineWidth(3)
+# 		h.GetXaxis().SetTitle("Gen p_{T} (GeV)")
+#
+	# lg = getLegend()
+	# lg.AddEntry(hp_hSx,"m_{VV} scale","L")
+	# lg.AddEntry(lp_hSx,"HPLP","L")
 	
 	pt = getPavetext()
-	pt.AddText("WP #tau_{21} = 0.35")
+	pt.AddText("WP #tau_{21}^{DDT} = 0.57")
 	
 	
-	for hp,lp in zip(hps,lps):
+	for hp in hps:
 		c = getCanvas()
 		hp.GetXaxis().SetRangeUser(200.,2600.)
 		hp.Draw("HIST")
-		lp.Draw("HISTsame")
-		lg.Draw('same')
+		# lp.Draw("HISTsame")
+		# lg.Draw('same')
 		pt.Draw("same")
 		c.Update()
 		c.SaveAs(path+"detectorresolution_"+hp.GetName()+".png")
 		
-	dataX_lp = fLP.Get('dataY')
-	dataX_lp.SetName('dataY_lp')
-	plotX_lp = TH1F('plotYlp','mJJ projection',dataX_lp.GetNbinsY(),dataX_lp.GetYaxis().GetXmin(),dataX_lp.GetYaxis().GetXmax())
+	# dataX_lp = fLP.Get('dataY')
+# 	dataX_lp.SetName('dataY_lp')
+# 	plotX_lp = TH1F('plotYlp','mJJ projection',dataX_lp.GetNbinsY(),dataX_lp.GetYaxis().GetXmin(),dataX_lp.GetYaxis().GetXmax())
 	
-	dataX_hp = fHP.Get('dataY')
-	dataX_lp.SetName('dataY_hp')
-	plotX_hp = TH1F('plotYhp','mJJ projection',dataX_hp.GetNbinsY(),dataX_hp.GetYaxis().GetXmin(),dataX_hp.GetYaxis().GetXmax())
+	dataY_hp = fHP.Get('dataY')
+	dataY_hp.SetName('dataY_hp')
+	plotY_hp = TH1F('plotYhp','mJJ projection',dataY_hp.GetNbinsY(),dataY_hp.GetYaxis().GetXmin(),dataY_hp.GetYaxis().GetXmax())
 
-	for bx in range(dataX_hp.GetNbinsX()):
-	 for by in range(dataX_hp.GetNbinsY()):
-	  plotX_hp.Fill(dataX_hp.GetYaxis().GetBinCenter(by),dataX_hp.GetBinContent(bx,by))
-	  plotX_lp.Fill(dataX_lp.GetYaxis().GetBinCenter(by),dataX_lp.GetBinContent(bx,by))
+	for bx in range(dataY_hp.GetNbinsX()):
+	 for by in range(dataY_hp.GetNbinsY()):
+	  plotY_hp.Fill(dataY_hp.GetYaxis().GetBinCenter(by),dataY_hp.GetBinContent(bx,by))
+	  # plotX_lp.Fill(dataX_lp.GetYaxis().GetBinCenter(by),dataX_lp.GetBinContent(bx,by))
   
-  	plotX_hp.SetLineColor(cols[0]) 
-	plotX_lp.SetLineColor(cols[1])  
-	plotX_hp.SetLineWidth(3)
-	plotX_lp.SetLineWidth(3) 
+  	plotY_hp.SetLineColor(cols[0]) 
+	# plotX_lp.SetLineColor(cols[1])
+	plotY_hp.SetLineWidth(3)
+	# plotX_lp.SetLineWidth(3)
 	c = getCanvas()
 	
-	plotX_hp.GetXaxis().SetTitle("M_{jet}^{reco}/M_{jet}^{gen}")
-	plotX_hp.GetYaxis().SetTitle("A.U")
-	plotX_hp.GetXaxis().SetNdivisions(9,1,0)
-	plotX_hp.GetYaxis().SetNdivisions(9,1,0)
-	plotX_hp.GetYaxis().SetTitleOffset(1.4)
-	plotX_hp.DrawNormalized('HIST')
-	plotX_lp.DrawNormalized('HISTSAME')
-	lg.Draw("same")
-	c.SaveAs(path+"detectorresolution_mvv.png")
+	plotY_hp.GetXaxis().SetTitle("M_{jet}^{reco}/M_{jet}^{gen}")
+	plotY_hp.GetYaxis().SetTitle("A.U")
+	plotY_hp.GetXaxis().SetNdivisions(9,1,0)
+	plotY_hp.GetYaxis().SetNdivisions(9,1,0)
+	plotY_hp.GetYaxis().SetTitleOffset(1.4)
+	plotY_hp.DrawNormalized('HIST')
+	# plotX_lp.DrawNormalized('HISTSAME')
+	# lg.Draw("same")
+	c.SaveAs("detectorresolution_mjet.png")
 	
-	dataX_lp = fLP.Get('dataX')
-	dataX_lp.SetName('dataY_lp')
-	plotX_lp = TH1F('plotYlp','mJJ projection',dataX_lp.GetNbinsY(),dataX_lp.GetYaxis().GetXmin(),dataX_lp.GetYaxis().GetXmax())
+	# dataX_lp = fLP.Get('dataX')
+# 	dataX_lp.SetName('dataY_lp')
+# 	plotX_lp = TH1F('plotYlp','mJJ projection',dataX_lp.GetNbinsY(),dataX_lp.GetYaxis().GetXmin(),dataX_lp.GetYaxis().GetXmax())
 	
 	dataX_hp = fHP.Get('dataX')
-	dataX_lp.SetName('dataY_hp')
-	plotX_hp = TH1F('plotYhp','mJJ projection',dataX_hp.GetNbinsY(),dataX_hp.GetYaxis().GetXmin(),dataX_hp.GetYaxis().GetXmax())
+	dataX_hp.SetName('dataX_hp')
+	plotX_hp = TH1F('plotYhp','mVV projection',dataX_hp.GetNbinsY(),dataX_hp.GetYaxis().GetXmin(),dataX_hp.GetYaxis().GetXmax())
 
 	for bx in range(dataX_hp.GetNbinsX()):
 	 for by in range(dataX_hp.GetNbinsY()):
 	  plotX_hp.Fill(dataX_hp.GetYaxis().GetBinCenter(by),dataX_hp.GetBinContent(bx,by))
-	  plotX_lp.Fill(dataX_lp.GetYaxis().GetBinCenter(by),dataX_lp.GetBinContent(bx,by))
+	  # plotX_lp.Fill(dataX_lp.GetYaxis().GetBinCenter(by),dataX_lp.GetBinContent(bx,by))
   
   	plotX_hp.SetLineColor(cols[0]) 
-	plotX_lp.SetLineColor(cols[1])  
+	# plotX_lp.SetLineColor(cols[1])
 	plotX_hp.SetLineWidth(3)
-	plotX_lp.SetLineWidth(3) 
+	# plotX_lp.SetLineWidth(3)
 	c = getCanvas()
 	
-	plotX_hp.GetXaxis().SetTitle("M_{jj}^{reco}/M_{jj}^{gen}")
+	plotX_hp.GetXaxis().SetTitle("M_{VV}^{reco}/M_{VV}^{gen}")
 	plotX_hp.GetYaxis().SetTitle("A.U")
 	plotX_hp.GetXaxis().SetNdivisions(9,1,0)
 	plotX_hp.GetYaxis().SetNdivisions(9,1,0)
 	plotX_hp.GetYaxis().SetTitleOffset(1.4)
 	plotX_hp.DrawNormalized('HIST')
-	plotX_lp.DrawNormalized('HISTSAME')
-	lg.Draw("same")
-	c.SaveAs(path+"detectorresolution_mj.png")
-	
-	fLP.Close()
+	# plotX_lp.DrawNormalized('HISTSAME')
+	# lg.Draw("same")
+	c.SaveAs("detectorresolution_mvv.png")
+
+	# fLP.Close()
 	fHP.Close()	
 
 def doKernelMVV():
@@ -361,7 +361,7 @@ def doKernelMVV():
 	hists[0][0].GetYaxis().SetTitle("A.U")
 	hists[0][0].GetYaxis().SetNdivisions(9,1,0)
 	hists[0][0].GetYaxis().SetTitleOffset(1.5)	
-	hists[0][0].GetXaxis().SetRangeUser(1000.   , 5200)
+	hists[0][0].GetXaxis().SetRangeUser(1000.   , 5000.)
 	hists[0][0].DrawNormalized("histPE")
 	for h in hists:
 		h[0].DrawNormalized("samehistPE")
@@ -418,13 +418,13 @@ def compKernelMVV():
 			h[1].Draw("sameLhist")
 		
 		l.Draw("same")
-		sleep(100)
 		c.SaveAs(path+"compare_1Dkernel"+p+".png")
 
 def doKernel2D():
 	files = []
-	fLP = TFile("JJ_nonRes_COND2D_HPLP_l1.root","READ")
-	fHP = TFile("JJ_nonRes_COND2D_HPHP_l1.root","READ")
+	fLP = TFile("JJ_nonRes_COND2D_HPHP_l1_batchHerwig.root","READ")
+	fHP = TFile("JJ_nonRes_COND2D_HPHP_l1_localHerwig.root","READ")
+	histnames = ["histo_altshapeUp","histo_nominal"]
 	files.append(fLP)
 	files.append(fHP)
 	cols = [611,414]
@@ -435,8 +435,8 @@ def doKernel2D():
 	for i,f in enumerate(files):
 		hsts = []
 	
-		fromKernel  = f.Get("histo_nominal")
-		fromSim     = f.Get("mjet_mvv_nominal")
+		fromKernel  = f.Get(histnames[i])
+		fromSim     = f.Get(histnames[i])
 		fromKernelY = fromKernel.ProjectionX()
 		fromSimY 	= fromSim.ProjectionX()
 		fromKernelY .SetName("kernel"+f.GetName().replace(".root","").split("_")[3])
@@ -450,6 +450,7 @@ def doKernel2D():
 		hsts.append(fromSimY)
 		hsts.append(fromKernelY)
 		hists.append(hsts)
+
 	hists[0][0].GetXaxis().SetTitle("M_{jet} (GeV)")
 	hists[0][0].GetYaxis().SetTitle("A.U")
 	hists[0][0].GetYaxis().SetNdivisions(9,1,0)
@@ -491,11 +492,12 @@ def doKernel2D():
 	hists[0][0].GetYaxis().SetTitleOffset(1.5)	
 	# hists[0][0].GetXaxis().SetRangeUser(1000.   , 5200)
 	hists[0][0].DrawNormalized("histPE")
+
 	for h in hists:
-		h[0].DrawNormalized("samehistPE")
+		# h[0].DrawNormalized("samehistPE")
 		h[1].DrawNormalized("sameLhist")
 	
-	l.Draw("same")
+	# l.Draw("same")
 	c.SaveAs(path+"2Dkernel_Mjj.png")
 
 def compSignalMVV():
@@ -576,14 +578,16 @@ def compSignalMVV():
 		l.AddEntry(hp   ,"%i"%m,"LEP")
 		l.Draw("same")
 		legs.append(l)
+
 	c.SaveAs(path+"comparePurities_MVVratio.png")
 		
 if __name__ == '__main__':
 	doMJFit()
+
 	#doMVVFit()
 	#doYield()
-	# doResolution()
-	# doKernelMVV()
-	# compKernelMVV()
-	# doKernel2D()
-	# compSignalMVV()
+	#doResolution()
+	#doKernelMVV()
+	#compKernelMVV()
+	#doKernel2D()
+	#compSignalMVV()

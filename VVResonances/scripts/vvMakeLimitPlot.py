@@ -42,6 +42,7 @@ f=ROOT.TFile(args[0])
 limit=f.Get("limit")
 data={}
 
+
 for event in limit:
     if float(event.mh)<options.minX or float(event.mh)>options.maxX:
         continue
@@ -62,7 +63,6 @@ for event in limit:
         data[event.mh]['+1sigma']=lim
     if event.quantileExpected>0.974 and event.quantileExpected<0.976:            
         data[event.mh]['+2sigma']=lim
-
 
 
 band68=ROOT.TGraphAsymmErrors()
@@ -90,12 +90,11 @@ N=0
 for mass,info in data.iteritems():
     print 'Setting mass',mass,info
 
-    if not ('exp' in info.keys() and '+1sigma' in info.keys() and '+2sigma' in info.keys() and '-1sigma' in info.keys() and '-2sigma' in info.keys()):
+    if not ('exp' in info.keys() and '+1sigma' in info.keys() and '+2sigma' in info.keys() and '-1sigma' in info.keys() and '-2sigma' in info.keys() \
+                and 'obs' in info.keys()):
         print 'Incomplete file'
         continue
-    if options.blind==1 and not 'obs' in info.keys():
-        print 'Incomplete file'
-        continue
+    
 
     band68.SetPoint(N,mass,info['exp'])
     band95.SetPoint(N,mass,info['exp'])
@@ -105,8 +104,7 @@ for mass,info in data.iteritems():
     line_minus2.SetPoint(N,mass,info['-2sigma'])
     print str(mass ) + " mean  "+str(info['exp']) + "  1 sigma  "+str(info['+1sigma'])+"  2 sigma "+str(info['+2sigma'])
 
-    if options.blind==1:
-        bandObs.SetPoint(N,mass,info['obs'])
+    bandObs.SetPoint(N,mass,info['obs'])
     band68.SetPointError(N,0.0,0.0,info['exp']-info['-1sigma'],info['+1sigma']-info['exp'])
     band95.SetPointError(N,0.0,0.0,info['exp']-info['-2sigma'],info['+2sigma']-info['exp'])
     N=N+1
@@ -141,10 +139,10 @@ band68.SetLineStyle(7)
 band68.SetMarkerStyle(0)
 
 band95.SetFillColor(ROOT.kYellow)
-if options.blind==1:
-    bandObs.SetLineWidth(3)
-    bandObs.SetLineColor(ROOT.kBlack)
-    bandObs.SetMarkerStyle(20)
+
+bandObs.SetLineWidth(3)
+bandObs.SetLineColor(ROOT.kBlack)
+bandObs.SetMarkerStyle(20)
 
 line_plus1.SetLineWidth(1)
 line_plus1.SetLineColor(ROOT.kGreen+1)
@@ -180,7 +178,7 @@ else:
 c.Update()
 c.RedrawAxis()
 
-if options.blind==1:
+if options.blind==0:
     bandObs.Draw("PLsame")
 
 
@@ -202,5 +200,3 @@ line_minus2.Write()
 
 fout.Close()
 f.Close()
-
-

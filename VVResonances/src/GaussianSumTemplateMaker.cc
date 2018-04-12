@@ -29,14 +29,11 @@ GaussianSumTemplateMaker::GaussianSumTemplateMaker(const RooDataSet* dataset, co
   int nbinsY = output->GetNbinsY();
   
   double xs[nbinsX+1];
-  //double ys[nbinsY+1];
   double histoarray[nbinsX+1][nbinsY+1] = {};
   for (int i=1;i<output->GetNbinsX()+1;++i) {
       xs[i]=output->GetXaxis()->GetBinCenter(i);
   }
-//   for (int j=1;j<nbinsY+1;++j) {
-// 	ys[j]=output->GetYaxis()->GetBinCenter(j);
-//   }
+
   std::vector<double> yv;
   std::vector<int> biny;
   for (int j=1;j<nbinsY+1;++j) {

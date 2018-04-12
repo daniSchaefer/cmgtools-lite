@@ -47,7 +47,6 @@ pdfs="nonResNominal_JJ_WprimeWZ_HPHP_13TeV,nonRes_PTZDown_JJ_WprimeWZ_HPHP_13TeV
 for i in `seq 0 0`;
 do
 echo ${aw[i]}
-      python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} --hkernel ${histos[i]}
-#   python runFitPlots.py -p xyz  -f -n ${aw[i]} -l ${al[i]} -o ${o} --pdf ${pdfs} -z 1000,1050 -y 55,60 -x 55,60
+      python runFitPlots.py -p xyz  -n ${aw[i]} -l ${al[i]} -o ${o}  
 done
 echo "############ end of script #################"

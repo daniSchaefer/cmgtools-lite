@@ -44,6 +44,14 @@ Make the 3D templates
 python makeInputs.py
 ```
 
+Run closure test of signal fits:
+
+```
+python plotSignalShapesFromJSON.py -f JJ_BulkGWW_MJl1_HPLP.json -v mJ
+python plotSignalShapesFromJSON.py -f JJ_BulkGWW_MJl2_HPLP.json -v mJ
+python plotSignalShapesFromJSON.py -f JJ_BulkGWW_MVV.json -v mVV
+```
+
 Run closure test of 3D templates versus simulation with Projections3DHisto.C script:
 
 ```

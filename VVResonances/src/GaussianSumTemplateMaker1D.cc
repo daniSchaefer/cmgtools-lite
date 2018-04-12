@@ -1,6 +1,5 @@
 #include "CMGTools/VVResonances/interface/GaussianSumTemplateMaker1D.h"
 #include "RooArgSet.h"
-#include "TMath.h"
 
 using namespace cmg;
 GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D() {}
@@ -47,7 +46,6 @@ GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D(const RooDataSet* dataset
       {
         x = xmin + j* interval;
         if( x >= xmax) continue;
-        //x = output->GetXaxis()->GetBinCenter(i);
         output->Fill(x,reweight*dataset->weight()*gaus(x,scalex,resx));
       }
     }

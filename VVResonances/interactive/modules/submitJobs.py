@@ -6,15 +6,12 @@ import sys
 import ROOT
 from ROOT import *
 import subprocess, thread
-######## comment out for lxplus ###########
-sys.path.append('/home/dschaefer/jdl_creator/')
-#sys.path.append('/home/dschaefer/jdl_creator/classes/')
-from classes.JDLCreator import JDLCreator
-###########################################
 from array import array
+ROOT.gROOT.SetBatch(True)
 
 timeCheck = "30"
 userName=os.environ['USER']
+
 
 ######## comment out for lxplus ##############
 useCondorBatch =True
@@ -33,6 +30,7 @@ def writeJDL(arguments,mem,time,name):
     jobs.SetArguments(arguments)              # write an JDL file and create folder f            # set arguments
     jobs.WriteJDL() # write an JDL file and create folder for log files
 ################################################
+
 
 def getBinning(binsMVV):
     l=[]
@@ -87,15 +85,8 @@ def submitJobs(minEv,maxEv,cmd,OutputFileNames,queue,jobname,path):
 	for k,v in minEv.iteritems():
 
 	  for j in range(len(v)):
-	   if useCondorBatch:
-                os.system("echo "+path)
-                os.system("mkdir "+path+"tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1))
-                os.system("mkdir "+path+"tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1)+"/out")
-                os.system("mkdir "+path+"tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1)+"/error")
-                os.system("mkdir "+path+"tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1)+"/log")
-           else:
-               os.system("mkdir tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1)) 
-	   os.chdir(path+"tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1))
+	   os.system("mkdir tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1))
+	   os.chdir("tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1))
 	  
 	   with open('job_%s_%i.sh'%(k.replace(".root",""),j+1), 'w') as fout:
 	      fout.write("#!/bin/sh\n")
@@ -103,10 +94,7 @@ def submitJobs(minEv,maxEv,cmd,OutputFileNames,queue,jobname,path):
 	      fout.write("echo\n")
 	      fout.write("echo 'START---------------'\n")
 	      fout.write("echo 'WORKDIR ' ${PWD}\n")
-	      if not useCondorBatch:
-                fout.write("source /afs/cern.ch/cms/cmsset_default.sh\n")
-              else:
-                  fout.write("source /cvmfs/cms.cern.ch/cmsset_default.sh\n")
+	      fout.write("source /afs/cern.ch/cms/cmsset_default.sh\n")
 	      fout.write("cd "+str(path)+"\n")
 	      fout.write("cmsenv\n")
 	      fout.write(cmd+" -o res"+jobname+"/"+OutputFileNames+"_"+str(j+1)+"_"+k+" -s "+k+" -e "+str(minEv[k][j])+" -E "+str(maxEv[k][j])+"\n")
@@ -260,8 +248,6 @@ def Make1DMVVTemplateWithKernels(rootFile,template,cut,resFile,binsMVV,minMVV,ma
 	print "samples  = %s" %samples   
 	print "jobName  = %s" %jobName 
 	print
-	if mypath!="":
-            os.chdir(startpath)
 	minEv, maxEv, NumberOfJobs, files = getEvents(template,samples) 
 	print "Submitting %i number of jobs "  ,NumberOfJobs
 	print
@@ -270,13 +256,12 @@ def Make1DMVVTemplateWithKernels(rootFile,template,cut,resFile,binsMVV,minMVV,ma
 	OutputFileNames = rootFile.replace(".root","") # base of the output file name, they will be saved in res directory
 	queue = "8nh" # give bsub queue -- 8nm (8 minutes), 1nh (1 hour), 8nh, 1nd (1day), 2nd, 1nw (1 week), 2nw 
 	
-	path = mypath# os.getcwd()
-	try: os.system("rm -r "+path+"tmp"+jobName)
-	except: print "No "+path+"tmp/ directory"
-	os.system("mkdir "+path+"tmp"+jobName)
-	try: os.stat(path+"res"+jobName) 
-	except: os.mkdir(path+"res"+jobName)
-	print
+	path = os.getcwd()
+	try: os.system("rm -r tmp"+jobName)
+	except: print "No tmp/ directory"
+	os.system("mkdir tmp"+jobName)
+        try: os.stat("res"+jobName) 
+	except: os.mkdir("res"+jobName)
 
 	#### Creating and sending jobs #####
 	joblist = submitJobs(minEv,maxEv,cmd,OutputFileNames,queue,jobName,path)
@@ -317,8 +302,6 @@ def Make2DTemplateWithKernels(rootFile,template,cut,leg,binsMVV,minMVV,maxMVV,re
 	print "samples   = %s" %samples   
 	print "jobName   = %s" %jobName   
 	print
-        if mypath!="":
-            os.chdir(startpath)
 	minEv, maxEv, NumberOfJobs, files = getEvents(template,samples) 
 	print "Submitting %i number of jobs "  ,NumberOfJobs
 	print
@@ -327,13 +310,12 @@ def Make2DTemplateWithKernels(rootFile,template,cut,leg,binsMVV,minMVV,maxMVV,re
 	OutputFileNames = rootFile.replace(".root","") # base of the output file name, they will be saved in res directory
 	queue = "8nh" # give bsub queue -- 8nm (8 minutes), 1nh (1 hour), 8nh, 1nd (1day), 2nd, 1nw (1 week), 2nw 
 	
-	path = mypath #os.getcwd()
-	try: os.system("rm -r "+path+"tmp"+jobName)
-	except: print "No "+path+"tmp/ directory"
-	os.system("mkdir "+path+"tmp"+jobName)
-	try: os.stat(path+"res"+jobName) 
-	except: os.mkdir(path+"res"+jobName)
-	print
+	path = os.getcwd()
+	try: os.system("rm -r tmp"+jobName)
+	except: print "No tmp/ directory"
+	os.system("mkdir tmp"+jobName)
+	try: os.stat("res"+jobName) 
+	except: os.mkdir("res"+jobName)
 
 	#### Creating and sending jobs #####
 	joblist = submitJobs(minEv,maxEv,cmd,OutputFileNames,queue,jobName,path)
@@ -378,10 +360,16 @@ def unequalScale(histo,name,alpha,power=1,dim=1):
     else:
 	    for i in range(1,histo.GetNbinsX()+1):
 	        x= histo.GetXaxis().GetBinCenter(i)
-	        nominal=histo.GetBinContent(i)
-	        factor = 1+alpha*pow(x,power) 
+	        nominal=histo.GetBinContent(i) #ROOT.TMath.Log10(histo.GetBinContent(i))
+		#if x <= alpha: factor = pow(10,alpha*ROOT.TMath.Log10(nominal)/x)#alpha*pow(x,power) 
+		#else: factor = nominal*alpha*pow(x,power) 
+		#if factor != 0: print i,x,alpha,factor,nominal,factor,1./factor,ROOT.TMath.Log10(nominal)
+	        factor = 1+alpha*pow(x,power)
+		if power == 0: factor = alpha*math.log(x)
+		if power == -100: factor = alpha/x + math.log(alpha*10./x)
+		print i,x,power,alpha,factor,nominal,nominal*factor,nominal/factor
 	        newHistoU.SetBinContent(i,nominal*factor)
-	        newHistoD.SetBinContent(i,nominal/factor)	
+	        if factor != 0: newHistoD.SetBinContent(i,nominal/factor)	
     return newHistoU,newHistoD 
     
 def mirror(histo,histoNominal,name,dim=1):
@@ -564,6 +552,7 @@ def merge2DDetectorParam(jobList,files,binsxStr,jobname):
 	
 	 fin = ROOT.TFile.Open(f,'READ')
 	 print "WORKING ON FILE ", fin.GetName()
+	 label = fin.GetName().split('_')[1].split('.')[0]
 	 
 	 superHX = fin.Get("dataX")
 	 superHY = fin.Get("dataY")
@@ -584,6 +573,12 @@ def merge2DDetectorParam(jobList,files,binsxStr,jobname):
 	 
 	 for bin in range(1,superHX.GetNbinsX()+1):
 	 	tmp=superHX.ProjectionY("q",bin,bin)
+		if bin==1: 
+                 scalexHisto.SetBinContent(bin,tmp.GetMean())
+                 scalexHisto.SetBinError(bin,tmp.GetMeanError())
+                 resxHisto.SetBinContent(bin,tmp.GetRMS())
+                 resxHisto.SetBinError(bin,tmp.GetRMSError())
+		 continue		 
 	 	startbin   = 0.
 	 	maxcontent = 0.
 	 	for b in range(tmp.GetXaxis().GetNbins()):
@@ -596,14 +591,14 @@ def merge2DDetectorParam(jobList,files,binsxStr,jobname):
 	 	tmp.Fit(g1, "SR")
 	 	c1 =ROOT.TCanvas("c","",800,800)
 	 	tmp.Draw()
-	 	c1.SaveAs("debug_fit1_mvvres_%i.png"%bin)
+	 	c1.SaveAs("debug_%s_fit1_mvvres_%i.png"%(label,bin))
 	 	tmpmean = g1.GetParameter(1)
 	 	tmpwidth = g1.GetParameter(2)
 	 	g1 = ROOT.TF1("g1","gaus", tmpmean-(tmpwidth*2),tmpmean+(tmpwidth*2))
 	 	tmp.Fit(g1, "SR")
 	 	c1 =ROOT.TCanvas("c","",800,800)
 	 	tmp.Draw()
-	 	c1.SaveAs("debug_fit2_mvvres_%i.png"%bin)
+	 	c1.SaveAs("debug_%s_fit2_mvvres_%i.png"%(label,bin))
 	 	tmpmean = g1.GetParameter(1)
 	 	tmpmeanErr = g1.GetParError(1)
 	 	tmpwidth = g1.GetParameter(2)
@@ -614,6 +609,12 @@ def merge2DDetectorParam(jobList,files,binsxStr,jobname):
 	 	resxHisto.SetBinError    (bin,tmpwidthErr)
 	 for bin in range(1,superHY.GetNbinsX()+1):	
 	 	tmp=superHY.ProjectionY("q",bin,bin)
+		if bin==1:
+                 scaleyHisto.SetBinContent(bin,tmp.GetMean())
+                 scaleyHisto.SetBinError(bin,tmp.GetMeanError())
+                 resyHisto.SetBinContent(bin,tmp.GetRMS())
+                 resyHisto.SetBinError(bin,tmp.GetRMSError())		
+		 continue		
 	 	startbin   = 0.
 	 	maxcontent = 0.
 	 	for b in range(tmp.GetXaxis().GetNbins()):
@@ -626,14 +627,14 @@ def merge2DDetectorParam(jobList,files,binsxStr,jobname):
 	 	tmp.Fit(g1, "SR")
 	 	c1 =ROOT.TCanvas("c","",800,800)
 	 	tmp.Draw()
-	 	c1.SaveAs("debug_fit1_mjres_%i.png"%bin)
+	 	c1.SaveAs("debug_%s_fit1_mjres_%i.png"%(label,bin))
 	 	tmpmean = g1.GetParameter(1)
 	 	tmpwidth = g1.GetParameter(2)
 	 	g1 = ROOT.TF1("g1","gaus", tmpmean-(tmpwidth*1.1),tmpmean+(tmpwidth*1.1))
 	 	tmp.Fit(g1, "SR")
 	 	c1 =ROOT.TCanvas("c","",800,800)
 	 	tmp.Draw()
-	 	c1.SaveAs("debug_fit2_mjres_%i.png"%bin)
+	 	c1.SaveAs("debug_%s_fit2_mjres_%i.png"%(label,bin))
 	 	tmpmean = g1.GetParameter(1)
 	 	tmpmeanErr = g1.GetParError(1)
 	 	tmpwidth = g1.GetParameter(2)
@@ -755,23 +756,24 @@ def merge1DMVVTemplate(jobList,files,jobname,purity,binsMVV,binsMJ,minMVV,maxMVV
 	 outf.Close()
 	 outf.Delete()
 
-
 	# read out files
 	filelist = os.listdir('./'+outdir+'_out'+'/')
 
 	mg_files = []
 	pythia_files = []
 	herwig_files = []
+	dijet_files = []
 
 	for f in filelist:
 	 if f.find('QCD_HT') != -1: mg_files.append('./'+outdir+'_out'+'/'+f)
 	 elif f.find('QCD_Pt_') != -1: pythia_files.append('./'+outdir+'_out'+'/'+f)
-	 else: herwig_files.append('./'+outdir+'_out'+'/'+f)
-	 
+	 elif f.find('QCD_Pt-') != -1: herwig_files.append('./'+outdir+'_out'+'/'+f)
+	 else: dijet_files.append('./'+outdir+'_out'+'/'+f)
 	 
 	doMadGraph = False
 	doHerwig   = False
 	doPythia   = False
+	doDijet    = False
 	
 	#now hadd them
 	if len(mg_files) > 0:
@@ -786,9 +788,9 @@ def merge1DMVVTemplate(jobList,files,jobname,purity,binsMVV,binsMJ,minMVV,maxMVV
 		mvv_altshape2 = fhadd_madgraph.Get('mvv_nominal')
 		mvv_altshape2.SetName('mvv_altshape2')
 		mvv_altshape2.SetTitle('mvv_altshape2')
-		histo_altshape2 = fhadd_madgraph.Get('histo_nominal')
-		histo_altshape2.SetName('histo_altshape2')
-		histo_altshape2.SetTitle('histo_altshape2')
+		histo_altshape2Up = fhadd_madgraph.Get('histo_nominal')
+		histo_altshape2Up.SetName('histo_altshape2Up')
+		histo_altshape2Up.SetTitle('histo_altshape2Up')
 		
 		doMadGraph = True
 		
@@ -829,15 +831,36 @@ def merge1DMVVTemplate(jobList,files,jobname,purity,binsMVV,binsMJ,minMVV,maxMVV
 		
 		doPythia = True
 
+	if len(dijet_files) > 0:
+		cmd = 'hadd -f JJ_nonRes_MVV_%s_NLO.root '%purity
+		for f in dijet_files:
+		 cmd += f
+		 cmd += ' '
+		print cmd
+		os.system(cmd)
+		
+		fhadd_dijet = ROOT.TFile.Open('JJ_nonRes_MVV_%s_NLO.root'%(purity),'READ')
+		mvv_NLO = fhadd_dijet.Get('mvv_nominal')
+		mvv_NLO.SetName('mvv_NLO')
+		mvv_NLO.SetTitle('mvv_NLO')
+		histo_NLO = fhadd_dijet.Get('histo_nominal')
+		histo_NLO.SetName('histo_NLO')
+		histo_NLO.SetTitle('histo_NLO')
+		
+		doDijet = True
+		
 	outf = ROOT.TFile.Open('JJ_nonRes_MVV_%s.root'%purity,'RECREATE') 
     
 	if doPythia:
 		mvv_nominal.Write('mvv_nominal')
+		histo_nominal.Scale(1./histo_nominal.Integral())
 		histo_nominal.Write('histo_nominal')
 		#histo_nominal_ScaleUp.Write('histo_nominal_ScaleUp')
 		#histo_nominal_ScaleDown.Write('histo_nominal_ScaleDown')
-		alpha=1.5/5000
-		histogram_pt_down,histogram_pt_up=unequalScale(histo_nominal,"histo_nominal_PT",alpha)
+		
+		print "Now pT"
+		alpha=1.5/5000 #1.5/5000
+		histogram_pt_up,histogram_pt_down=unequalScale(histo_nominal,"histo_nominal_PT",alpha)
 		histogram_pt_down.SetName('histo_nominal_PTDown')
 		histogram_pt_down.SetTitle('histo_nominal_PTDown')
 		histogram_pt_down.Write('histo_nominal_PTDown')
@@ -845,37 +868,60 @@ def merge1DMVVTemplate(jobList,files,jobname,purity,binsMVV,binsMJ,minMVV,maxMVV
 		histogram_pt_up.SetTitle('histo_nominal_PTUp')
 		histogram_pt_up.Write('histo_nominal_PTUp')
 
-		alpha=1.5*1000
-		histogram_opt_down,histogram_opt_up=unequalScale(histo_nominal,"histo_nominal_OPT",alpha,-1)
+                print "Now OPT"
+		alpha=1.5*1000 #1.5*1000
+		histogram_opt_up,histogram_opt_down=unequalScale(histo_nominal,"histo_nominal_OPT",alpha,-1)
 		histogram_opt_down.SetName('histo_nominal_OPTDown')
 		histogram_opt_down.SetTitle('histo_nominal_OPTDown')
 		histogram_opt_down.Write('histo_nominal_OPTDown')
 		histogram_opt_up.SetName('histo_nominal_OPTUp')
 		histogram_opt_up.SetTitle('histo_nominal_OPTUp')
 		histogram_opt_up.Write('histo_nominal_OPTUp')
+
+                print "Now logpT"
+		alpha=100.
+		histogram_logpt_up,histogram_logpt_down=unequalScale(histo_nominal,"histo_nominal_LOGPT",alpha,0)
+		histogram_logpt_down.SetName('histo_nominal_LOGPTDown')
+		histogram_logpt_down.SetTitle('histo_nominal_LOGPTDown')
+		histogram_logpt_down.Write('histo_nominal_LOGPTDown')
+		histogram_logpt_up.SetName('histo_nominal_LOGPTUp')
+		histogram_logpt_up.SetTitle('histo_nominal_LOGPTUp')
+		histogram_logpt_up.Write('histo_nominal_LOGPTUp')
+
+
+
+                print "Now logpT + 1/pT"
+		alpha=1.5*1000.
+		histogram_logptopt_up,histogram_logptopt_down=unequalScale(histo_nominal,"histo_nominal_LOGPTOPT",alpha,-100)
+		histogram_logptopt_down.SetName('histo_nominal_LOGPTOPTDown')
+		histogram_logptopt_down.SetTitle('histo_nominal_LOGPTOPTDown')
+		histogram_logptopt_down.Write('histo_nominal_LOGPTOPTDown')
+		histogram_logptopt_up.SetName('histo_nominal_LOGPTOPTUp')
+		histogram_logptopt_up.SetTitle('histo_nominal_LOGPTOPTUp')
+		histogram_logptopt_up.Write('histo_nominal_LOGPTOPTUp')
 		
+		
+		
+		
+                print "Now pT2"				
 		alpha=5000.*5000.
-		histogram_pt2_down,histogram_pt2_up=unequalScale(histo_nominal,"histo_nominal_PT2",alpha,2)
+		histogram_pt2_up,histogram_pt2_down=unequalScale(histo_nominal,"histo_nominal_PT2",alpha,2)
 		histogram_pt2_down.SetName('histo_nominal_PT2Down')
 		histogram_pt2_down.SetTitle('histo_nominal_PT2Down')
-		histogram_pt2_down.Write('histo_nominal_PT2Down')
-		histogram_pt2_down.Write()
-		
+		histogram_pt2_down.Write('histo_nominal_PT2Down')		
 		histogram_pt2_up.SetName('histo_nominal_PT2Up')
 		histogram_pt2_up.SetTitle('histo_nominal_PT2Up')
 		histogram_pt2_up.Write('histo_nominal_PT2Up')
-		histogram_pt2_up.Write()
-		
-		alpha=1000.*1000.
-		histogram_opt2_down,histogram_opt2_up=unequalScale(histo_nominal,"histo_nominal_OPT2",alpha,-2)
-		
+
+                print "Now opT2"		
+		alpha=1500.*1500.
+		histogram_opt2_up,histogram_opt2_down=unequalScale(histo_nominal,"histo_nominal_OPT2",alpha,-2)		
 		histogram_opt2_up.SetName('histo_nominal_OPT2Up')
 		histogram_opt2_up.SetTitle('histo_nominal_OPT2Up')
-		histogram_opt2_up.Write()
-		
-		histogram_opt2_down.SetName('histo_nominal_OPT2Up')
-		histogram_opt2_down.SetTitle('histo_nominal_OPT2Up')
-		histogram_opt2_down.Write()
+		histogram_opt2_up.Write('histo_nominal_OPT2Up')		
+		histogram_opt2_down.SetName('histo_nominal_OPT2Down')
+		histogram_opt2_down.SetTitle('histo_nominal_OPT2Down')
+		histogram_opt2_down.Write('histo_nominal_OPT2Down')
 		
 		
 		
@@ -892,8 +938,22 @@ def merge1DMVVTemplate(jobList,files,jobname,purity,binsMVV,binsMJ,minMVV,maxMVV
 		
 	if doMadGraph:
 		mvv_altshape2.Write('mvv_altshape2')
-		histo_altshape2.Write('histo_altshape2')
-	
+		histo_altshape2Up.Write('histo_altshape2Up')
+		if doPythia:
+			histogram_altshape2Down=mirror(histo_altshape2Up,histo_nominal,"histo_altshape2Down")
+			histogram_altshape2Down.SetName('histo_altshape2Down')
+			histogram_altshape2Down.SetTitle('histo_altshape2Down')
+			histogram_altshape2Down.Write('histo_altshape2Down')
+			
+	if doDijet:
+		mvv_NLO.Write('mvv_NLO')
+		histo_NLO.Write('histo_NLO')
+		if doPythia:
+			histogram_NLODown=mirror(histo_NLO,histo_nominal,"histo_NLODown")
+			histogram_NLODown.SetName('histo_NLODown')
+			histogram_NLODown.SetTitle('histo_NLODown')
+			histogram_NLODown.Write('histo_NLODown')
+						
 	#os.system('mv JJ_nonRes_MVV_'+purity+'.root '+startpath)
 	os.system('rm -rf '+outdir+'_out/')
 	#os.system('rm -rf '+outdir+'/')
@@ -994,17 +1054,20 @@ def merge2DTemplate(jobList,files,jobname,purity,leg,binsMVV,binsMJ,minMVV,maxMV
 	mg_files = []
 	pythia_files = []
 	herwig_files = []
+	dijet_files = []
 
 	for f in filelist:
 	 if f.find('COND2D') == -1: continue
 	 if f.find('QCD_HT') != -1: mg_files.append('./'+outdir+'_out'+'/'+f)
 	 elif f.find('QCD_Pt_') != -1: pythia_files.append('./'+outdir+'_out'+'/'+f)
-	 else: herwig_files.append('./'+outdir+'_out'+'/'+f)
+	 elif f.find('QCD_Pt-') != -1: herwig_files.append('./'+outdir+'_out'+'/'+f)
+	 else: dijet_files.append('./'+outdir+'_out'+'/'+f)
 	 
 	 
 	doMadGraph = False
 	doHerwig   = False
 	doPythia   = False
+	doDijet    = False
 	
 	#now hadd them
 	if len(mg_files) > 0:
@@ -1023,9 +1086,9 @@ def merge2DTemplate(jobList,files,jobname,purity,leg,binsMVV,binsMJ,minMVV,maxMV
 		mjet_mvv_altshape2 = fhadd_madgraph.Get('mjet_mvv_nominal')
 		mjet_mvv_altshape2.SetName('mjet_mvv_altshape2')
 		mjet_mvv_altshape2.SetTitle('mjet_mvv_altshape2')
-		histo_altshape2 = fhadd_madgraph.Get('histo_nominal_coarse')
-		histo_altshape2.SetName('histo_altshape2_coarse')
-		histo_altshape2.SetTitle('histo_altshape2_coarse')
+		histo_altshape2Up = fhadd_madgraph.Get('histo_nominal_coarse')
+		histo_altshape2Up.SetName('histo_altshape2_coarse')
+		histo_altshape2Up.SetTitle('histo_altshape2_coarse')
 		#histo_altshape2 = fhadd_madgraph.Get('histo_nominal')
 		#histo_altshape2.SetName('histo_altshape2')
 		#histo_altshape2.SetTitle('histo_altshape2')
@@ -1081,6 +1144,27 @@ def merge2DTemplate(jobList,files,jobname,purity,leg,binsMVV,binsMJ,minMVV,maxMV
 		
 		doPythia = True
 
+	if len(dijet_files) > 0:
+		cmd = 'hadd -f JJ_nonRes_COND2D_%s_%s_NLO.root '%(purity,leg)
+		for f in dijet_files:
+		 cmd += f
+		 cmd += ' '
+		print cmd
+		os.system(cmd)
+
+		fhadd_dijet = ROOT.TFile.Open('JJ_nonRes_COND2D_%s_%s_NLO.root'%(purity,leg),'READ')
+		mjet_mvv_NLO_3D = fhadd_dijet.Get('mjet_mvv_nominal_3D') 
+		mjet_mvv_NLO_3D.SetName('mjet_mvv_NLO_3D')
+		mjet_mvv_NLO_3D.SetTitle('mjet_mvv_NLO_3D')
+		mjet_mvv_NLO = fhadd_dijet.Get('mjet_mvv_nominal')
+		mjet_mvv_NLO.SetName('mjet_mvv_NLO')
+		mjet_mvv_NLO.SetTitle('mjet_mvv_NLO')
+		histo_NLO = fhadd_dijet.Get('histo_nominal_coarse')
+		histo_NLO.SetName('histo_NLO_coarse')
+		histo_NLO.SetTitle('histo_NLO_coarse')
+		doDijet = True
+		
+		
 	outf = ROOT.TFile.Open('JJ_nonRes_COND2D_%s_%s.root'%(purity,leg),'RECREATE') 
 	finalHistograms = {}
 	
@@ -1113,7 +1197,7 @@ def merge2DTemplate(jobList,files,jobname,purity,leg,binsMVV,binsMJ,minMVV,maxMV
 		#expanded.Write('histo_nominal_ScaleDown')
 		
 		alpha=1.5/float(maxMJ)
-		histogram_pt_down,histogram_pt_up=unequalScale(finalHistograms['histo_nominal'],"histo_nominal_PT",alpha,1,2)
+		histogram_pt_up,histogram_pt_down=unequalScale(finalHistograms['histo_nominal'],"histo_nominal_PT",alpha,1,2)
 		conditional(histogram_pt_down)
 		histogram_pt_down.SetName('histo_nominal_PTDown')
 		histogram_pt_down.SetTitle('histo_nominal_PTDown')
@@ -1126,20 +1210,42 @@ def merge2DTemplate(jobList,files,jobname,purity,leg,binsMVV,binsMJ,minMVV,maxMV
 		alpha=1.5*float(minMJ)
 		h1,h2=unequalScale(finalHistograms['histo_nominal'],"histo_nominal_OPT",alpha,-1,2)
 		conditional(h1)
-		h1.SetName('histo_nominal_OPTDown')
-		h1.SetTitle('histo_nominal_OPTDown')
-		h1.Write('histo_nominal_OPTDown')
+		h1.SetName('histo_nominal_OPTUp')
+		h1.SetTitle('histo_nominal_OPTUp')
+		h1.Write('histo_nominal_OPTUp')
 		conditional(h2)
-		h2.SetName('histo_nominal_OPTUp')
-		h2.SetTitle('histo_nominal_OPTUp')
-		h2.Write('histo_nominal_OPTUp')
+		h2.SetName('histo_nominal_OPTDown')
+		h2.SetTitle('histo_nominal_OPTDown')
+		h2.Write('histo_nominal_OPTDown')
 
+		alpha=float(maxMJ)*float(maxMJ)
+		histogram_pt2_up,histogram_pt2_down=unequalScale(finalHistograms['histo_nominal'],"histo_nominal_PT2",alpha,2,2)
+		conditional(histogram_pt2_down)
+		histogram_pt2_down.SetName('histo_nominal_PT2Down')
+		histogram_pt2_down.SetTitle('histo_nominal_PT2Down')
+		histogram_pt2_down.Write('histo_nominal_PT2Down')
+		conditional(histogram_pt2_up)
+		histogram_pt2_up.SetName('histo_nominal_PT2Up')
+		histogram_pt2_up.SetTitle('histo_nominal_PT2Up')
+		histogram_pt2_up.Write('histo_nominal_PT2Up')
+
+		alpha=float(minMJ)*float(minMJ)
+		histogram_opt2_up,histogram_opt2_down=unequalScale(finalHistograms['histo_nominal'],"histo_nominal_OPT2",alpha,-2,2)
+		conditional(histogram_opt2_down)
+		histogram_opt2_down.SetName('histo_nominal_OPT2Down')
+		histogram_opt2_down.SetTitle('histo_nominal_OPT2Down')
+		histogram_opt2_down.Write('histo_nominal_OPT2Down')
+		conditional(histogram_opt2_up)
+		histogram_opt2_up.SetName('histo_nominal_OPT2Up')
+		histogram_opt2_up.SetTitle('histo_nominal_OPT2Up')
+		histogram_opt2_up.Write('histo_nominal_OPT2Up')
+				
 	if doHerwig:
 		histo_altshapeUp.Write('histo_altshapeUp_coarse')
 		conditional(histo_altshapeUp)
 		expanded=expandHisto(histo_altshapeUp,"herwig",binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ)
 		if HCALbinsMVV!="":
-                    expanded=expandHistoBinned(histo_nominal,"",xbins,binning)
+                    expanded=expandHistoBinned(histo_altshapeUp,"",xbins,binning)
 		conditional(expanded)
 		expanded.SetName('histo_altshapeUp')
 		expanded.SetTitle('histo_altshapeUp')
@@ -1153,19 +1259,38 @@ def merge2DTemplate(jobList,files,jobname,purity,leg,binsMVV,binsMJ,minMVV,maxMV
 			histogram_altshapeDown.Write()
 
 	if doMadGraph:
-		histo_altshape2.Write('histo_altshape2_coarse')
-		conditional(histo_altshape2)
-		expanded=expandHisto(histo_altshape2,"madgraph",binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ)
+		histo_altshape2Up.Write('histo_altshape2_coarse')
+		conditional(histo_altshape2Up)
+		expanded=expandHisto(histo_altshape2Up,"madgraph",binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ)
 		if HCALbinsMVV!="":
-                    expanded=expandHistoBinned(histo_nominal,"",xbins,binning)
+                    expanded=expandHistoBinned(histo_altshape2Up,"",xbins,binning)
 		conditional(expanded)
-		expanded.SetName('histo_altshape2')
-		expanded.SetTitle('histo_altshape2')
-		expanded.Write('histo_altshape2')
+		expanded.SetName('histo_altshape2Up')
+		expanded.SetTitle('histo_altshape2Up')
+		expanded.Write('histo_altshape2Up')
+		finalHistograms['histo_altshape2Up'] = expanded
+		if doPythia:
+			histogram_altshape2Down=mirror(finalHistograms['histo_altshape2Up'],finalHistograms['histo_nominal'],"histo_altshape2Down",2)
+			conditional(histogram_altshape2Down)
+			histogram_altshape2Down.SetName('histo_altshape2Down')
+			histogram_altshape2Down.SetTitle('histo_altshape2Down')
+			histogram_altshape2Down.Write()
+			
+	if doDijet:
+		histo_NLO.Write('histo_NLO_coarse')
+		conditional(histo_NLO)
+		expanded=expandHisto(histo_NLO,"NLO",binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ)
+		if HCALbinsMVV!="":
+                    expanded=expandHistoBinned(histo_NLO,"",xbins,binning)
+		conditional(expanded)
+		expanded.SetName('histo_NLO')
+		expanded.SetTitle('histo_NLO')
+		expanded.Write('histo_NLO')
+		
 	os.system('rm -r '+outdir+'_out')
 	# os.system('rm -r '+outdir)
 	
-def makeData(template,cut,rootFile,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,factor,name,data,jobname,samples,wait=True,binning=''):
+def makeData(template,cut,rootFile,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,factors,name,data,jobname,samples,wait=True,binning=''):
 	print 
 	print 'START: makeData'
 	print "template = ",template
@@ -1177,14 +1302,12 @@ def makeData(template,cut,rootFile,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,fact
 	print "maxMVV   = ",maxMVV
 	print "minMJ    = ",minMJ
 	print "maxMJ    = ",maxMJ
-	print "factor   = ",factor
+	print "factor   = ",factors
 	print "name     = ",name
 	print "data     = ",data
 	print "jobname  = ",jobname
 	print "samples  = ",samples
 	print 
-	if mypath!="":
-            os.chdir(startpath)
 	files = []
 	sampleTypes = template.split(',')
 	for f in os.listdir(samples):
@@ -1193,33 +1316,25 @@ def makeData(template,cut,rootFile,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,fact
  
 	NumberOfJobs= len(files) 
 	OutputFileNames = rootFile.replace(".root","")
-	cmd='vvMakeData.py -d {data} -c "{cut}"  -v "jj_l1_softDrop_mass,jj_l2_softDrop_mass,jj_LV_mass" {binning} -b "{bins},{bins},{BINS}" -m "{mini},{mini},{MINI}" -M "{maxi},{maxi},{MAXI}" -f {factor} -n "{name}" {infolder} '.format(cut=cut,BINS=binsMVV,bins=binsMJ,MINI=minMVV,MAXI=maxMVV,mini=minMJ,maxi=maxMJ,factor=factor,name=name,data=data,infolder=samples,binning=binning)	
+	cmd='vvMakeData.py -d {data} -c "{cut}"  -v "jj_l1_softDrop_mass,jj_l2_softDrop_mass,jj_LV_mass" {binning} -b "{bins},{bins},{BINS}" -m "{mini},{mini},{MINI}" -M "{maxi},{maxi},{MAXI}" -f {factors} -n "{name}" {infolder} '.format(cut=cut,BINS=binsMVV,bins=binsMJ,MINI=minMVV,MAXI=maxMVV,mini=minMJ,maxi=maxMJ,factors=factors,name=name,data=data,infolder=samples,binning=binning)	
 	queue = "1nd" # give bsub queue -- 8nm (8 minutes), 1nh (1 hour), 8nh, 1nd (1day), 2nd, 1nw (1 week), 2nw 
 	
-
-	path = mypath# os.getcwd()
-	try: os.system("rm -r "+path+"tmp"+jobname)
-	except: print "No "+path+"tmp/ directory"
-	os.system("mkdir "+path+"tmp"+jobname)
-	try: os.stat(path+"res"+jobname) 
-	except: os.mkdir(path+"res"+jobname)
-	print
+        path = os.getcwd()
+	try: os.system("rm -r tmp"+jobname)
+	except: print "No tmp/ directory"
+	os.system("mkdir tmp"+jobname)
+	try: os.stat("res"+jobname) 
+	except: os.mkdir("res"+jobname)
         
-        #joblist = submitJobs(minEv,maxEv,cmd,OutputFileNames,queue,jobname,path)
+    
 	##### Creating and sending jobs #####
 	joblist = []
 	###### loop for creating and sending jobs #####
 	for x in range(1, int(NumberOfJobs)+1):
-	   if useCondorBatch:
-                os.system("echo "+path)
-                os.system("mkdir "+path+"tmp"+jobname+"/"+str(files[x-1]).replace(".root",""))
-                os.system("mkdir "+path+"tmp"+jobname+"/"+str(files[x-1]).replace(".root","")+"/out")
-                os.system("mkdir "+path+"tmp"+jobname+"/"+str(files[x-1]).replace(".root","")+"/error")
-                os.system("mkdir "+path+"tmp"+jobname+"/"+str(files[x-1]).replace(".root","")+"/log")
-           else:
-               os.system("mkdir tmp"+jobname+"/"+str(files[x-1]).replace(".root",""))
+	   os.system("mkdir tmp"+jobname+"/"+str(files[x-1]).replace(".root",""))
+	   os.chdir("tmp"+jobname+"/"+str(files[x-1]).replace(".root",""))
 	   #os.system("mkdir tmp"+jobname+"/"+str(files[x-1]).replace(".root",""))
-	   os.chdir(path+"tmp"+jobname+"/"+str(files[x-1]).replace(".root",""))
+	   #os.chdir(path+"tmp"+jobname+"/"+str(files[x-1]).replace(".root",""))
 	 
 	   with open('job_%s.sh'%files[x-1].replace(".root",""), 'w') as fout:
 	      fout.write("#!/bin/sh\n")
@@ -1227,10 +1342,7 @@ def makeData(template,cut,rootFile,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,fact
 	      fout.write("echo\n")
 	      fout.write("echo 'START---------------'\n")
 	      fout.write("echo 'WORKDIR ' ${PWD}\n")
-	      if not useCondorBatch:
-                fout.write("source /afs/cern.ch/cms/cmsset_default.sh\n")
-              else:
-                  fout.write("source /cvmfs/cms.cern.ch/cmsset_default.sh\n")
+	      fout.write("source /afs/cern.ch/cms/cmsset_default.sh\n")
 	      fout.write("cd "+str(path)+"\n")
 	      fout.write("cmsenv\n")
 	      fout.write(cmd+" -o "+path+"/res"+jobname+"/"+OutputFileNames+"_"+files[x-1]+" -s "+files[x-1]+"\n")
@@ -1241,12 +1353,8 @@ def makeData(template,cut,rootFile,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,fact
 
            if useCondorBatch:
                os.system("mv  job_*.sh "+jobname+".sh")
-               #makeSubmitFileCondor(jobname+".sh",jobname,"workday")
-               #os.system("condor_submit submit.sub")
-               ############ comment out for lxplus #######
-               writeJDL("",500,10*60,jobname+".sh")
-               os.system("condor_submit "+jobname+".jdl")
-               #####################
+               makeSubmitFileCondor(jobname+".sh",jobname,"workday")
+               os.system("condor_submit submit.sub")
            else:
                os.system("bsub -q "+queue+" -o logs job_%s.sh -J %s"%(files[x-1].replace(".root",""),jobname))
 	   print "job nr " + str(x) + " submitted"

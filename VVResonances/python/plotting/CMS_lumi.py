@@ -46,7 +46,7 @@ class CMSPlotLabel:
         pad.cd()
         
         lumiText = self.periods[iPeriod]['lumi']+"("+self.periods[iPeriod]['energy']+")"
-        if self.extraText.find('Simulation')!=-1:
+        if self.extraText=='Simulation':
             lumiText=''
         print lumiText
 
@@ -121,7 +121,7 @@ class CMSPlotLabel:
 
 cmslabel_prelim=CMSPlotLabel("CMS","Preliminary")
 cmslabel_int=CMSPlotLabel("CMS","Internal")
-cmslabel_sim=CMSPlotLabel("CMS","           Simulation")
+cmslabel_sim=CMSPlotLabel("CMS","Simulation")
 cmslabel_final=CMSPlotLabel("CMS")
 
 

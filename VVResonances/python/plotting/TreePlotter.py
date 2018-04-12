@@ -1,6 +1,5 @@
 import ROOT
 import sys,commands
-import os
 from array import array
 import pickle
 from PlotterBase import PlotterBase
@@ -241,12 +240,12 @@ class TreePlotter(PlotterBase):
 
     def makeDataSet(self,var,cut,firstEv=0,lastEv=-1):
         variables=var.split(',')
-	
-        #self.cache=ROOT.TFile("/home/%s/tmp/cache%i.root"%(commands.getoutput("whoami"),random.randint(0, 1e+6)),"RECREATE")
-        cachefile = os.getcwd()+"/tmp/cache%i.root"%(random.randint(0,1e+6))
-        self.cache=ROOT.TFile(cachefile,"RECREATE")
-        os.system("echo 'save chache file to '")
-        os.system("echo "+os.getcwd())
+        
+        #cachefile = os.getcwd()+"/tmp/cache%i.root"%(random.randint(0,1e+6))
+        #self.cache=ROOT.TFile(cachefile,"RECREATE")
+        #os.system("echo 'save chache file to '")
+        #os.system("echo "+os.getcwd())
+        self.cache=ROOT.TFile("/tmp/%s/cache%i.root"%(commands.getoutput("whoami"),random.randint(0, 1e+6)),"RECREATE")
         w=ROOT.RooWorkspace("w","w")
         argset=ROOT.RooArgSet()
         argset2=ROOT.RooArgSet()
