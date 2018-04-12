@@ -167,6 +167,7 @@ line_plus2.Draw("Lsame")
 line_minus1.Draw("Lsame")
 line_minus2.Draw("Lsame")
 c.SetLogy(options.log)
+c.SetGrid()
 c.Draw()
 
 
