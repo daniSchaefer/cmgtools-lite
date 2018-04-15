@@ -280,7 +280,7 @@ class TreePlotter(PlotterBase):
             #if maxN >0 and N>maxN:
             #    return data
         del self.cache
-        os.system("rm "+cachefile)
+        #os.system("rm "+cachefile)
         return data    
 
 

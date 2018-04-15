@@ -119,13 +119,14 @@ for leg in legs:
     
  fitter.importBinnedData(histo,['x'],'data')
  fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1),ROOT.RooFit.Save(1)])
- #fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0),ROOT.RooFit.Minos(1)])
- fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_Res.png")
- #params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}, "alpha":{ "val": fitter.w.var("alpha").getVal(), "err": fitter.w.var("alpha")},"alpha2":{"val": fitter.w.var("alpha2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()},"n2": {"val": fitter.w.var("n2").getVal(), "err": fitter.w.var("n2").getError()}}
+ ##fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0),ROOT.RooFit.Minos(1)])
+ #fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_Res.png")
+ ##params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}, "alpha":{ "val": fitter.w.var("alpha").getVal(), "err": fitter.w.var("alpha")},"alpha2":{"val": fitter.w.var("alpha2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()},"n2": {"val": fitter.w.var("n2").getVal(), "err": fitter.w.var("n2").getError()}}
  params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}}
 
- #histo = plotter.drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==0)","1",80,options.mini,options.maxi)
- histo = plotter.drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==0)*(jj_"+leg+"_softDrop_mass>60&&jj_"+leg+"_softDrop_mass<110)","1",25,60,110)
+
+ #histo = plotter.drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==0)*(jj_"+leg+"_softDrop_mass>60&&jj_"+leg+"_softDrop_mass<110)","1",25,60,110)
+ histo = plotter.drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_softDrop_mass>60&&jj_"+leg+"_softDrop_mass<110)","1",25,60,110)
  if leg.find("l1")!=-1:
      NnonRes[0] += histo.Integral()
  else:
@@ -134,7 +135,7 @@ for leg in legs:
 print 'fitting MJJ: ' 
 
 fitter=Fitter(['MVV'])
-fitter.qcd('model','MVV',True)
+fitter.qcd('model','MVV',False)
 
 if options.fixPars!="":
     fixedPars =options.fixPars.split(',')
@@ -145,16 +146,15 @@ if options.fixPars!="":
         fitter.w.var(parVal[0]).setVal(float(parVal[1]))
         fitter.w.var(parVal[0]).setConstant(1)
 
-#histo = plotter.drawTH1("jj_LV_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)","1",36,options.minMVV,options.maxMVV)
 binning=getBinning(options.binsMVV,options.minMVV,options.maxMVV,1000)
 roobins = ROOT.RooBinning(len(binning)-1,array("d",binning))
 histo = plotter.drawTH1Binned("jj_LV_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)","1",binning)
-
+#histo.Scale(40000.)
 fitter.importBinnedData(histo,['MVV'],'data')
 fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1),ROOT.RooFit.Save(1)])
-#fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1),ROOT.RooFit.Minos(1)])
-fitter.projection("model","data",'MVV',"debugMVV_"+options.output+".png",roobins)
+#fitter.projection("model","data",'MVV',"debugMVV_"+options.output+".png",roobins)
 fitter.projection("model","data",'MVV',"debugMVV_log_"+options.output+".png",roobins,True)
+print "save plot "+"debugMVV_log_"+options.output+".png"
 params[label+"_MVV"]={"CMS_p0": {"val":fitter.w.var("c_0").getVal(), "err":fitter.w.var("c_0").getError() }, "CMS_p1":{ "val": fitter.w.var("c_1").getVal(), "err": fitter.w.var("c_1").getError()}, "CMS_p2":{ "val":  fitter.w.var("c_2").getVal(), "err": fitter.w.var("c_2").getError()}}
     
 

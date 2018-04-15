@@ -51,8 +51,9 @@ for event in limit:
         data[event.mh]={}
 
     lim = event.limit*0.001
-    if event.quantileExpected<0:            
-        data[event.mh]['obs']=lim
+    if options.blind==0:
+        if event.quantileExpected<0:            
+            data[event.mh]['obs']=lim
     if event.quantileExpected>0.02 and event.quantileExpected<0.03:            
         data[event.mh]['-2sigma']=lim
     if event.quantileExpected>0.15 and event.quantileExpected<0.17:            
@@ -90,8 +91,7 @@ N=0
 for mass,info in data.iteritems():
     print 'Setting mass',mass,info
 
-    if not ('exp' in info.keys() and '+1sigma' in info.keys() and '+2sigma' in info.keys() and '-1sigma' in info.keys() and '-2sigma' in info.keys() \
-                and 'obs' in info.keys()):
+    if not ('exp' in info.keys() and '+1sigma' in info.keys() and '+2sigma' in info.keys() and '-1sigma' in info.keys() and '-2sigma' in info.keys() ):
         print 'Incomplete file'
         continue
     
@@ -103,8 +103,9 @@ for mass,info in data.iteritems():
     line_minus1.SetPoint(N,mass,info['-1sigma'])
     line_minus2.SetPoint(N,mass,info['-2sigma'])
     print str(mass ) + " mean  "+str(info['exp']) + "  1 sigma  "+str(info['+1sigma'])+"  2 sigma "+str(info['+2sigma'])
-
-    bandObs.SetPoint(N,mass,info['obs'])
+    
+    if options.blind==0:
+        bandObs.SetPoint(N,mass,info['obs'])
     band68.SetPointError(N,0.0,0.0,info['exp']-info['-1sigma'],info['+1sigma']-info['exp'])
     band95.SetPointError(N,0.0,0.0,info['exp']-info['-2sigma'],info['+2sigma']-info['exp'])
     N=N+1
@@ -112,7 +113,8 @@ for mass,info in data.iteritems():
 
 band68.Sort()
 band95.Sort()
-bandObs.Sort()
+if options.blind==0:
+    bandObs.Sort()
 line_plus1.Sort()    
 line_plus2.Sort()    
 line_minus1.Sort()    
@@ -139,10 +141,10 @@ band68.SetLineStyle(7)
 band68.SetMarkerStyle(0)
 
 band95.SetFillColor(ROOT.kYellow)
-
-bandObs.SetLineWidth(3)
-bandObs.SetLineColor(ROOT.kBlack)
-bandObs.SetMarkerStyle(20)
+if options.blind==0:
+    bandObs.SetLineWidth(3)
+    bandObs.SetLineColor(ROOT.kBlack)
+    bandObs.SetMarkerStyle(20)
 
 line_plus1.SetLineWidth(1)
 line_plus1.SetLineColor(ROOT.kGreen+1)

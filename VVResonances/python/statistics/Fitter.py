@@ -793,11 +793,13 @@ class Fitter(object):
 
     def qcd(self,name='model',poi='MVV',logTerm=True):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-
-        self.w.factory("c_0[20,0,100]")
-        self.w.factory("c_1[0.5,0,100]")
+        #self.w.factory("c_0[20,0,100]")
+        #self.w.factory("c_1[0.5,0,100]")
+        #self.w.factory("c_2[0.0001,0,10]")
+        self.w.factory("c_0[0.0,0,10]")
+        self.w.factory("c_1[13,0,30]")
         if logTerm:
-            self.w.factory("c_2[0.0001,0,10]")
+            self.w.factory("c_2[1.8,0,5]")
         else:    
             self.w.factory("c_2[0]")
 

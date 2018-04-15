@@ -62,7 +62,7 @@ cuts['res'] = '(jj_l1_mergedVTruth==1&&jj_l1_softDrop_mass>60&&jj_l1_softDrop_ma
 purities=['HPHP','HPLP','LPLP','NP']
 purities=['HPHP']
 
-BulkGravWWTemplate="BulkGravToWW_narrow"
+BulkGravWWTemplate="BulkWW"
 BulkGravZZTemplate="BulkGravToZZToZhadZhad_narrow"
 WprimeTemplate= "WprimeToWZ"
 WJetsTemplate= "WJetsToQQ_HT600"
@@ -161,6 +161,8 @@ def makeSignalYields(filename,template,branchingFraction,sfP = {'HPHP':1.0,'HPLP
 def fitVJets(filename,template):
   for p in purities:
     cut='*'.join([cuts['common'],cuts[p],cuts['acceptance']])
+    if template.find("HT800")!=-1:
+        cut='*'.join([cuts['common18'],cuts[p],cuts['acceptance']])
     rootFile=filename+"_"+p+".root"
     fixPars=""
     cmd='vvMakeVjetsShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -m {minMJ} -M {maxMJ} --store "{filename}_{purity}.py" --minMVV {minMVV} --maxMVV {maxMVV} samples'.format(template=template,cut=cut,rootFile=rootFile,minMJ=minMJ,maxMJ=maxMJ,fixPars=fixPars,filename=filename,purity=p,minMVV=minMVV,maxMVV=maxMVV)
@@ -192,7 +194,7 @@ def makeBackgroundShapesMJKernel(name,filename,template,leg,addCut="1"):
  
  #template += ",QCD_Pt-,QCD_HT"
  for p in purities:
-  resFile=filename+"_"+name+"_detectorResponse.root"	
+  resFile=filename+"_"+name+"_detectorResponse.root"
   print "=========== PURITY: ", p
   cut='*'.join([cuts['common'],cuts[p],addCut,cuts['acceptanceGEN'],cuts['acceptanceMVV']])
   rootFile=filename+"_"+name+"_MJ"+leg+"_"+p+".root"  	      
@@ -215,11 +217,15 @@ def makeBackgroundShapesMVVKernel(name,filename,template,addCut="1",jobname="1DM
  for p in purities:
   jobname = jobname+"_"+p
   print " Working on purity: ", p
-  resFile  = pwd + "/"+ filename+"_"+name+"_detectorResponse.root"	
+  resFile  = pwd + "/"+ filename+"_"+name+"_detectorResponse.root"
+  if name.find("VJets")!=-1:
+      resFile="JJ_nonRes_detectorResponse.root"
   rootFile = filename+"_"+name+"_MVV_"+p+".root"
   print "Reading " ,resFile
   print "Saving to ",rootFile
   cut='*'.join([cuts['common'],cuts[p],addCut,cuts['acceptanceGEN'],cuts['acceptanceMJ']])
+  if template.find("HT800")!=-1:
+        cut='*'.join([cuts['common18'],cuts[p],addCut,cuts['acceptanceGEN'],cuts['acceptanceMJ']])
   samples = pwd +"/samples"
 
   if submitToBatch:
@@ -374,12 +380,13 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 #mergeKernelJobs()
 #mergeBackgroundShapes("nonRes","JJ")
 
-#fitVJets("JJ_VJets",resTemplate) 
+#fitVJets("JJ_VJets",resTemplate)
+#fitVJets("JJ_VJets",VJetsTemplate17)
 
 #makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],"nR")
-makeNormalizations("VJets","JJ",resTemplate,0,cuts["res"],"nRes","ZJetsToQQ:0.071")
-makeNormalizations("VJets_all","JJ",resTemplate,0,"1","nRes","ZJetsToQQ:0.071")
+#makeNormalizations("VJets","JJ",resTemplate,0,cuts["res"],"nRes","ZJetsToQQ:0.071")
+#makeNormalizations("VJets_all","JJ",resTemplate,0,"1","nRes","ZJetsToQQ:0.071")
 ### makeNormalizations("data","JJ",dataTemplate,1,'1',"normD") #run on data. Currently run on pseudodata only (below)
 #from modules.submitJobs import makePseudodata
 #for p in purities: makePseudodata("JJ_nonRes_%s.root"%p,p) #remove this when running on data!!
-
+makeBackgroundShapesMVVKernel("VJets","JJ",VJetsTemplate17,"*(jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<110)&&(jj_l2_softDrop_mass>60&&jj_l2_softDrop_mass<110)","1D",0)

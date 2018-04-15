@@ -584,8 +584,8 @@ def compSignalMVV():
 if __name__ == '__main__':
 	doMJFit()
 
-	#doMVVFit()
-	#doYield()
+	doMVVFit()
+	doYield()
 	#doResolution()
 	#doKernelMVV()
 	#compKernelMVV()
