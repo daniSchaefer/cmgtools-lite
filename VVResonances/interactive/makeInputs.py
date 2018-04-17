@@ -389,4 +389,4 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 ### makeNormalizations("data","JJ",dataTemplate,1,'1',"normD") #run on data. Currently run on pseudodata only (below)
 #from modules.submitJobs import makePseudodata
 #for p in purities: makePseudodata("JJ_nonRes_%s.root"%p,p) #remove this when running on data!!
-makeBackgroundShapesMVVKernel("VJets","JJ",VJetsTemplate17,"*(jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<110)&&(jj_l2_softDrop_mass>60&&jj_l2_softDrop_mass<110)","1D",0)
+makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<110)&&(jj_l2_softDrop_mass>60&&jj_l2_softDrop_mass<110)","1D",0)
