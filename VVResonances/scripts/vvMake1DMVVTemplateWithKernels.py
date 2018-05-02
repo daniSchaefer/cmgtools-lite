@@ -67,34 +67,42 @@ def mirror(histo,histoNominal,name):
         newHisto.SetBinContent(i,histoNominal.GetBinContent(i)*nominal/up)
     return newHisto      
 	
-def smoothTail(hist):
-
-    bin_1200=hist.GetXaxis().FindBin(1200)
-    if bin_1200>=hist.GetNbinsX()+1:
-        return
-
-    if hist.Integral()==0:
-        print "Well we have  0 integrl for the hist ",hist.GetName()
-        return
-    expo=ROOT.TF1("func","expo",0,5000)
-#    expo=ROOT.TF1("expo","[0]*((1-x/13000.0)^[1])/(x/13000.0)^([2]+[3]*log(x))",1000,8000)
-#    expo.SetParameters(1,1,1,0)
-#    expo.SetParLimits(0,0,1)
-#    expo.SetParLimits(1,0.1,100)
-#    expo.SetParLimits(2,0.1,100)
-#    expo.SetParLimits(3,0.0,20)
-
-
-    for j in range(1,hist.GetNbinsX()+1):
-        if hist.GetBinContent(j)/hist.Integral()<0.0005:
-            hist.SetBinError(j,1.8)
-
-    hist.Fit(expo,"","",2000,8000)
-    hist.Fit(expo,"","",2000,8000)
-    for j in range(1,hist.GetNbinsX()+1):
-        x=hist.GetXaxis().GetBinCenter(j)
-        if x>2000:
-            hist.SetBinContent(j,expo.Eval(x))
+def smoothTail1D(proj):
+    if proj.Integral() == 0:
+        print "histogram has zero integral "+proj.GetName()
+        return 0
+    scale = proj.Integral() 
+    proj.Scale(1.0/scale)
+    
+    
+    beginFitX = 2100
+    expo=ROOT.TF1("expo","[0]*(1-x/13000.)^[1]/(x/13000)^[2]",2000,8000) 
+    expo.SetParameters(0,16.,2.)
+    expo.SetParLimits(2,1.,20.)
+    proj.Fit(expo,"LLMR","",beginFitX,8000)
+    #c = ROOT.TCanvas("c","c",400,400)
+    #c.SetLogy()
+    #proj.Draw("hist")
+    #proj.Draw("funcsame")
+    #c.SaveAs(proj.GetName()+".pdf")
+    beginsmooth = False
+    print proj.GetNbinsX()+1
+    for j in range(1,proj.GetNbinsX()+1):
+        x=proj.GetXaxis().GetBinCenter(j)
+        if x>beginFitX:
+            if beginsmooth==False:
+               if x<3000: 
+                   if abs(proj.GetBinContent(j) - expo.Eval(x)) < 0.00009:# and abs(expo.Derivative(x)- (hist.GetBinContent(j):
+                    print beginFitX
+                    print "begin smoothing at " +str(x)
+                    beginsmooth = True 
+               if abs(proj.GetBinContent(j) - expo.Eval(x)) < 0.00001:# and abs(expo.Derivative(x)- (hist.GetBinContent(j):
+                   print beginFitX
+                   print "begin smoothing at " +str(x)
+                   beginsmooth = True 
+            if beginsmooth:
+                proj.SetBinContent(j,expo.Eval(x))
+    return 1
 
 weights_ = options.weights.split(',')
 
@@ -244,30 +252,61 @@ f.cd()
 finalHistograms={}
 for hist in histograms:
  # hist.Write(hist.GetName()+"_raw")
- # smoothTail(hist)
+ if (options.output).find("VJets")!=-1 and hist.GetName()!="mvv_nominal":
+     print "smooth tails of 1D histogram for vjets background"
+     if hist.Integral() > 0:
+        smoothTail1D(hist)
  hist.Write(hist.GetName())
  finalHistograms[hist.GetName()]=hist
+
+ #################################
+c = ROOT.TCanvas("c","C",400,400)
+finalHistograms["histo_nominal"].Draw("hist")
+data = finalHistograms["mvv_nominal"]
+data.Scale(1./data.Integral())
+data.SetMarkerColor(ROOT.kBlack)
+data.Draw("same")
+c.SetLogy()
+c.SaveAs("debug_Vjets_mVV_kernels.png")
+print "for debugging save   debug_Vjets_mVV_kernels.png "
+########################################################
 
 #histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
 #histogram_altshapeDown.Write()
 
 alpha=1.5/5000
 histogram_pt_down,histogram_pt_up=unequalScale(finalHistograms["histo_nominal"],"histo_nominal_PT",alpha)
+if (options.output).find("VJets")!=-1:
+     print "smooth tails of 1D histogram for vjets background"
+     smoothTail1D(histogram_pt_down)
+     smoothTail1D(histogram_pt_up)
 histogram_pt_down.Write()
 histogram_pt_up.Write()
 
 alpha=1.5*1000
 histogram_opt_down,histogram_opt_up=unequalScale(finalHistograms["histo_nominal"],"histo_nominal_OPT",alpha,-1)
+if (options.output).find("VJets")!=-1:
+     print "smooth tails of 1D histogram for vjets background"
+     smoothTail1D(histogram_opt_down)
+     smoothTail1D(histogram_opt_up)
 histogram_opt_down.Write()
 histogram_opt_up.Write()
 
 alpha=5000.*5000.
 histogram_pt2_down,histogram_pt2_up=unequalScale(finalHistograms["histo_nominal"],"histo_nominal_PT2",alpha,2)
+if (options.output).find("VJets")!=-1:
+     print "smooth tails of 1D histogram for vjets background"
+     smoothTail1D(histogram_pt2_down)
+     smoothTail1D(histogram_pt2_up)
 histogram_pt2_down.Write()
 histogram_pt2_up.Write()
 
 alpha=1000.*1000.
 histogram_opt2_down,histogram_opt2_up=unequalScale(finalHistograms["histo_nominal"],"histo_nominal_OPT2",alpha,-2)
+if (options.output).find("VJets")!=-1:
+     print "smooth tails of 1D histogram for vjets background"
+     smoothTail1D(histogram_opt2_down)
+     smoothTail1D(histogram_opt2_up)
 histogram_opt2_down.Write()
 histogram_opt2_up.Write() 
 

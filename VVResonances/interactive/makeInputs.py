@@ -2,8 +2,8 @@ import ROOT
 import os,sys
 
 
-submitToBatch = True #Set to true if you want to submit kernels + makeData to batch!
-runParallel   = True #Set to true if you want to run all kernels in parallel! This will exit this script and you will have to run mergeKernelJobs when your jobs are done! TODO! Add waitForBatchJobs also here?
+submitToBatch = False #Set to true if you want to submit kernels + makeData to batch!
+runParallel   = False #Set to true if you want to run all kernels in parallel! This will exit this script and you will have to run mergeKernelJobs when your jobs are done! TODO! Add waitForBatchJobs also here?
 dijetBinning = True
 
 if dijetBinning:
@@ -364,8 +364,8 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 ## ------------------------------
 
 
-if runParallel and submitToBatch:
-	wait = False
+#if runParallel and submitToBatch:
+	#wait = False
 	#makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'],"1D",wait)
 	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
 	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
@@ -391,7 +391,7 @@ if runParallel and submitToBatch:
 ### makeNormalizations("data","JJ",dataTemplate,1,'1',"normD") #run on data. Currently run on pseudodata only (below)
 #from modules.submitJobs import makePseudodata
 #for p in purities: makePseudodata("JJ_nonRes_%s.root"%p,p) #remove this when running on data!!
-#makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<110)&&(jj_l2_softDrop_mass>60&&jj_l2_softDrop_mass<110)","1D",0)
+makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)&&(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1D",0)
 #for p in purities:
 #    cmd = "python TailSmoothing3D.py -i JJ_VJets_MVV_"+p+".root -o JJ_VJets_MVV_"+p+"_TS.root"
 #    os.system(cmd)
