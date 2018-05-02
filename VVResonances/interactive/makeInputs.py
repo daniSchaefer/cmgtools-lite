@@ -1,8 +1,9 @@
 import ROOT
 import os,sys
 
-submitToBatch = False #Set to true if you want to submit kernels + makeData to batch!
-runParallel   = False #Set to true if you want to run all kernels in parallel! This will exit this script and you will have to run mergeKernelJobs when your jobs are done! TODO! Add waitForBatchJobs also here?
+
+submitToBatch = True #Set to true if you want to submit kernels + makeData to batch!
+runParallel   = True #Set to true if you want to run all kernels in parallel! This will exit this script and you will have to run mergeKernelJobs when your jobs are done! TODO! Add waitForBatchJobs also here?
 dijetBinning = True
 
 if dijetBinning:
@@ -60,7 +61,7 @@ cuts['resl2'] = '(jj_l2_mergedVTruth==1)'
 cuts['res'] = '(jj_l1_mergedVTruth==1&&jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<110)'
 
 purities=['HPHP','HPLP','LPLP','NP']
-purities=['HPHP']
+purities=['LPLP']
 
 BulkGravWWTemplate="BulkWW"
 BulkGravZZTemplate="BulkGravToZZToZhadZhad_narrow"
@@ -79,8 +80,9 @@ BRZZ=1.*0.001*0.6991*0.6991
 BRWZ=1.*0.001*0.6991*0.676
 
 dataTemplate="JetHT"
-#nonResTemplate="QCD_Pt_" #high stat
-nonResTemplate="QCD_Pt-" #low stat --> use this for tests
+nonResTemplate="QCD_Pt_" #high stat
+#nonResTemplate="QCD_Pt-" #low stat --> use this for tests
+#nonResTemplate="QCD_HT" #madgprah
 #nonResTemplate="Dijet" #to compare shapes
 resTemplate= "JetsToQQ_HT6"
 
@@ -164,8 +166,8 @@ def fitVJets(filename,template):
     if template.find("HT800")!=-1:
         cut='*'.join([cuts['common18'],cuts[p],cuts['acceptance']])
     rootFile=filename+"_"+p+".root"
-    fixPars=""
-    cmd='vvMakeVjetsShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -m {minMJ} -M {maxMJ} --store "{filename}_{purity}.py" --minMVV {minMVV} --maxMVV {maxMVV} samples'.format(template=template,cut=cut,rootFile=rootFile,minMJ=minMJ,maxMJ=maxMJ,fixPars=fixPars,filename=filename,purity=p,minMVV=minMVV,maxMVV=maxMVV)
+    fixPars="n:0.8,alpha:1.9"
+    cmd='vvMakeVjetsShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -m {minMJ} -M {maxMJ} --store "{filename}_{purity}.py" --minMVV {minMVV} --maxMVV {maxMVV} --fix {fixPars} samples'.format(template=template,cut=cut,rootFile=rootFile,minMJ=minMJ,maxMJ=maxMJ,fixPars=fixPars,filename=filename,purity=p,minMVV=minMVV,maxMVV=maxMVV)
     cmd+=HCALbinsMVV
     os.system(cmd)
     
@@ -362,8 +364,8 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 ## ------------------------------
 
 
-#if runParallel and submitToBatch:
-	#wait = False
+if runParallel and submitToBatch:
+	wait = False
 	#makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'],"1D",wait)
 	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
 	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
@@ -389,4 +391,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 ### makeNormalizations("data","JJ",dataTemplate,1,'1',"normD") #run on data. Currently run on pseudodata only (below)
 #from modules.submitJobs import makePseudodata
 #for p in purities: makePseudodata("JJ_nonRes_%s.root"%p,p) #remove this when running on data!!
-makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<110)&&(jj_l2_softDrop_mass>60&&jj_l2_softDrop_mass<110)","1D",0)
+#makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<110)&&(jj_l2_softDrop_mass>60&&jj_l2_softDrop_mass<110)","1D",0)
+#for p in purities:
+#    cmd = "python TailSmoothing3D.py -i JJ_VJets_MVV_"+p+".root -o JJ_VJets_MVV_"+p+"_TS.root"
+#    os.system(cmd)

@@ -428,20 +428,22 @@ def doZprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
     lv=[]
     test=[]
     dh = ROOT.TH1F("dh","dh",len(zBinslowedge)-1,zBinslowedge)
-    neventsPerBin = [0 for zv in range(len(zBins_redux))]
+    neventsPerBin = {}
+    for zk,zv in zBins_redux.iteritems():
+        neventsPerBin[zk]=0 
     for p in pdfs:
         h.append( ROOT.TH1F("h_"+p.GetName(),"h_"+p.GetName(),len(zBinslowedge)-1,zBinslowedge))
         lv.append({})
     for i in range(0,len(pdfs)):
         for zk,zv in zBins_redux.iteritems():
-            lv[i][zv]=0    
-    for xk, xv in xBins_redux.iteritems():
-         MJ1.setVal(xv)
-         for yk, yv in yBins_redux.iteritems():
+            lv[i][zv]=0 
+    for zk,zv in zBins_redux.iteritems():
+        MJJ.setVal(zv)
+        for yk, yv in yBins_redux.iteritems():
              MJ2.setVal(yv)
-             for zk,zv in zBins_redux.iteritems():
-                 MJJ.setVal(zv)
-		 neventsPerBin[zk-1] += data.weight(argset)
+             for xk, xv in xBins_redux.iteritems():
+                 MJ1.setVal(xv)
+		 neventsPerBin[zk] += data.weight(argset)
                  i=0
                  binV = zBinsWidth[zk]*xBinsWidth[xk]*yBinsWidth[yk]
                  
@@ -488,7 +490,7 @@ def doZprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
     hfinals.append(htot)
     hfinals.append(h[2])
     for i in range(3,len(h)): hfinals.append(h[i])
-    for b,e in enumerate(neventsPerBin): dh.SetBinContent(b+1,e)
+    for b,v in neventsPerBin.iteritems(): dh.SetBinContent(b,v)
     dh.SetBinErrorOption(ROOT.TH1.kPoisson)
     MakePlots(hfinals,dh,'z',zBinslowedge,options)
 
@@ -515,7 +517,9 @@ def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
     h=[]
     lv=[]
     proj = ROOT.TH1F("px","px",len(xBinslowedge)-1,xBinslowedge)
-    neventsPerBin = [0 for xv in range(len(xBins_redux))]
+    neventsPerBin = {}
+    for xk,xv in xBins_redux.iteritems():
+        neventsPerBin[xk]=0
     for p in pdfs:
         h.append( ROOT.TH1F("hx_"+p.GetName(),"hx_"+p.GetName(),len(xBinslowedge)-1,xBinslowedge))
         lv.append({})
@@ -529,7 +533,7 @@ def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
                  MJJ.setVal(zv)
                  i=0
                  binV = zBinsWidth[zk]*xBinsWidth[xk]*yBinsWidth[yk]
-		 neventsPerBin[xk-1] += data.weight(argset)
+		 neventsPerBin[xk] += data.weight(argset)
                  for p in pdfs:
                      #if "postfit" in p.GetName():
                          ##test = p.createProjection(argset).getVal(argset)
@@ -574,7 +578,7 @@ def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
     hfinals.append(h[0])
     hfinals.append(htot)
     for i in range(3,len(h)): hfinals.append(h[i])
-    for b,e in enumerate(neventsPerBin): proj.SetBinContent(b+1,e)
+    for b,v in neventsPerBin.iteritems(): proj.SetBinContent(b,v)
     proj.SetBinErrorOption(ROOT.TH1.kPoisson)    
     MakePlots(h,proj,'x',xBinslowedge,options)    
     
@@ -601,7 +605,9 @@ def doYprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
     h=[]
     lv=[]
     proj = ROOT.TH1F("py","py",len(yBinslowedge)-1,yBinslowedge)
-    neventsPerBin = [0 for yv in range(len(yBins_redux))]
+    neventsPerBin = {}
+    for yk,yv in yBins_redux.iteritems():
+        neventsPerBin[yk]=0
     for p in pdfs:
         h.append( ROOT.TH1F("hy_"+p.GetName(),"hy_"+p.GetName(),len(yBinslowedge)-1,yBinslowedge))
         lv.append({})
@@ -615,7 +621,7 @@ def doYprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
                  MJJ.setVal(zv)
                  i=0
                  #proj.Fill(yv,data.weight(argset))
-		 neventsPerBin[yk-1] += data.weight(argset)
+		 neventsPerBin[yk] += data.weight(argset)
                  binV = zBinsWidth[zk]*xBinsWidth[xk]*yBinsWidth[yk]
                  for p in pdfs:
                     #if "pdfdata" in p.GetName():
@@ -651,7 +657,7 @@ def doYprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
     hfinals.append(h[0])
     hfinals.append(htot)
     for i in range(3,len(h)): hfinals.append(h[i])
-    for b,e in enumerate(neventsPerBin): proj.SetBinContent(b+1,e)
+    for b,e in neventsPerBin.iteritems(): proj.SetBinContent(b,e)
     proj.SetBinErrorOption(ROOT.TH1.kPoisson)    
     MakePlots(h,proj,'y',yBinslowedge,options)  
 
@@ -761,6 +767,8 @@ def getChi2proj(histo_pdf,histo_data):
     chi2 = 0
     for i in range(0,len(pr)):
         if dr[i] < 10e-10:
+            continue
+        if pr[i] < 10e-10:
             continue
         ndof+=1
         #chi2+= pow((dr[i] - pr[i]),2)/pr[i]

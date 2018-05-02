@@ -6,6 +6,11 @@ import sys
 import ROOT
 from ROOT import *
 import subprocess, thread
+######## comment out for lxplus ###########
+sys.path.append('/home/dschaefer/jdl_creator/')
+#sys.path.append('/home/dschaefer/jdl_creator/classes/')
+from classes.JDLCreator import JDLCreator
+###########################################
 from array import array
 ROOT.gROOT.SetBatch(True)
 
@@ -85,7 +90,14 @@ def submitJobs(minEv,maxEv,cmd,OutputFileNames,queue,jobname,path):
 	for k,v in minEv.iteritems():
 
 	  for j in range(len(v)):
-	   os.system("mkdir tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1))
+	   if useCondorBatch:
+                os.system("echo "+path)
+                os.system("mkdir tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1))
+                os.system("mkdir tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1)+"/out")
+                os.system("mkdir tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1)+"/error")
+                os.system("mkdir tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1)+"/log")
+           else:
+                os.system("mkdir tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1)) 
 	   os.chdir("tmp"+jobname+"/"+str(k).replace(".root","")+"_"+str(j+1))
 	  
 	   with open('job_%s_%i.sh'%(k.replace(".root",""),j+1), 'w') as fout:
@@ -94,7 +106,10 @@ def submitJobs(minEv,maxEv,cmd,OutputFileNames,queue,jobname,path):
 	      fout.write("echo\n")
 	      fout.write("echo 'START---------------'\n")
 	      fout.write("echo 'WORKDIR ' ${PWD}\n")
-	      fout.write("source /afs/cern.ch/cms/cmsset_default.sh\n")
+	      if not useCondorBatch:
+                fout.write("source /afs/cern.ch/cms/cmsset_default.sh\n")
+              else:
+                fout.write("source /cvmfs/cms.cern.ch/cmsset_default.sh\n")
 	      fout.write("cd "+str(path)+"\n")
 	      fout.write("cmsenv\n")
 	      fout.write(cmd+" -o res"+jobname+"/"+OutputFileNames+"_"+str(j+1)+"_"+k+" -s "+k+" -e "+str(minEv[k][j])+" -E "+str(maxEv[k][j])+"\n")
@@ -200,7 +215,10 @@ def Make2DDetectorParam(rootFile,template,cut,samples,jobName="DetPar",bins="200
 	      fout.write("echo\n")
 	      fout.write("echo 'START---------------'\n")
 	      fout.write("echo 'WORKDIR ' ${PWD}\n")
-	      fout.write("source /afs/cern.ch/cms/cmsset_default.sh\n")
+	      if not useCondorBatch:
+                fout.write("source /afs/cern.ch/cms/cmsset_default.sh\n")
+              else:
+                fout.write("source /cvmfs/cms.cern.ch/cmsset_default.sh\n")
 	      fout.write("cd "+str(path)+"\n")
 	      fout.write("cmsenv\n")
 	      fout.write(cmd+" -o "+path+"/res"+jobName+"/"+OutputFileNames+"_"+files[x-1]+" -s "+files[x-1]+"\n")
@@ -1342,7 +1360,10 @@ def makeData(template,cut,rootFile,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,fact
 	      fout.write("echo\n")
 	      fout.write("echo 'START---------------'\n")
 	      fout.write("echo 'WORKDIR ' ${PWD}\n")
-	      fout.write("source /afs/cern.ch/cms/cmsset_default.sh\n")
+	      if not useCondorBatch:
+                fout.write("source /afs/cern.ch/cms/cmsset_default.sh\n")
+              else:
+                fout.write("source /cvmfs/cms.cern.ch/cmsset_default.sh\n")
 	      fout.write("cd "+str(path)+"\n")
 	      fout.write("cmsenv\n")
 	      fout.write(cmd+" -o "+path+"/res"+jobname+"/"+OutputFileNames+"_"+files[x-1]+" -s "+files[x-1]+"\n")
