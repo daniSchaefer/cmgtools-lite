@@ -673,12 +673,13 @@ class DataCardMaker:
             tag=newTag
         else:
             tag=name+"_"+self.tag
+
         p0="_".join(["CMS_VV_JJ_p0",tag])
 	self.w.factory("{name}[{val},10,60]".format(name=p0,val=preconstrains['CMS_p0']['val']))
        
         p1="_".join(["CMS_VV_JJ_p1",tag])
 	self.w.factory("{name}[{val},0,5]".format(name=p1,val=preconstrains['CMS_p1']['val']))
-        
+
         p2="_".join(["CMS_VV_JJ_p2",tag])
         
         if logTerm: self.w.factory("{name}[{val},0,10]".format(name=p2,val=preconstrains['CMS_p2']['val']))
@@ -1296,6 +1297,7 @@ class DataCardMaker:
         
 
     def makeCard(self):
+
         if self.cat!="":f = open("datacard_"+self.cat+'.txt','w')
         else: f = open("datacard_"+self.tag+'.txt','w')
         f.write('imax 1\n')

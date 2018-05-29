@@ -583,6 +583,7 @@ def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
     MakePlots(h,proj,'x',xBinslowedge,options)    
     
 
+
 def doYprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,binWidths,workspace,options):
     yBinslowedge = Binslowedge
     xBinsWidth = binWidths[0]
@@ -661,7 +662,6 @@ def doYprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
     proj.SetBinErrorOption(ROOT.TH1.kPoisson)    
     MakePlots(h,proj,'y',yBinslowedge,options)  
 
- 
 
 def addPullPlot(hdata,hprefit,hpostfit,nBins):
     #print "make pull plots: (data-fit)/sigma_data"

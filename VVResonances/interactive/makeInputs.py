@@ -214,10 +214,10 @@ def makeBackgroundShapesMJSpline(name,filename,template,leg,addCut="1"):
   os.system(cmd)
 
 
-def makeBackgroundShapesMVVKernel(name,filename,template,addCut="1",jobname="1DMVV",wait=True):
+def makeBackgroundShapesMVVKernel(name,filename,template,addCut="1",jobName="1DMVV",wait=True):
  pwd = os.getcwd()
  for p in purities:
-  jobname = jobname+"_"+p
+  jobname = jobName+"_"+p
   print " Working on purity: ", p
   resFile  = pwd + "/"+ filename+"_"+name+"_detectorResponse.root"
   if name.find("VJets")!=-1:
@@ -384,8 +384,11 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 #mergeKernelJobs()
 #mergeBackgroundShapes("nonRes","JJ")
 
+
 #fitVJets("JJ_VJets",resTemplate)
 #fitVJets("JJ_VJets",VJetsTemplate17)
+
+makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)&&(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1D",0)
 
 makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],"nR")
 #makeNormalizations("VJets","JJ",resTemplate,0,cuts["res"],"nRes","ZJetsToQQ:0.071")
@@ -393,7 +396,7 @@ makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],"nR")
 ### makeNormalizations("data","JJ",dataTemplate,1,'1',"normD") #run on data. Currently run on pseudodata only (below)
 #from modules.submitJobs import makePseudodata
 #for p in purities: makePseudodata("JJ_nonRes_%s.root"%p,p) #remove this when running on data!!
-#makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)&&(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1D",0)
+
 #for p in purities:
 #    cmd = "python TailSmoothing3D.py -i JJ_VJets_MVV_"+p+".root -o JJ_VJets_MVV_"+p+"_TS.root"
 #    os.system(cmd)

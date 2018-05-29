@@ -80,11 +80,6 @@ def smoothTail1D(proj):
     expo.SetParameters(0,16.,2.)
     expo.SetParLimits(2,1.,20.)
     proj.Fit(expo,"LLMR","",beginFitX,8000)
-    #c = ROOT.TCanvas("c","c",400,400)
-    #c.SetLogy()
-    #proj.Draw("hist")
-    #proj.Draw("funcsame")
-    #c.SaveAs(proj.GetName()+".pdf")
     beginsmooth = False
     print proj.GetNbinsX()+1
     for j in range(1,proj.GetNbinsX()+1):
@@ -99,6 +94,7 @@ def smoothTail1D(proj):
                if abs(proj.GetBinContent(j) - expo.Eval(x)) < 0.00001:# and abs(expo.Derivative(x)- (hist.GetBinContent(j):
                    print beginFitX
                    print "begin smoothing at " +str(x)
+
                    beginsmooth = True 
             if beginsmooth:
                 proj.SetBinContent(j,expo.Eval(x))
