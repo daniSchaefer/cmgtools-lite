@@ -5,10 +5,14 @@ from CMGTools.VVResonances.statistics.DataCardMaker import DataCardMaker
 cmd='combineCards.py '
 
 
-indir ="/home/dschaefer/DiBoson3D/forBiasTests/"
+indir = sys.argv[1] #"/home/dschaefer/DiBoson3D/forBiasTests/"
 
 purities=['HPHP']#,'HPLP']
+if sys.argv[2]!="":
+    purities=[sys.argv[2]]
 signals = ["BulkGWW"]
+print indir
+print purities
 
 for sig in signals:
   for p in purities:
@@ -25,24 +29,27 @@ for sig in signals:
     card.product3D("%s"%sig,"Wqq1","Wqq2","%s_MVV"%sig)
 
     #Vjets
-    if p=='HPHP': from JJ_VJets_HPHP import JJ_VJets__MVV, JJ_VJets__Res_l1, JJ_VJets__ratio_l1, JJ_VJets__Res_l2, JJ_VJets__ratio_l2
-    if p=='HPLP': from JJ_VJets_HPLP import JJ_VJets__MVV, JJ_VJets__Res_l1, JJ_VJets__ratio_l1, JJ_VJets__Res_l2, JJ_VJets__ratio_l2
-    if p=='LPLP': from JJ_VJets_LPLP import JJ_VJets__MVV, JJ_VJets__Res_l1, JJ_VJets__ratio_l1, JJ_VJets__Res_l2, JJ_VJets__ratio_l2
+    if p=='HPHP': from JJ_VJets_HPHP import JJ_VJets__Res_l1, JJ_VJets__Res_l2
+    if p=='HPLP': from JJ_VJets_HPLP import JJ_VJets__Res_l1, JJ_VJets__Res_l2
+    if p=='LPLP': from JJ_VJets_LPLP import JJ_VJets__Res_l1, JJ_VJets__Res_l2
 
     #card.addMVVBackgroundShapeQCD("Vjets_mjj","MJJ",True,"",JJ_VJets__MVV)
-    card.addHistoShapeFromFile("Vjets_mjj",["MJJ"],indir+"JJ_VJets_MVV_HPHP_TS.root","histo_nominal",['PT:CMS_VV_JJ_Vjets_PT','OPT:CMS_VV_JJ_Vjets_OPT'],False,0)
+    card.addHistoShapeFromFile("Vjets_mjj",["MJJ"],indir+"JJ_VJets_MVV_"+p+".root","histo_nominal",['PT:CMS_VV_JJ_Vjets_PT','OPT:CMS_VV_JJ_Vjets_OPT'],False,0)
     card.addMjetBackgroundShapeVJetsRes("Vjets_mjetRes_l1","MJ1","",JJ_VJets__Res_l1,{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
     card.addMjetBackgroundShapeVJetsRes("Vjets_mjetRes_l2","MJ2","",JJ_VJets__Res_l2,{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
     card.product3D("Vjet","Vjets_mjetRes_l1","Vjets_mjetRes_l2","Vjets_mjj")
-    card.addFixedYieldFromFile("Vjet",1,"JJ_VJets_%s.root"%p,"VJets",1.0)
+    card.addFixedYieldFromFile("Vjet",1,indir+"JJ_VJets_%s.root"%p,"VJets",1.0)
 
     #QCD
-    rootFile=indir+"JJ_nonRes_3D_"+p+".root"
-    card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile,"histo",['PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ'],False,0)    
+    rootFile0=indir+"JJ_nonRes_3D_"+p+".root"
+    rootFile=indir+"JJ_nonRes_3D_HPLP.root"
+    card.addShapes("nonRes",["MJ1","MJ2","MJJ"],rootFile0,"histo",['PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ'],False,0,"",rootFile,['altshape2Z:CMS_VV_JJ_nonRes_Alt2','altshapeZ:CMS_VV_JJ_nonRes_Alt']) 
+    #card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile,"histo",['altshape:CMS_VV_JJ_nonRes_altshape','altshape2:CMS_VV_JJ_nonRes_altshape2','PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ','TRIG:CMS_VV_JJ_nonRes_TRIG'],False,0)
     card.addFixedYieldFromFile("nonRes",2,indir+"JJ_"+p+".root","nonRes")
 
     #DATA
     #card.importBinnedData(indir+"jen-data-obs.root","data",["MJ1","MJ2","MJJ"])
+    #card.importBinnedData(indir+"JJ_data_"+p+".root","data",["MJ1","MJ2","MJJ"])
     card.importBinnedData(indir+"pseudodata_"+p+".root","data",["MJ1","MJ2","MJJ"])
 
     #SYSTEMATICS
@@ -77,10 +84,16 @@ for sig in signals:
  
     
     #alternative shapes for QCD background
-    card.addSystematic("CMS_VV_JJ_nonRes_PTXY","param",[0,0.333])
-    card.addSystematic("CMS_VV_JJ_nonRes_PTZ","param",[0,0.333])
-    card.addSystematic("CMS_VV_JJ_nonRes_OPTXY","param",[0,0.333])
-    card.addSystematic("CMS_VV_JJ_nonRes_OPTZ","param",[0,0.333])
+    card.addSystematic("CMS_VV_JJ_nonRes_OPTXY","param",[0,0.888])
+    card.addSystematic("CMS_VV_JJ_nonRes_OPTZ","param", [0,0.888])
+    card.addSystematic("CMS_VV_JJ_nonRes_PTXY","param", [0,0.888])
+    card.addSystematic("CMS_VV_JJ_nonRes_PTZ","param",  [0,0.888])
+    card.addSystematic("CMS_VV_JJ_nonRes_Alt2","param",  [0,0.888])
+    card.addSystematic("CMS_VV_JJ_nonRes_Alt","param",  [0,0.888])
+    #card.addSystematic("CMS_VV_JJ_nonRes_Alt2_hp","param",  [0,0.888])
+    #card.addSystematic("CMS_VV_JJ_nonRes_Alt_hp","param",  [0,0.888])
+    #card.addSystematic("CMS_VV_JJ_nonRes_Alt2XY","param",  [0,0.888])
+    #card.addSystematic("CMS_VV_JJ_nonRes_AltXY","param",  [0,0.888])
 
     card.makeCard()
 

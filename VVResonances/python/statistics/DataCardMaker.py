@@ -428,6 +428,102 @@ class DataCardMaker:
 	    getattr(self.w,'import')(total,ROOT.RooFit.Rename(pdfName))
 
 
+    def addShapes(self,name,observables,filename,histoname,systematics=[],conditional = False,order=0,newTag="",filename2="",systematics2=[]):     
+        varset=ROOT.RooArgSet()
+        varlist=ROOT.RooArgList()
+        varPointers=[]
+        for var in observables:
+            if self.w.var(var) == None: self.w.factory(var+"[0,10000]")
+            varPointers.append(self.w.var(var))
+            varset.add(self.w.var(var))
+            varlist.add(self.w.var(var))
+
+        if newTag !="":
+            tag=newTag
+        else:
+            tag=name+"_"+self.tag
+        print "########################################"
+        print tag
+        print self.tag
+        print "#########################################"
+        FR=ROOT.TFile(filename)
+        
+        #Load PDF
+        histo=FR.Get(histoname)
+	print histo.GetName()
+
+
+        if len(systematics)>0:
+            histName="_".join([name+"NominalHIST",tag])
+            pdfName="_".join([name+"Nominal",self.tag])
+        else:
+            histName="_".join([name+"HIST",tag])
+            pdfName="_".join([name,self.tag])
+
+        roohist = ROOT.RooDataHist(histName,histName,varlist,histo)      
+	varset.Print()
+	varlist.Print()
+        pdf=ROOT.RooHistPdf(pdfName,pdfName,varset,roohist,order)
+        getattr(self.w,'import')(roohist,ROOT.RooFit.Rename(histName))
+        getattr(self.w,'import')(pdf,ROOT.RooFit.Rename(pdfName))
+        #Load SYstematics
+        coeffList=ROOT.RooArgList()
+        pdfList=ROOT.RooArgList(self.w.pdf(pdfName))
+
+        for systval in systematics:
+            splitted=systval.split(':')
+            systName=splitted[1]
+            syst=splitted[0]
+            self.w.factory(systName+"[-1,1]")
+            coeffList.add(self.w.var(systName))
+
+            for variation in ["Up","Down"]:
+                histo=FR.Get(histoname+"_"+syst+variation)
+                print 'loaded',histoname+"_"+syst+variation
+                histName="_".join([name+"_"+syst+variation+"HIST",tag])
+                roohist = ROOT.RooDataHist(histName,histName,varlist,histo)
+       
+                pdfName="_".join([name+"_"+syst+variation,self.tag])
+                pdf=ROOT.RooHistPdf(pdfName,pdfName,varset,roohist,order)
+
+                getattr(self.w,'import')(roohist,ROOT.RooFit.Rename(histName))
+                getattr(self.w,'import')(pdf,ROOT.RooFit.Rename(pdfName))
+                pdfList.add(self.w.pdf(pdfName))
+         
+        
+        if len(systematics2)>0:
+            FR2 = ROOT.TFile(filename2) 
+
+            for systval in systematics2:
+                splitted=systval.split(':')
+                systName=splitted[1]
+                syst=splitted[0]
+                self.w.factory(systName+"[-1,1]")
+                coeffList.add(self.w.var(systName))
+
+                for variation in ["Up","Down"]:
+                    histo=FR2.Get(histoname+"_"+syst+variation)
+                    print 'loaded',histoname+"_"+syst+variation
+                    histName="_".join([name+"_"+syst+variation+"HIST",tag])
+                    roohist = ROOT.RooDataHist(histName,histName,varlist,histo)
+        
+                    pdfName="_".join([name+"_"+syst+variation,self.tag])
+                    pdf=ROOT.RooHistPdf(pdfName,pdfName,varset,roohist,order)
+
+                    getattr(self.w,'import')(roohist,ROOT.RooFit.Rename(histName))
+                    getattr(self.w,'import')(pdf,ROOT.RooFit.Rename(pdfName))
+                    pdfList.add(self.w.pdf(pdfName))
+                
+        
+
+        pdfName="_".join([name,self.tag])
+        if len(systematics)>0:
+            total=ROOT.FastVerticalInterpHistPdf3D(pdfName,pdfName,self.w.var(observables[0]),self.w.var(observables[1]),self.w.var(observables[2]),conditional,pdfList,coeffList,1,-1)
+	    getattr(self.w,'import')(total,ROOT.RooFit.Rename(pdfName))
+
+
+
+
     def addMJJParametricBackgroundShapeErfExp(self,name,variable,jsonFile,systP0={},systP1={},systP2={}):
 
         MJJ=variable

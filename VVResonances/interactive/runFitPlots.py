@@ -482,17 +482,17 @@ def doZprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
 	     print "full model : ",pdfs[i].GetName()
 	     h[i].Fill(zv,lv[i][zv]*(norm_res+norm_nonres+norm_s)) 
     
-    htot = ROOT.TH1F("htot","htot",len(zBinslowedge)-1,zBinslowedge)
-    htot.Add(h[1])
-    htot.Add(h[2])
-    hfinals = []
-    hfinals.append(h[0])
-    hfinals.append(htot)
-    hfinals.append(h[2])
-    for i in range(3,len(h)): hfinals.append(h[i])
+    #htot = ROOT.TH1F("htot","htot",len(zBinslowedge)-1,zBinslowedge)
+    #htot.Add(h[1])
+    #htot.Add(h[2])
+    #hfinals = []
+    #hfinals.append(h[0])
+    #hfinals.append(htot)
+    #hfinals.append(h[2])
+    #for i in range(3,len(h)): hfinals.append(h[i])
     for b,v in neventsPerBin.iteritems(): dh.SetBinContent(b,v)
     dh.SetBinErrorOption(ROOT.TH1.kPoisson)
-    MakePlots(hfinals,dh,'z',zBinslowedge,options)
+    MakePlots(h,dh,'z',zBinslowedge,options)
 
 
 def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,binWidths,workspace,options):
@@ -571,13 +571,13 @@ def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
             if "model_b" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res))
             if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res+norm_s))
 
-    htot = ROOT.TH1F("htot","htot",len(xBinslowedge)-1,xBinslowedge)
-    htot.Add(h[1])
-    htot.Add(h[2])
-    hfinals = []
-    hfinals.append(h[0])
-    hfinals.append(htot)
-    for i in range(3,len(h)): hfinals.append(h[i])
+    #htot = ROOT.TH1F("htot","htot",len(xBinslowedge)-1,xBinslowedge)
+    #htot.Add(h[1])
+    #htot.Add(h[2])
+    #hfinals = []
+    #hfinals.append(h[0])
+    #hfinals.append(htot)
+    #for i in range(3,len(h)): hfinals.append(h[i])
     for b,v in neventsPerBin.iteritems(): proj.SetBinContent(b,v)
     proj.SetBinErrorOption(ROOT.TH1.kPoisson)    
     MakePlots(h,proj,'x',xBinslowedge,options)    
@@ -651,12 +651,12 @@ def doYprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
             if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res+norm_s))
 
     htot = ROOT.TH1F("htot","htot",len(yBinslowedge)-1,yBinslowedge)
-    htot.Add(h[1])
-    htot.Add(h[2])
-    hfinals = []
-    hfinals.append(h[0])
-    hfinals.append(htot)
-    for i in range(3,len(h)): hfinals.append(h[i])
+    #htot.Add(h[1])
+    #htot.Add(h[2])
+    #hfinals = []
+    #hfinals.append(h[0])
+    #hfinals.append(htot)
+    #for i in range(3,len(h)): hfinals.append(h[i])
     for b,e in neventsPerBin.iteritems(): proj.SetBinContent(b,e)
     proj.SetBinErrorOption(ROOT.TH1.kPoisson)    
     MakePlots(h,proj,'y',yBinslowedge,options)  

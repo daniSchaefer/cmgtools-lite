@@ -95,7 +95,6 @@ for mass,info in data.iteritems():
         print 'Incomplete file'
         continue
     
-
     band68.SetPoint(N,mass,info['exp'])
     band95.SetPoint(N,mass,info['exp'])
     line_plus1.SetPoint(N,mass,info['+1sigma'])

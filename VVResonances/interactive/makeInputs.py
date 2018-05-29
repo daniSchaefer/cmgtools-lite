@@ -305,6 +305,8 @@ def mergeBackgroundShapes(name,filename):
   print "Saving to ",rootFile 
   cmd='vvMergeHistosToPDF3D.py -i "{inputx}" -I "{inputy}" -z "{inputz}" -o "{rootFile}"'.format(rootFile=rootFile,inputx=inputx,inputy=inputy,inputz=inputz)
   os.system(cmd)
+  cmd='vvMakeTriggerShapes.py -i "{rootFile}"'.format(rootFile=rootFile)
+  os.system(cmd)
 
 
 def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",factors="1"):
@@ -385,13 +387,13 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 #fitVJets("JJ_VJets",resTemplate)
 #fitVJets("JJ_VJets",VJetsTemplate17)
 
-#makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],"nR")
+makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],"nR")
 #makeNormalizations("VJets","JJ",resTemplate,0,cuts["res"],"nRes","ZJetsToQQ:0.071")
 #makeNormalizations("VJets_all","JJ",resTemplate,0,"1","nRes","ZJetsToQQ:0.071")
 ### makeNormalizations("data","JJ",dataTemplate,1,'1',"normD") #run on data. Currently run on pseudodata only (below)
 #from modules.submitJobs import makePseudodata
 #for p in purities: makePseudodata("JJ_nonRes_%s.root"%p,p) #remove this when running on data!!
-makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)&&(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1D",0)
+#makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)&&(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1D",0)
 #for p in purities:
 #    cmd = "python TailSmoothing3D.py -i JJ_VJets_MVV_"+p+".root -o JJ_VJets_MVV_"+p+"_TS.root"
 #    os.system(cmd)
