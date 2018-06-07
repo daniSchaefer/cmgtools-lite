@@ -1,7 +1,7 @@
 import ROOT as rt
 
 class CMSPlotLabel:
-    def __init__(self,text='CMS',extraText='Preliminary',lumiPeriods={'2015':{'lumi':'2.6 fb^{-1}','energy':'13 TeV'},'2016':{'lumi':'35.9 fb^{-1}','energy':'13 TeV'}}):
+    def __init__(self,text='CMS',extraText='Preliminary',lumiPeriods={'2015':{'lumi':'2.6 fb^{-1}','energy':'13 TeV'},'2016':{'lumi':'35.9 fb^{-1}','energy':'13 TeV'},'2017':{'lumi':'(2017) 41.4 fb^{-1}','energy':'13 TeV'}}):
         self.cmsText=text
         self.cmsTextFont=61
         self.extraText=extraText

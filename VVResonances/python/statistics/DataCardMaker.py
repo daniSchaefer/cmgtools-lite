@@ -5,7 +5,7 @@ import sys
 
 
 class DataCardMaker:
-    def __init__(self,finalstate,category,period,luminosity=1.0,physics="LJ",cat):
+    def __init__(self,finalstate,category,period,luminosity=1.0,physics="LJ",cat=""):
         self.physics=physics
         self.finalstate=finalstate
         self.category=category

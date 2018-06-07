@@ -28,6 +28,7 @@ parser.add_option("-u","--usegenmass",dest="usegenmass",action="store_true",help
 parser.add_option("-e","--firstEv",dest="firstEv",type=int,help="first event",default=0)
 parser.add_option("-E","--lastEv",dest="lastEv",type=int,help="last event",default=-1)
 parser.add_option("--binsMVV",dest="binsMVV",help="use special binning",default="")
+parser.add_option("-t","--triggerweight",dest="triggerW",action="store_true",help="Use trigger weights",default=False)
 
 def getBinning(binsMVV,minx,maxx,bins):
     l=[]
@@ -120,12 +121,14 @@ for filename in os.listdir(args[0]):
    dataPlotters[-1].addCorrectionFactor('xsec','tree')
    dataPlotters[-1].addCorrectionFactor('genWeight','tree')
    dataPlotters[-1].addCorrectionFactor('puWeight','tree')
+   if options.triggerW: dataPlotters[-1].addCorrectionFactor('triggerWeight','tree')
    for w in weights_:
     if w != '': dataPlotters[-1].addCorrectionFactor(w,'branch')
    dataPlotters[-1].filename=fname
    dataPlottersNW.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
    dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
    dataPlottersNW[-1].addCorrectionFactor('genWeight','tree')
+   if options.triggerW: dataPlottersNW[-1].addCorrectionFactor('triggerWeight','tree')
    for w in weights_: 
     if w != '': dataPlottersNW[-1].addCorrectionFactor(w,'branch')
    dataPlottersNW[-1].filename=fname
@@ -206,7 +209,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
   if histTMP.Integral()>0:
    histTMP.Scale(histI2D.Integral()/histTMP.Integral())
    histogram.Add(histTMP)
-   mjet_mvv_nominal.Add(histI2D)
+   # mjet_mvv_nominal.Add(histI2D)
    
   histTMP.Delete()    
   histI2D.Delete()	
@@ -230,7 +233,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
   if histTMP.Integral()>0:
     histTMP.Scale(histI2D.Integral()/histTMP.Integral())
     histogram_altshapeUp.Add(histTMP)
-    mjet_mvv_altshapeUp.Add(histI2D)
+    # mjet_mvv_altshapeUp.Add(histI2D)
    
   histTMP.Delete()
 
@@ -278,7 +281,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
   if histTMP.Integral()>0:
     histTMP.Scale(histI2D.Integral()/histTMP.Integral())
     histogram_altshape2.Add(histTMP) 
-    mjet_mvv_altshape2.Add(histI2D)
+    # mjet_mvv_altshape2.Add(histI2D)
     
   histI2D.Delete()
   histTMP.Delete()
