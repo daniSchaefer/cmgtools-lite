@@ -44,7 +44,8 @@ cuts={}
 # from clemens correct met filters: 
 cat_metFilters = "(((run>2000*Flag_eeBadScFilter)+(run<2000))&&Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&Flag_EcalDeadCellTriggerPrimitiveFilter&&Flag_BadPFMuonFilter&&Flag_BadChargedCandidateFilter&&Flag_ecalBadCalibFilter)"
 
-cuts['common'] = '((HLT_JJ)*(run>500) + (run<500))*(njj>0&&Flag_goodVertices&&Flag_CSCTightHaloFilter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&jj_LV_mass>700&&abs(jj_l1_eta-jj_l2_eta)<1.3&&jj_l1_softDrop_mass>0.&&jj_l2_softDrop_mass>0.)'
+cuts['common'] = '((HLT_JJ)*(run>500) + (run<500))*(njj>0&&Flag_goodVertices&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&jj_LV_mass>700&&abs(jj_l1_eta-jj_l2_eta)<1.3&&jj_l1_softDrop_mass>0.&&jj_l2_softDrop_mass>0.)'
+# removed &&Flag_CSCTightHaloFilter since variable isn't in ttbar sample 2016 (dani 05.06.18)
 
 cuts['common18'] = '((HLT_JJ)*(run>500) + (run<500))*(njj>0&&Flag_goodVertices&&Flag_globalTightHalo2016Filter&&Flag_HBHENoiseFilter&&Flag_HBHENoiseIsoFilter&&Flag_eeBadScFilter&&jj_LV_mass>700&&abs(jj_l1_eta-jj_l2_eta)<1.3&&jj_l1_softDrop_mass>0.&&jj_l2_softDrop_mass>0.)'
 
@@ -61,7 +62,7 @@ cuts['resl2'] = '(jj_l2_mergedVTruth==1)'
 cuts['res'] = '(jj_l1_mergedVTruth==1&&jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<110)'
 
 purities=['HPHP','HPLP','LPLP','NP']
-purities=['LPLP']
+purities=['HPLP']
 
 BulkGravWWTemplate="BulkWW"
 BulkGravZZTemplate="BulkGravToZZToZhadZhad_narrow"
@@ -84,12 +85,13 @@ nonResTemplate="QCD_Pt_" #high stat
 #nonResTemplate="QCD_Pt-" #low stat --> use this for tests
 #nonResTemplate="QCD_HT" #madgprah
 #nonResTemplate="Dijet" #to compare shapes
-resTemplate= "JetsToQQ_HT6"
+resTemplate= "ZJetsToQQ_HT600,WJetsToQQ_HT600,TTHad_pow" #JetsToQQ_HT6,
+resTemplate17= "TTHad_pow_2017,ZJetsToQQ_HT800,WJetsToQQ_HT800"
 
 minMJ=55.0
 maxMJ=215.0
 
-minMVV=1000.0
+minMVV=838
 maxMVV=5000.0
 
 minMX=1200.0
@@ -160,14 +162,14 @@ def makeSignalYields(filename,template,branchingFraction,sfP = {'HPHP':1.0,'HPLP
   cmd='vvMakeSignalYields.py -s {template} -c "{cut}" -o {output} -V "jj_LV_mass" -m {minMVV} -M {maxMVV} -f {fnc} -b {BR} --minMX {minMX} --maxMX {maxMX} samples'.format(template=template, cut=cut, output=yieldFile,minMVV=minMVV,maxMVV=maxMVV,fnc=fnc,BR=branchingFraction,minMX=minMX,maxMX=maxMX)
   os.system(cmd)
 
-def fitVJets(filename,template):
+def fitVJets(filename,template,Wxsec=1,Zxsec=1):
   for p in purities:
     cut='*'.join([cuts['common'],cuts[p],cuts['acceptance']])
     if template.find("HT800")!=-1:
         cut='*'.join([cuts['common18'],cuts[p],cuts['acceptance']])
     rootFile=filename+"_"+p+".root"
-    fixPars="n:0.8,alpha:1.9"
-    cmd='vvMakeVjetsShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -m {minMJ} -M {maxMJ} --store "{filename}_{purity}.py" --minMVV {minMVV} --maxMVV {maxMVV} --fix {fixPars} samples'.format(template=template,cut=cut,rootFile=rootFile,minMJ=minMJ,maxMJ=maxMJ,fixPars=fixPars,filename=filename,purity=p,minMVV=minMVV,maxMVV=maxMVV)
+    fixPars="alpha2:1.2" #"n:0.8,alpha:1.9"
+    cmd='vvMakeVjetsShapes.py samples -s "{template}" -c "{cut}"  -o "{rootFile}" -m {minMJ} -M {maxMJ} --store "{filename}_{purity}.py" --minMVV {minMVV} --maxMVV {maxMVV} --fix {fixPars} --corrFactorW {Wxsec} --corrFactorZ {Zxsec}'.format(template=template,cut=cut,rootFile=rootFile,minMJ=minMJ,maxMJ=maxMJ,fixPars=fixPars,filename=filename,purity=p,minMVV=minMVV,maxMVV=maxMVV,Wxsec=Wxsec,Zxsec=Zxsec)
     cmd+=HCALbinsMVV
     os.system(cmd)
     
@@ -386,13 +388,16 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 
 
 #fitVJets("JJ_VJets",resTemplate)
-#fitVJets("JJ_VJets",VJetsTemplate17)
+fitVJets("JJ_VJets",resTemplate17,0.3425,0.3425)
 
-makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)&&(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1D",0)
+#makeBackgroundShapesMVVKernel("VJets","JJ",VJetsTemplate17,"*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)&&(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1D",0)
+makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate17,"*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)&&(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1D",0)
 
-makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],"nR")
+#makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],"nR")
 #makeNormalizations("VJets","JJ",resTemplate,0,cuts["res"],"nRes","ZJetsToQQ:0.071")
-#makeNormalizations("VJets_all","JJ",resTemplate,0,"1","nRes","ZJetsToQQ:0.071")
+#makeNormalizations("VJets_all","JJ",resTemplate,0,cuts["resl1"]+" || "+cuts["resl2"],"nRes","ZJetsToQQ:0.071")
+#makeNormalizations("VJets","JJ",VJetsTemplate17,0,cuts["res"],"nRes","ZJetsToQQ:0.3425,WJetsToQQ:0.3425")
+#makeNormalizations("VJets_all","JJ",VJetsTemplate17,0,"1","nRes","ZJetsToQQ:0.3425,WJetsToQQ:0.3425")
 ### makeNormalizations("data","JJ",dataTemplate,1,'1',"normD") #run on data. Currently run on pseudodata only (below)
 #from modules.submitJobs import makePseudodata
 #for p in purities: makePseudodata("JJ_nonRes_%s.root"%p,p) #remove this when running on data!!

@@ -46,13 +46,15 @@ for sig in signals:
     rootFile0=indir+"JJ_nonRes_3D_"+p+".root"
     rootFile=indir+"JJ_nonRes_3D_HPLP.root"
     card.addShapes("nonRes",["MJ1","MJ2","MJJ"],rootFile0,"histo",['PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ'],False,0,"",rootFile,['altshape2Z:CMS_VV_JJ_nonRes_Alt2','altshapeZ:CMS_VV_JJ_nonRes_Alt']) 
-    #card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile,"histo",['altshape:CMS_VV_JJ_nonRes_altshape','altshape2:CMS_VV_JJ_nonRes_altshape2','PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ','TRIG:CMS_VV_JJ_nonRes_TRIG'],False,0)
-    card.addFixedYieldFromFile("nonRes",2,indir+"JJ_"+p+".root","nonRes")
+    #card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile0,"histo",['PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ','TRIG:CMS_VV_JJ_nonRes_Trig'],False,0)
+    #card.addFixedYieldFromFile("nonRes",2,indir+"JJ_nonRes_"+p+".root","nonRes")
+    card.addFixedYieldFromFile("nonRes",2,indir+"JJ_nonRes_HPLP.root","nonRes")
 
     #DATA
     #card.importBinnedData(indir+"jen-data-obs.root","data",["MJ1","MJ2","MJJ"])
     #card.importBinnedData(indir+"JJ_data_"+p+".root","data",["MJ1","MJ2","MJJ"])
-    card.importBinnedData(indir+"pseudodata_"+p+".root","data",["MJ1","MJ2","MJJ"])
+    #card.importBinnedData(indir+"pseudodata_"+p+".root","data",["MJ1","MJ2","MJJ"])
+    card.importBinnedData(indir+"JJ_nonRes_HPLP.root","nonRes",["MJ1","MJ2","MJJ"])
 
     #SYSTEMATICS
     #luminosity
@@ -89,12 +91,12 @@ for sig in signals:
     card.addSystematic("CMS_VV_JJ_nonRes_OPTZ","param", [0,0.888])
     card.addSystematic("CMS_VV_JJ_nonRes_PTXY","param", [0,0.888])
     card.addSystematic("CMS_VV_JJ_nonRes_PTZ","param",  [0,0.888])
-    card.addSystematic("CMS_VV_JJ_nonRes_Alt2","param",  [0,0.888])
-    card.addSystematic("CMS_VV_JJ_nonRes_Alt","param",  [0,0.888])
+    #card.addSystematic("CMS_VV_JJ_nonRes_Alt2","param",  [0,0.888])
+    #card.addSystematic("CMS_VV_JJ_nonRes_Alt","param",  [0,0.888])
     #card.addSystematic("CMS_VV_JJ_nonRes_Alt2_hp","param",  [0,0.888])
     #card.addSystematic("CMS_VV_JJ_nonRes_Alt_hp","param",  [0,0.888])
     #card.addSystematic("CMS_VV_JJ_nonRes_Alt2XY","param",  [0,0.888])
-    #card.addSystematic("CMS_VV_JJ_nonRes_AltXY","param",  [0,0.888])
+    card.addSystematic("CMS_VV_JJ_nonRes_Trig","param",  [0,0.333])
 
     card.makeCard()
 

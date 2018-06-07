@@ -11,6 +11,7 @@ setTDRStyle()
 from CMGTools.VVResonances.plotting.TreePlotter import TreePlotter
 from CMGTools.VVResonances.plotting.MergedPlotter import MergedPlotter
 ROOT.gSystem.Load("libCMGToolsVVResonances")
+ROOT.gStyle.SetOptStat(0)
 
 parser = optparse.OptionParser()
 parser.add_option("-o","--output",dest="output",help="Output",default='')
@@ -75,7 +76,7 @@ def smoothTail1D(proj):
     proj.Scale(1.0/scale)
     
     
-    beginFitX = 2100
+    beginFitX = 1500
     expo=ROOT.TF1("expo","[0]*(1-x/13000.)^[1]/(x/13000)^[2]",2000,8000) 
     expo.SetParameters(0,16.,2.)
     expo.SetParLimits(2,1.,20.)
@@ -86,16 +87,17 @@ def smoothTail1D(proj):
         x=proj.GetXaxis().GetBinCenter(j)
         if x>beginFitX:
             if beginsmooth==False:
-               if x<3000: 
+                if x<2100: 
                    if abs(proj.GetBinContent(j) - expo.Eval(x)) < 0.00009:# and abs(expo.Derivative(x)- (hist.GetBinContent(j):
                     print beginFitX
                     print "begin smoothing at " +str(x)
                     beginsmooth = True 
-               if abs(proj.GetBinContent(j) - expo.Eval(x)) < 0.00001:# and abs(expo.Derivative(x)- (hist.GetBinContent(j):
-                   print beginFitX
-                   print "begin smoothing at " +str(x)
+               #if abs(proj.GetBinContent(j) - expo.Eval(x)) < 0.00001:# and abs(expo.Derivative(x)- (hist.GetBinContent(j):
+                   #print beginFitX
+                   #print "begin smoothing at " +str(x)
 
-                   beginsmooth = True 
+                   #beginsmooth = True 
+                else: beginsmooth = True
             if beginsmooth:
                 proj.SetBinContent(j,expo.Eval(x))
     return 1
@@ -105,6 +107,8 @@ weights_ = options.weights.split(',')
 random=ROOT.TRandom3(101082)
 
 sampleTypes=options.samples.split(',')
+
+stack = ROOT.THStack("stack","")
 
 print "Creating datasets for samples: " ,sampleTypes
 dataPlotters=[]
@@ -176,6 +180,7 @@ maxEvents = -1
 for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
 
  #Nominal histogram Pythia8
+ c=0
  if plotter.filename.find(sampleTypes[0].replace('.root','')) != -1: 
    print "Preparing nominal histogram for sampletype " ,sampleTypes[0]
    print "filename: ", plotter.filename, " preparing central values histo"
@@ -192,7 +197,17 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     histTMP.Scale(histI2.Integral()/histTMP.Integral())
     histogram_nominal.Add(histTMP)
     mvv_nominal.Add(histI2)
+    histI2.SetFillColorAlpha(ROOT.kRed+c,0.6)
+    if c==0: 
+        histI2.SetFillColorAlpha(ROOT.kRed,0.6)
+    if c==1:
+        histI2.SetFillColorAlpha(ROOT.Green,0.6)
+    if c ==2: 
+        histI2.SetFillColorAlpha(ROOT.kBlue,0.6)
     
+    print "add stack histo "
+    stack.Add(histTMP)
+   c+=1 
    histI2.Delete()
    histTMP.Delete()
 
@@ -257,13 +272,17 @@ for hist in histograms:
 
  #################################
 c = ROOT.TCanvas("c","C",400,400)
+finalHistograms["histo_nominal"].SetLineColor(ROOT.kBlue)
+finalHistograms["histo_nominal"].GetYaxis().SetTitle("arbitrary scale")
+finalHistograms["histo_nominal"].GetXaxis().SetTitle("dijet mass")
 finalHistograms["histo_nominal"].Draw("hist")
 data = finalHistograms["mvv_nominal"]
 data.Scale(1./data.Integral())
 data.SetMarkerColor(ROOT.kBlack)
 data.Draw("same")
+stack.Draw("same")
 c.SetLogy()
-c.SaveAs("debug_Vjets_mVV_kernels.png")
+c.SaveAs("debug_Vjets_mVV_kernels.pdf")
 print "for debugging save   debug_Vjets_mVV_kernels.png "
 ########################################################
 
