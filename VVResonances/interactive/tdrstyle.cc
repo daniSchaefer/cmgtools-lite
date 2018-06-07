@@ -64,7 +64,7 @@ void setTDRStyle(bool force) {
 
   gStyle->SetEndErrorSize(2);
   //gStyle->SetErrorMarker(20);
-  gStyle->SetErrorX(0.);
+  // gStyle->SetErrorX(0.);
   
   gStyle->SetMarkerStyle(20);
 

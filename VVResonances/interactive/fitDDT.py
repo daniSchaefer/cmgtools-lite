@@ -20,15 +20,15 @@ W = W_ref
 H  = H_ref
 
 directory='/eos/user/t/thaarres/www/vvana/control_plots'
-lumi_13TeV = "35.9 fb^{-1}"
+lumi_13TeV = "41.4 fb^{-1}"
 lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
 iPeriod=0
 iPosX = 11
 cuts={}
-lumi='35900'
+lumi='41367'
 
-cuts['commonTOT'] = '(njj>0&&jj_LV_mass>1000&&abs(jj_l1_eta-jj_l2_eta)<1.3&&jj_l1_softDrop_mass>55.&&jj_l1_softDrop_mass<215.&&jj_l2_softDrop_mass>55.&&jj_l2_softDrop_mass<215.)'
-cuts['common'] = '(njj>0&&jj_LV_mass>1000&&abs(jj_l1_eta-jj_l2_eta)<1.3)'
+cuts['commonTOT'] = '(njj>0&&jj_LV_mass>838&&abs(jj_l1_eta-jj_l2_eta)<1.3&&jj_l1_softDrop_mass>55.&&jj_l1_softDrop_mass<215.&&jj_l2_softDrop_mass>55.&&jj_l2_softDrop_mass<215.)'
+cuts['common'] = '(njj>0&&jj_LV_mass>838&&abs(jj_l1_eta-jj_l2_eta)<1.3)'
 
 cuts['HP'] = '(jj_l1_tau2/jj_l1_tau1<0.35)'
 cuts['LP'] = '(jj_l1_tau2/jj_l1_tau1>0.35&&jj_l1_tau2/jj_l1_tau1<0.75)'
@@ -184,7 +184,7 @@ def doFit(file,fullSel):
 	profiles[2].Draw("same") ; leg2.AddEntry(profiles[2],"1000-1100 GeV, slope = %.3f #pm %.3f"%(frRes2.Parameter(1),frRes2.ParError(1)),"LEP")
 	profiles[6].Draw("same") ; leg2.AddEntry(profiles[6],"All jets, slope = %.4f #pm %.4f"%(frRes6.Parameter(1),frRes6.ParError(1)),"LEP")
 	leg2.Draw("")
-	cmslabel_sim(canvas2,'2016',11)
+	cmslabel_sim(canvas2,'2017',11)
 	canvas2.Update()
 	canvas2.SaveAs("rhoPrime_"+file.replace(".root",".pdf"))
 
@@ -197,7 +197,7 @@ def doFit(file,fullSel):
 	profiles[5].Draw("same") ; leg1.AddEntry(profiles[5],"1000-1100 GeV, slope = %.3f #pm %.3f"%(frRes5.Parameter(1),frRes5.ParError(1)),"LEP")
 	profiles[7].Draw("same") ; leg1.AddEntry(profiles[7],"All jets, slope = %.4f #pm %.4f"%(frRes7.Parameter(1),frRes7.ParError(1)),"LEP")
 	leg1.Draw("")
-	cmslabel_sim(canvas1,'2016',11)
+	cmslabel_sim(canvas1,'2017',11)
 	canvas1.Update()
 	canvas1.SaveAs("rho_"+file.replace(".root",".pdf"))
 	sleep(10)

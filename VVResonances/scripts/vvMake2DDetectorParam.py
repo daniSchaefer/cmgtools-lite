@@ -18,6 +18,7 @@ parser.add_option("-c","--cut",dest="cut",help="Cut to apply for yield in gen sa
 parser.add_option("-v","--vars",dest="vars",help="variable for gen",default='')
 parser.add_option("-b","--binsx",dest="binsx",help="bins",default='')
 parser.add_option("-g","--genVars",dest="genVars",help="variable for gen",default='')
+parser.add_option("-t","--triggerweight",dest="triggerW",action="store_true",help="Use trigger weights",default=False)
 
 (options,args) = parser.parse_args()
 
@@ -38,6 +39,8 @@ for filename in os.listdir(args[0]):
             dataPlotters[-1].addCorrectionFactor('xsec','tree')
             dataPlotters[-1].addCorrectionFactor('genWeight','tree')
             dataPlotters[-1].addCorrectionFactor('puWeight','tree')
+            if options.triggerW: dataPlotters[-1].addCorrectionFactor('triggerWeight','tree')
+                      
 data=MergedPlotter(dataPlotters)
 
 

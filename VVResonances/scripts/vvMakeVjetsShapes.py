@@ -25,6 +25,7 @@ parser.add_option("-f","--fix",dest="fixPars",help="Fixed parameters",default="1
 parser.add_option("--minMVV","--minMVV",dest="minMVV",type=float,help="mVV variable",default=1)
 parser.add_option("--maxMVV","--maxMVV",dest="maxMVV",type=float, help="mVV variable",default=1)
 parser.add_option("--binsMVV",dest="binsMVV",help="use special binning",default="")
+parser.add_option("-t","--triggerweight",dest="triggerW",action="store_true",help="Use trigger weights",default=False)
 
 
 (options,args) = parser.parse_args()
@@ -106,7 +107,8 @@ for name in samples.keys():
     plotters[-1].addCorrectionFactor('xsec','tree')
     plotters[-1].addCorrectionFactor('genWeight','tree')
     plotters[-1].addCorrectionFactor('puWeight','tree')
-    
+    if options.triggerW: plotters[-1].addCorrectionFactor('triggerWeight','tree')	
+
     corrFactor = options.corrFactorW
     if samples[name].find('Z') != -1: 
         corrFactor = options.corrFactorZ

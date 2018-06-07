@@ -47,8 +47,6 @@ def getBinning(binsMVV):
             l.append(int(w))
     return l
 
-
-
 def makeSubmitFileCondor(exe,jobname,jobflavour):
     print "make options file for condor job submission "
     submitfile = open("submit.sub","w")
@@ -144,7 +142,7 @@ def getEvents(template,samples):
 	maxEv = {}
 
 	for f in files:
-	 inf = ROOT.TFile('./samples/'+f,'READ')
+	 inf = ROOT.TFile('%s/'%samples+f,'READ')
 	 minEv[f] = []
 	 maxEv[f] = []
 	 intree = inf.Get('tree')
@@ -250,7 +248,7 @@ def Make2DDetectorParam(rootFile,template,cut,samples,jobName="DetPar",bins="200
 	print
 	return joblist, files	
 	
-def Make1DMVVTemplateWithKernels(rootFile,template,cut,resFile,binsMVV,minMVV,maxMVV,samples,jobName="1DMVV",wait=True,binning=''):
+def Make1DMVVTemplateWithKernels(rootFile,template,cut,resFile,binsMVV,minMVV,maxMVV,samples,jobName="1DMVV",wait=True,binning='',addOption=""):
 
 	
 	print 
@@ -270,7 +268,7 @@ def Make1DMVVTemplateWithKernels(rootFile,template,cut,resFile,binsMVV,minMVV,ma
 	print "Submitting %i number of jobs "  ,NumberOfJobs
 	print
 
-	cmd='vvMake1DMVVTemplateWithKernels.py -H "x" -c "{cut}"  -v "jj_gen_partialMass" {binning} -b {binsMVV}  -x {minMVV} -X {maxMVV} -r {res} {infolder} '.format(rootFile=rootFile,cut=cut,res=resFile,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,infolder=samples,binning=binning)
+	cmd='vvMake1DMVVTemplateWithKernels.py -H "x" -c "{cut}"  -v "jj_gen_partialMass" {binning} -b {binsMVV}  -x {minMVV} -X {maxMVV} -r {res} {addOption} {infolder} '.format(rootFile=rootFile,cut=cut,res=resFile,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,infolder=samples,binning=binning,addOption=addOption)
 	OutputFileNames = rootFile.replace(".root","") # base of the output file name, they will be saved in res directory
 	queue = "8nh" # give bsub queue -- 8nm (8 minutes), 1nh (1 hour), 8nh, 1nd (1day), 2nd, 1nw (1 week), 2nw 
 	
@@ -300,7 +298,7 @@ def Make1DMVVTemplateWithKernels(rootFile,template,cut,resFile,binsMVV,minMVV,ma
 	return joblist, files 
 
 
-def Make2DTemplateWithKernels(rootFile,template,cut,leg,binsMVV,minMVV,maxMVV,resFile,binsMJ,minMJ,maxMJ,samples,jobName="2DMVV",wait=True,binning=''):
+def Make2DTemplateWithKernels(rootFile,template,cut,leg,binsMVV,minMVV,maxMVV,resFile,binsMJ,minMJ,maxMJ,samples,jobName="2DMVV",wait=True,binning='',addOption=''):
 
 	
 	print 
@@ -324,7 +322,7 @@ def Make2DTemplateWithKernels(rootFile,template,cut,leg,binsMVV,minMVV,maxMVV,re
 	print "Submitting %i number of jobs "  ,NumberOfJobs
 	print
 
-	cmd='vvMake2DTemplateWithKernels.py -c "{cut}"  -v "jj_{leg}_gen_softDrop_mass,jj_gen_partialMass" {binning}  -b {binsMJ} -B {binsMVV} -x {minMJ} -X {maxMJ} -y {minMVV} -Y {maxMVV}  -r {res}  {infolder}'.format(rootFile=rootFile,samples=template,cut=cut,leg=leg,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJ=binsMJ,minMJ=minMJ,maxMJ=maxMJ,infolder=samples,binning=binning)
+	cmd='vvMake2DTemplateWithKernels.py -c "{cut}"  -v "jj_{leg}_gen_softDrop_mass,jj_gen_partialMass" {binning}  -b {binsMJ} -B {binsMVV} -x {minMJ} -X {maxMJ} -y {minMVV} -Y {maxMVV}  -r {res} {addOption} {infolder}'.format(rootFile=rootFile,samples=template,cut=cut,leg=leg,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJ=binsMJ,minMJ=minMJ,maxMJ=maxMJ,infolder=samples,binning=binning,addOption=addOption)
 	OutputFileNames = rootFile.replace(".root","") # base of the output file name, they will be saved in res directory
 	queue = "8nh" # give bsub queue -- 8nm (8 minutes), 1nh (1 hour), 8nh, 1nd (1day), 2nd, 1nw (1 week), 2nw 
 	
@@ -887,7 +885,7 @@ def merge1DMVVTemplate(jobList,files,jobname,purity,binsMVV,binsMJ,minMVV,maxMVV
 		histogram_pt_up.Write('histo_nominal_PTUp')
 
                 print "Now OPT"
-		alpha=1.5*1000 #1.5*1000
+		alpha=1.5*800 #1.5*800
 		histogram_opt_up,histogram_opt_down=unequalScale(histo_nominal,"histo_nominal_OPT",alpha,-1)
 		histogram_opt_down.SetName('histo_nominal_OPTDown')
 		histogram_opt_down.SetTitle('histo_nominal_OPTDown')
@@ -909,7 +907,7 @@ def merge1DMVVTemplate(jobList,files,jobname,purity,binsMVV,binsMJ,minMVV,maxMVV
 
 
                 print "Now logpT + 1/pT"
-		alpha=1.5*1000.
+		alpha=1.5*800.
 		histogram_logptopt_up,histogram_logptopt_down=unequalScale(histo_nominal,"histo_nominal_LOGPTOPT",alpha,-100)
 		histogram_logptopt_down.SetName('histo_nominal_LOGPTOPTDown')
 		histogram_logptopt_down.SetTitle('histo_nominal_LOGPTOPTDown')
@@ -1308,7 +1306,7 @@ def merge2DTemplate(jobList,files,jobname,purity,leg,binsMVV,binsMJ,minMVV,maxMV
 	os.system('rm -r '+outdir+'_out')
 	# os.system('rm -r '+outdir)
 	
-def makeData(template,cut,rootFile,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,factors,name,data,jobname,samples,wait=True,binning=''):
+def makeData(template,cut,rootFile,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,factors,name,data,jobname,samples,wait=True,binning='',addOption=""):
 	print 
 	print 'START: makeData'
 	print "template = ",template
@@ -1334,7 +1332,7 @@ def makeData(template,cut,rootFile,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,fact
  
 	NumberOfJobs= len(files) 
 	OutputFileNames = rootFile.replace(".root","")
-	cmd='vvMakeData.py -d {data} -c "{cut}"  -v "jj_l1_softDrop_mass,jj_l2_softDrop_mass,jj_LV_mass" {binning} -b "{bins},{bins},{BINS}" -m "{mini},{mini},{MINI}" -M "{maxi},{maxi},{MAXI}" -f {factors} -n "{name}" {infolder} '.format(cut=cut,BINS=binsMVV,bins=binsMJ,MINI=minMVV,MAXI=maxMVV,mini=minMJ,maxi=maxMJ,factors=factors,name=name,data=data,infolder=samples,binning=binning)	
+	cmd='vvMakeData.py -d {data} -c "{cut}"  -v "jj_l1_softDrop_mass,jj_l2_softDrop_mass,jj_LV_mass" {binning} -b "{bins},{bins},{BINS}" -m "{mini},{mini},{MINI}" -M "{maxi},{maxi},{MAXI}" -f {factors} -n "{name}" {addOption} {infolder} '.format(cut=cut,BINS=binsMVV,bins=binsMJ,MINI=minMVV,MAXI=maxMVV,mini=minMJ,maxi=maxMJ,factors=factors,name=name,data=data,infolder=samples,binning=binning,addOption=addOption)	
 	queue = "1nd" # give bsub queue -- 8nm (8 minutes), 1nh (1 hour), 8nh, 1nd (1day), 2nd, 1nw (1 week), 2nw 
 	
         path = os.getcwd()
@@ -1451,7 +1449,6 @@ def mergeData(jobname,purity,rootFile):
 		os.system(cmd)
 	print "Done merging data!"
 
-
 def getListOfBinsLowEdge(hist,dim):
     axis =0
     N = 0
@@ -1475,41 +1472,185 @@ def getListOfBinsLowEdge(hist,dim):
         r.append(axis.GetBinLowEdge(i))
     return r
 
-	
-def makePseudodata(infile,purity):
-	print "Making pseudodata from infile " ,infile
-	fin = ROOT.TFile.Open(infile,'READ')
-	hmcin = fin.Get('nonRes')
-	print hmcin.Integral()
-	#hmcin.Scale(1/hmcin.Integral())
-	xbins = array("f",getListOfBinsLowEdge(hmcin,"x"))
-	zbins = array("f",getListOfBinsLowEdge(hmcin,"z"))
-	print xbins
-	#print zbins
-	#print xbins
-	fout = ROOT.TFile.Open('JJ_%s.root'%purity,'RECREATE')
-	hout = ROOT.TH3F('data','data',len(xbins)-1,xbins,len(xbins)-1,xbins,len(zbins)-1,zbins)
-	hmcout = ROOT.TH3F('nonRes','nonRes',len(xbins)-1,xbins,len(xbins)-1,xbins,len(zbins)-1,zbins)
-	#xbins2 = array("f",getListOfBinsLowEdge(hmcout,"x"))
-	#zbins2 = array("f",getListOfBinsLowEdge(hmcout,"z"))
-	#print xbins2
-	hmcout.Add(hmcin)
 
-	
-	
-	for k in range(1,hmcin.GetNbinsZ()+1):
-	 for j in range(1,hmcin.GetNbinsY()+1):
-	  for i in range(1,hmcin.GetNbinsX()+1):
-	   evs = hmcin.GetBinContent(i,j,k)*35900.
-	   #if evs >= 1:
-	   #err = math.sqrt(evs)
-	   err = hmcin.GetBinError(i,j,k)*35900.
-	   hout.SetBinContent(i,j,k,evs)
-	   hout.SetBinError(i,j,k,err)
-	
-	hout.Write()
-	hmcout.Write()
-	
-	fin.Close()
-        fout.Close()
-        print "made pseudo-data : JJ_"+purity+".root"
+def makePseudoData(input="JJ_nonRes_LPLP.root",kernel="JJ_nonRes_3D_LPLP.root",mc="pythia",output="JJ_LPLP.root",lumi=35900):
+
+ pwd = os.getcwd()
+ 
+ ROOT.gRandom.SetSeed(0)
+ 
+ finmc = ROOT.TFile.Open(pwd+'/'+input,'READ')
+ hmcin = finmc.Get('nonRes')
+
+ findata = ROOT.TFile.Open(pwd+'/'+kernel,'READ')
+ #findata.ls()
+ hdata = ROOT.TH3F()
+ 
+ if   mc == 'pythia': hdata = findata.Get('histo')
+ elif mc == 'herwig': hdata = findata.Get('histo_altshapeUp')
+ elif mc == 'madgraph': hdata = findata.Get('histo_altshape2')
+ elif mc == 'powheg': hdata = findata.Get('histo_NLO')
+ 
+ fout = ROOT.TFile.Open(output,'RECREATE')
+ #hmcin.Scale(10.)
+ hmcin.Write('nonRes')
+
+ xbins = array("f",getListOfBinsLowEdge(hmcin,"x"))
+ zbins = array("f",getListOfBinsLowEdge(hmcin,"z"))
+ hout = ROOT.TH3F('data','data',len(xbins)-1,xbins,len(xbins)-1,xbins,len(zbins)-1,zbins)
+ hout.FillRandom(hdata,int(hmcin.Integral()*lumi))
+ hout.Write('data')
+ print "Writing histograms nonRes and data to file ", output
+
+ finmc.Close()
+ findata.Close()
+ fout.Close()
+ 
+
+def submitCPs(samples,template,wait,jobname="CPs",rootFile="controlplots_2017.root"):
+  print 
+  print 'START: submitCPs'
+  print "template = ",template
+  print "jobname  = ",jobname
+  print "samples  = ",samples
+  print 
+  files = []
+  sampleTypes = template.split(',')
+  for f in os.listdir(samples):
+    for t in sampleTypes:
+      if f.find(t) == -1: continue 
+      if f.startswith('.'): continue
+      if f.find('.root') != -1 and f.find('rawPUMC') == -1: 
+        print f
+        files.append(f)
+  
+  NumberOfJobs= len(files)
+  OutputFileNames = rootFile.replace(".root","")
+  cmd = "python submit_CP.py"
+  queue = "8nh" # give bsub queue -- 8nm (8 minutes), 1nh (1 hour), 8nh, 1nd (1day), 2nd, 1nw (1 week), 2nw
+
+  try: os.system("rm -r tmp"+jobname)
+  except: print "No tmp/ directory"
+  os.system("mkdir tmp"+jobname)
+  try: os.stat("res"+jobname)
+  except: os.mkdir("res"+jobname)
+
+
+  ##### Creating and sending jobs #####
+  joblist = []
+  ###### loop for creating and sending jobs #####
+  path = os.getcwd()
+  for x in range(1, int(NumberOfJobs)+1):
+     os.system("mkdir tmp"+jobname+"/"+str(files[x-1]).replace(".root",""))
+     os.chdir("tmp"+jobname+"/"+str(files[x-1]).replace(".root",""))
+     #os.system("mkdir tmp"+jobname+"/"+str(files[x-1]).replace(".root",""))
+     os.chdir(path+"/tmp"+jobname+"/"+str(files[x-1]).replace(".root",""))
+
+     with open('job_%s.sh'%files[x-1].replace(".root",""), 'w') as fout:
+        fout.write("#!/bin/sh\n")
+        fout.write("echo\n")
+        fout.write("echo\n")
+        fout.write("echo 'START---------------'\n")
+        fout.write("echo 'WORKDIR ' ${PWD}\n")
+        fout.write("source /afs/cern.ch/cms/cmsset_default.sh\n")
+        fout.write("cd "+str(path)+"\n")
+        fout.write("cmsenv\n")
+        fout.write(cmd+" "+files[x-1]+" "+path+"/res"+jobname+"/"+OutputFileNames+"_"+files[x-1]+" "+samples+"\n")
+        print "EXECUTING: ",cmd+" "+files[x-1]+" "+path+"/res"+jobname+"/"+OutputFileNames+"_"+files[x-1]+" "+samples+"\n"
+        fout.write("echo 'STOP---------------'\n")
+        fout.write("echo\n")
+        fout.write("echo\n")
+     os.system("chmod 755 job_%s.sh"%(files[x-1].replace(".root","")) )
+
+     if useCondorBatch:
+       os.system("mv  job_*.sh "+jobname+".sh")
+       makeSubmitFileCondor(jobname+".sh",jobname,"workday")
+       os.system("condor_submit submit.sub")
+     else:
+       os.system("bsub -q "+queue+" -o logs job_%s.sh -J %s"%(files[x-1].replace(".root",""),jobname))
+     print "job nr " + str(x) + " submitted: " + files[x-1].replace(".root","")
+     joblist.append("%s"%(files[x-1].replace(".root","")))
+     os.chdir("../..")
+
+  print
+  print "your jobs:"
+  if useCondorBatch: os.system("condor_q")
+  else: os.system("bjobs")
+  userName=os.environ['USER']
+  if wait: waitForBatchJobs(jobname,NumberOfJobs,NumberOfJobs, userName, timeCheck)
+
+  print
+  print 'END: makeData'
+  print
+  return joblist, files
+
+# def mergeCPs(template,jobname="CPs"):
+#
+#   dir = "res"+jobname+"/"
+#
+#   print "Merging data from job " ,jobname
+#   # read out files
+#   resDir = 'res'+jobname+'/'
+#   filelist = os.listdir('./'+resDir)
+#
+#   samples = {}
+#   sampleTypes = template.split(',')
+#   samples = {}
+#   sampleTypes = template.split(',')
+#   for t in sampleTypes:
+#     print "For sample: ",t
+#     files = []
+#     for f in os.listdir(dir):
+#       if f.find('.root') != -1 and f.find(t) != -1 and f.find("hadd") == -1:
+#          print "Adding file = ",dir+f
+#          files.append(dir+f)
+#       samples[t] = files
+#
+#   vars =[]
+#   ftest = ROOT.TFile(samples[sampleTypes[0]][0],"READ")
+#   for h in ftest.GetListOfKeys():
+#     vars.append(h.GetName())
+#   ftest.Close()
+#
+#   print "Doing histograms for the following variables: "
+#   print [v for v in vars]; print "" ;
+#   # vars = ["looseSel_Dijet_invariant_mass"]
+#
+#   for t in sampleTypes:
+#     print "For sample: " ,t
+#     histlist = []
+#     for v in vars:
+#       print "For variable: " ,v
+#       hZero = ROOT.TH1D()
+#       for i,j in enumerate(samples[t]):
+#         f1 = ROOT.TFile(j,"READ")
+#         print "Opened file ", f1.GetName()
+#         h1 = ROOT.TH1D(f1.Get(v))
+#         h1.SetFillColor(36)
+#         if i==0: hZero = copy.deepcopy(h1); continue
+#         ROOT.gROOT.cd()
+#         hnew = h1.Clone()
+#         hZero.Add(hnew)
+#       hClone   = copy.deepcopy(hZero)
+#       histlist.append(hClone)
+#
+#     outf = ROOT.TFile.Open(dir+"/out_"+t+'.root','RECREATE')
+#     outf.cd()
+#     for h in histlist:
+#       h.Write()
+#     outf.Write()
+#     outf.Close()
+
+def mergeCPs(template,jobname="CPs"):
+  
+  dir = "res"+jobname+"/"
+
+  print "Merging data from job " ,jobname
+  # read out files
+  resDir = 'res'+jobname+'/'
+
+  sampleTypes = template.split(',')
+  for t in sampleTypes:
+    cmd = "hadd %s/%s.root %s/controlplots_*%s*.root" %(resDir,t,resDir,t)
+    os.system(cmd)
+    

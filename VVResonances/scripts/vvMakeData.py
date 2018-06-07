@@ -20,8 +20,7 @@ parser.add_option("-d","--isData",dest="data",type=int,help="isData",default=1)
 parser.add_option("-f","--factors",dest="factors",type=str,help="factor",default="1")
 parser.add_option("-n","--name",dest="name",help="name",default="histo")
 parser.add_option("--binsMVV",dest="binsMVV",help="use special binning",default="")
-
-
+parser.add_option("-t","--triggerweight",dest="triggerW",action="store_true",help="Use trigger weights",default=False)
 
 (options,args) = parser.parse_args()
 #define output dictionary
@@ -54,7 +53,7 @@ for filename in os.listdir(args[0]):
                 dataPlotters[-1].addCorrectionFactor('xsec','tree')
                 dataPlotters[-1].addCorrectionFactor('genWeight','tree')
                 dataPlotters[-1].addCorrectionFactor('puWeight','tree')
-		
+                if options.triggerW: dataPlotters[-1].addCorrectionFactor('triggerWeight','tree')	
             corrFactors = options.factors.split(',')
 	    for c in corrFactors:
 	     if len(c.split(':')) < 2: continue

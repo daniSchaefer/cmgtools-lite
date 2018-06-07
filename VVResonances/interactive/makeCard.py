@@ -11,14 +11,18 @@ purities=['HPHP']#,'HPLP']
 if sys.argv[2]!="":
     purities=[sys.argv[2]]
 signals = ["BulkGWW"]
-print indir
-print purities
+
+period = 2017 #2016
+
 
 for sig in signals:
   for p in purities:
 
     cat='_'.join(['JJ',sig,p,'13TeV'])
-    card=DataCardMaker('',p,'13TeV',35900,'JJ',cat)
+    if period == 2016:
+        card=DataCardMaker('',p,'13TeV',35900,'JJ',cat)
+    else:
+        card=DataCardMaker('',p,'13TeV',41367,'JJ',cat)
     cmd=cmd+" "+cat+'=datacard_'+cat+'.txt '
 
     #SIGNAL
@@ -43,18 +47,18 @@ for sig in signals:
     card.addFixedYieldFromFile("Vjet",1,indir+"JJ_VJets_%s.root"%p,"VJets",1.0)
 
     #QCD
-    rootFile0=indir+"JJ_nonRes_3D_"+p+".root"
-    rootFile=indir+"JJ_nonRes_3D_HPLP.root"
-    card.addShapes("nonRes",["MJ1","MJ2","MJJ"],rootFile0,"histo",['PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ'],False,0,"",rootFile,['altshape2Z:CMS_VV_JJ_nonRes_Alt2','altshapeZ:CMS_VV_JJ_nonRes_Alt']) 
-    #card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile0,"histo",['PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ','TRIG:CMS_VV_JJ_nonRes_Trig'],False,0)
-    #card.addFixedYieldFromFile("nonRes",2,indir+"JJ_nonRes_"+p+".root","nonRes")
-    card.addFixedYieldFromFile("nonRes",2,indir+"JJ_nonRes_HPLP.root","nonRes")
+
+    #rootFile0=indir+"JJ_nonRes_3D_"+p+".root"
+    #rootFile=indir+"JJ_nonRes_3D_HPLP.root"
+    #card.addShapes("nonRes",["MJ1","MJ2","MJJ"],rootFile0,"histo",['PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ'],False,0,"",rootFile,['altshape2Z:CMS_VV_JJ_nonRes_Alt2','altshapeZ:CMS_VV_JJ_nonRes_Alt']) 
+ 
+    rootFile="JJ_nonRes_3D_"+p+".root"
+    card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile,"histo",['altshape:CMS_VV_JJ_nonRes_altshape','altshape2:CMS_VV_JJ_nonRes_altshape2','PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ','TRIG:CMS_VV_JJ_nonRes_TRIG'],False,0)
+    card.addFixedYieldFromFile("nonRes",2,"JJ_nonRes_"+p+".root","nonRes")
 
     #DATA
-    #card.importBinnedData(indir+"jen-data-obs.root","data",["MJ1","MJ2","MJJ"])
-    #card.importBinnedData(indir+"JJ_data_"+p+".root","data",["MJ1","MJ2","MJJ"])
-    #card.importBinnedData(indir+"pseudodata_"+p+".root","data",["MJ1","MJ2","MJJ"])
-    card.importBinnedData(indir+"JJ_nonRes_HPLP.root","nonRes",["MJ1","MJ2","MJJ"])
+    card.importBinnedData("JJ_data_"+p+".root","data",["MJ1","MJ2","MJJ"])
+
 
     #SYSTEMATICS
     #luminosity
@@ -87,19 +91,21 @@ for sig in signals:
     card.addSystematic("CMS_VV_JJ_Vjets_OPT","param",[0,0.1])
  
     #alternative shapes for QCD background
-    card.addSystematic("CMS_VV_JJ_nonRes_OPTXY","param",[0,0.888])
-    card.addSystematic("CMS_VV_JJ_nonRes_OPTZ","param", [0,0.888])
-    card.addSystematic("CMS_VV_JJ_nonRes_PTXY","param", [0,0.888])
-    card.addSystematic("CMS_VV_JJ_nonRes_PTZ","param",  [0,0.888])
-    #card.addSystematic("CMS_VV_JJ_nonRes_Alt2","param",  [0,0.888])
-    #card.addSystematic("CMS_VV_JJ_nonRes_Alt","param",  [0,0.888])
-    #card.addSystematic("CMS_VV_JJ_nonRes_Alt2_hp","param",  [0,0.888])
-    #card.addSystematic("CMS_VV_JJ_nonRes_Alt_hp","param",  [0,0.888])
-    #card.addSystematic("CMS_VV_JJ_nonRes_Alt2XY","param",  [0,0.888])
-    card.addSystematic("CMS_VV_JJ_nonRes_Trig","param",  [0,0.333])
+
+    card.addSystematic("CMS_VV_JJ_nonRes_PTXY","param",[0.0,0.333])
+    card.addSystematic("CMS_VV_JJ_nonRes_PTZ","param",[0.0,0.33])
+    card.addSystematic("CMS_VV_JJ_nonRes_OPTXY","param",[0.0,0.333])
+    card.addSystematic("CMS_VV_JJ_nonRes_OPTZ","param",[0.0,0.33])
+    card.addSystematic("CMS_VV_JJ_nonRes_TRIG","param",[0.0,0.33])
+    card.addSystematic("CMS_VV_JJ_nonRes_altshape","param",[0.0,0.33])
+    card.addSystematic("CMS_VV_JJ_nonRes_altshape2","param",[0.0,0.33])
 
     card.makeCard()
 
     #make combined cards
-    cmd=cmd + ' >> datacard_'+cat.replace("_HPHP","").replace("_HPLP","")+'.txt '
-    print cmd
+  cmd=cmd + ' >> datacard_'+cat.replace("_HPHP","").replace("_HPLP","")+'.txt '
+  print "Combine cards: "
+  print cmd
+  cmd='text2workspace.py '+'datacard_'+cat+'.txt '+' -o workspace.root'
+  print "Text to workspace: "
+  print cmd

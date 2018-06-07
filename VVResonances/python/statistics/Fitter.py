@@ -1011,12 +1011,16 @@ class Fitter(object):
 	    
         self.frame=self.w.var(poi).frame()
 	
-	print "Prinintg workspace: "
+	print "Prining workspace: "
 	self.w.Print()
 	
-	f = ROOT.TFile.Open("fitresults.root",'READ')
-	fr = 0
-	if f: fr = f.Get('fitresult_model_data')
+	try:
+                f = ROOT.TFile.Open("fitresults.root",'READ')
+                fr = f.Get('fitresult_model_data')
+                
+	except:
+                fr = 0
+                print "No fit result found (fitresults.root), plotting model only"
 	
         if binning:
 	 self.w.data(data).plotOn(self.frame,ROOT.RooFit.Binning(binning))
@@ -1093,4 +1097,3 @@ class Fitter(object):
         pullDist = self.frame.pullHist()
         return [self.frame, self.legend, pullDist, self.frame.chiSquare()]   
                                 
-

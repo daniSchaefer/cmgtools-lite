@@ -27,6 +27,7 @@ parser.add_option("-f","--function",dest="function",help="interpolating function
 parser.add_option("-b","--BR",dest="BR",type=float, help="branching ratio",default=1)
 parser.add_option("-r","--minMX",dest="minMX",type=float, help="smallest Mx to fit ",default=1000.0)
 parser.add_option("-R","--maxMX",dest="maxMX",type=float, help="largest Mx to fit " ,default=7000.0)
+parser.add_option("-t","--triggerweight",dest="triggerW",action="store_true",help="Use trigger weights",default=False)
 
 (options,args) = parser.parse_args()
 #define output dictionary
@@ -65,6 +66,7 @@ for mass in sorted(samples.keys()):
     plotter.addCorrectionFactor('genWeight','tree')
     plotter.addCorrectionFactor('xsec','tree')
     plotter.addCorrectionFactor('puWeight','tree')
+    plotter.addCorrectionFactor('triggerWeight','tree')
     histo = plotter.drawTH1(options.mvv,options.cut,"1",500,options.min,options.max)
     err=ROOT.Double(0)
     integral=histo.IntegralAndError(1,histo.GetNbinsX(),err) 

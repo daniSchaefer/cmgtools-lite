@@ -9,27 +9,13 @@ ROOT.gROOT.ProcessLine(".x tdrstyle.cc");
 
 #python runFitPlots.py -n workspace.root -l LPLP -i JJ_LPLP.root
 
-#parser = optparse.OptionParser()
-#parser.add_option("-o","--output",dest="output",help="Output folder name",default='')
-#parser.add_option("-n","--name",dest="name",help="Input workspace",default='workspace.root')
-#parser.add_option("-i","--input",dest="input",help="Input nonRes histo",default='JJ_HPHP.root')
-#parser.add_option("-x","--xrange",dest="xrange",help="set range for x bins in projection",default="0,-1")
-#parser.add_option("-y","--yrange",dest="yrange",help="set range for y bins in projection",default="0,-1")
-#parser.add_option("-z","--zrange",dest="zrange",help="set range for z bins in projection",default="0,-1")
-#parser.add_option("-p","--projection",dest="projection",help="choose which projection should be done",default="xyz")
-#parser.add_option("-d","--data",dest="data",action="store_true",help="make also postfit plots",default=True)
-#parser.add_option("-l","--label",dest="label",help="add extra label such as pythia or herwig",default="")
-#parser.add_option("--log",dest="log",help="write fit result to log file",default="fit_results.log")
-#parser.add_option("--pdfz",dest="pdfz",help="name of pdfs lie PTZUp etc",default="")
-#parser.add_option("--pdfx",dest="pdfx",help="name of pdfs lie PTXUp etc",default="")
-#parser.add_option("--pdfy",dest="pdfy",help="name of pdfs lie PTYUp etc",default="")
-
-#(options,args) = parser.parse_args()
 ROOT.gStyle.SetOptStat(0)
 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.FATAL)
 colors = [ROOT.kBlack,ROOT.kPink-1,ROOT.kAzure+1,ROOT.kAzure+1,210,210,ROOT.kMagenta,ROOT.kMagenta,ROOT.kOrange,ROOT.kOrange,ROOT.kViolet,ROOT.kViolet]
 
 
+try: os.stat(options.output)
+except: os.mkdir(options.output)
 
 def getListFromRange(xyzrange):
     r=[]
@@ -131,7 +117,7 @@ def MakePlots(histos,hdata,axis,nBins,options):
     zrange = options.zrange
     if options.xrange == '0,-1': xrange = '55,215'
     if options.yrange == '0,-1': yrange = '55,215'
-    if options.zrange == '0,-1': zrange = '1000,5000'
+    if options.zrange == '0,-1': zrange = '838,5000'
     if axis=='z':
      htitle = "Z-Proj. x : "+options.xrange+" y : "+options.yrange
      xtitle = "m_{jj} [GeV]"
@@ -973,10 +959,12 @@ if __name__=="__main__":
      #make projections onto MJ2 axis
      if options.projection =="y": doYprojection(allpdfsy,data,norm_nonres,norm_res,norm_s,yBinslowedge,Bins_redux,binWidths,workspace,options)
          
+
      if options.projection =="xyz":
         doZprojection(allpdfsz,data,norm_nonres,norm_res,norm_s,zBinslowedge,Bins_redux,binWidths,workspace,options)
 	doXprojection(allpdfsx,data,norm_nonres,norm_res,norm_s,xBinslowedge,Bins_redux,binWidths,workspace,options)
 	doYprojection(allpdfsy,data,norm_nonres,norm_res,norm_s,yBinslowedge,Bins_redux,binWidths,workspace,options)
+
      
      #################################################   
      #calculate chi2  

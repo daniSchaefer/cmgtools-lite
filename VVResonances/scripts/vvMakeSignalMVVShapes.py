@@ -46,6 +46,7 @@ parser.add_option("-M","--maxMVV",dest="max",type=float, help="mVV variable",def
 parser.add_option("-r","--minMX",dest="minMX",type=float, help="smallest Mx to fit ",default=1000.0)
 parser.add_option("-R","--maxMX",dest="maxMX",type=float, help="largest Mx to fit " ,default=7000.0)
 parser.add_option("--binsMVV",dest="binsMVV",help="use special binning",default="")
+parser.add_option("-t","--triggerweight",dest="triggerW",action="store_true",help="Use trigger weights",default=False)
 
 (options,args) = parser.parse_args()
 #define output dictionary
@@ -89,6 +90,7 @@ for mass in sorted(samples.keys()):
     plotter=TreePlotter(args[0]+'/'+samples[mass]+'.root','tree')
     plotter.addCorrectionFactor('genWeight','tree')
     plotter.addCorrectionFactor('puWeight','tree')
+    if options.triggerW: plotter.addCorrectionFactor('triggerWeight','tree')	
     if options.scaleFactors!='':
         for s in scaleFactors:
             plotter.addCorrectionFactor(s,'tree')
