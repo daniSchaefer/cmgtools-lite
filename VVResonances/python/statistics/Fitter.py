@@ -151,7 +151,7 @@ class Fitter(object):
 
     def expo(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-        self.w.factory("RooExponential::"+name+"("+poi+",c_0[-1,-5000,0])")
+        self.w.factory("RooExponential::"+name+"("+poi+",c_0[-1,-1000,0])")
 
 
     def gaus(self,name = 'model',poi='x'):
@@ -335,9 +335,9 @@ class Fitter(object):
         self.w.factory("mean[80,50,200]")
         self.w.factory("sigma[10,2,40]")
         self.w.factory("alpha[3,0.5,10]")
-        self.w.factory("n[2,0.0,10.]")
+        self.w.factory("n[2]")
         self.w.factory("alpha2[3,0.5,10]")
-        self.w.factory("n2[2,0.0,10.]")
+        self.w.factory("n2[2]")
 
         peak = ROOT.RooDoubleCB(name+'S','modelS',self.w.var(poi),self.w.var('mean'),self.w.var('sigma'),self.w.var('alpha'),self.w.var('n'),self.w.var("alpha2"),self.w.var("n2"))
         getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name+'S'))
@@ -380,21 +380,17 @@ class Fitter(object):
 
     def jetResonanceVjets(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-        self.w.factory("mean[8.3421e+01,75,90]")
-        self.w.factory("sigma[8.9049e+00,5,25]")
-
-        #self.w.factory("alpha[1.8,0.0,20]")
-        #self.w.factory("n[0.8,0.,10.]")
-        self.w.factory("alpha[1.8326e+00,0.0,10]")
-        self.w.factory("n[1.9928e+00,0.,10]")
-
-        self.w.factory("alpha2[1.1946e+00,0.,10]")
-        self.w.factory("n2[7.5254e+00,0,10]")
-
-
+        self.w.factory("mean[80,50,150]")
+        self.w.factory("sigma[15,3,30]")
+        self.w.factory("alpha[1.8,0.0,5]")
+        self.w.factory("n[0.8,0.,2.]")
+        self.w.factory("alpha2[0.5,0,50]")
+        self.w.factory("n2[2,0,100]")
 
         peak = ROOT.RooDoubleCB(name,'modelS',self.w.var(poi),self.w.var('mean'),self.w.var('sigma'),self.w.var('alpha'),self.w.var('n'),self.w.var("alpha2"),self.w.var("n2"))
         getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name+'W'))
+        #self.w.factory("RooExponential::"+name+"B("+poi+",slope[-1,-10,0])")       
+        #self.w.factory("SUM::"+name+"(f[0.8,0,1]*"+name+"S,"+name+"B)")
 
 
     def jetResonance2(self,name = 'model',poi='x'):
@@ -444,7 +440,7 @@ class Fitter(object):
         self.w.factory("alphaW2[1,0.1,10]")
         self.w.factory("n[5]")
 
-        self.w.factory("meanTop[160,100,190]")
+        self.w.factory("meanTop[160,140,190]")
         self.w.factory("sigmaTop[30,5,100]")
         self.w.factory("alphaTop[1,0.1,10]")
         self.w.factory("alphaTop2[1,0.1,10]")
@@ -507,7 +503,6 @@ class Fitter(object):
 	gsigma = ROOT.RooFormulaVar("gsigma","gsigma","@0*@1", ROOT.RooArgList(self.w.var('SIGMA'),self.w.var('SCALESIGMA')))
 	getattr(self.w,'import')(gsigma,ROOT.RooFit.Rename('gsigma'))
         self.w.factory("ALPHA[0.85,0.60,1.20]")
-        #self.w.factory("N[6,0.1,10]") #From @dani: N=126 from thea 126.9
         self.w.factory("N[6,0.1,150]") #From @dani: N=126 from thea 126.9
 	self.w.factory("Gaussian::signalResonanceGaus(%s,MEAN,gsigma)"%poi)
 	self.w.factory("CBShape::signalResonanceCB(%s,MEAN,SIGMA,ALPHA,N)"%poi)
@@ -795,13 +790,11 @@ class Fitter(object):
 
     def qcd(self,name='model',poi='MVV',logTerm=True):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-        #self.w.factory("c_0[20,0,100]")
-        #self.w.factory("c_1[0.5,0,100]")
-        #self.w.factory("c_2[0.0001,0,10]")
-        self.w.factory("c_0[0.0,0,10]")
-        self.w.factory("c_1[13,0,30]")
+
+        self.w.factory("c_0[20,0,100]")
+        self.w.factory("c_1[0.5,0,100]")
         if logTerm:
-            self.w.factory("c_2[1.8,0,5]")
+            self.w.factory("c_2[0.0001,0,10]")
         else:    
             self.w.factory("c_2[0]")
 
@@ -1024,31 +1017,31 @@ class Fitter(object):
 	
         if binning:
 	 self.w.data(data).plotOn(self.frame,ROOT.RooFit.Binning(binning))
-         if fr: self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Binning(binning),ROOT.RooFit.VisualizeError(fr, 1, ROOT.kFALSE), ROOT.RooFit.DrawOption("L"), ROOT.RooFit.LineWidth(2), ROOT.RooFit.LineColor(ROOT.kRed))
+         if fr: self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Binning(binning), ROOT.RooFit.DrawOption("L"), ROOT.RooFit.LineWidth(2), ROOT.RooFit.LineColor(ROOT.kRed)) #ROOT.RooFit.VisualizeError(fr, 1, ROOT.kFALSE)
 	 else: self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Binning(binning))#,ROOT.Normalization(ROOT.RooAbsReal.RelativeExpected,1.0))# ROOT.RooFit.Normalization(integral, ROOT.RooAbsReal.NumEvent))
 	else: 
 	 self.w.data(data).plotOn(self.frame)
-	 if fr: self.w.pdf(model).plotOn(self.frame, ROOT.RooFit.DrawOption("L"), ROOT.RooFit.LineWidth(2), ROOT.RooFit.LineColor(ROOT.kRed)) #ROOT.RooFit.VisualizeError(fr, 1, ROOT.kFALSE),
+	 if fr: self.w.pdf(model).plotOn(self.frame, ROOT.RooFit.DrawOption("L"), ROOT.RooFit.LineWidth(2), ROOT.RooFit.LineColor(ROOT.kRed)) #ROOT.RooFit.VisualizeError(fr, 1, ROOT.kFALSE)
          else: self.w.pdf(model).plotOn(self.frame)#,ROOT.Normalization(ROOT.RooAbsReal.RelativeExpected,1.0))# ROOT.RooFit.Normalization(integral, ROOT.RooAbsReal.NumEvent))
 
         self.legend = self.getLegend()
 	self.legend.AddEntry( self.w.pdf(model)," Full PDF","l")
 	
-	#self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "signalResonanceGaus" ),ROOT.RooFit.Components("signalResonanceGaus"),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kRed))#  ,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
-	#if self.frame.findObject( "signalResonanceGaus"):self.legend.AddEntry( self.frame.findObject( "signalResonanceGaus" ),"Gaussian","l")
-	#else: print "No model Gaussian in WS"
+	self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "signalResonanceGaus" ),ROOT.RooFit.Components("signalResonanceGaus"),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kRed))#  ,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
+	if self.frame.findObject( "signalResonanceGaus"):self.legend.AddEntry( self.frame.findObject( "signalResonanceGaus" ),"Gaussian","l")
+	else: print "No model Gaussian in WS"
 	
-	#self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "signalResonanceCB" ),ROOT.RooFit.Components("signalResonanceCB"  ),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kGreen))#,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
-	#if self.frame.findObject( "signalResonanceCB"):self.legend.AddEntry( self.frame.findObject( "signalResonanceCB" ),"CB comp.","l")
-	#else: print "No model CB in WS"
+	self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "signalResonanceCB" ),ROOT.RooFit.Components("signalResonanceCB"  ),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kGreen))#,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
+	if self.frame.findObject( "signalResonanceCB"):self.legend.AddEntry( self.frame.findObject( "signalResonanceCB" ),"CB comp.","l")
+	else: print "No model CB in WS"
 	
-	#self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "modelS" ),ROOT.RooFit.Components("modelS"  ),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kRed))#,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
-	#if self.frame.findObject( "modelS"):self.legend.AddEntry( self.frame.findObject( "modelS" ),"Signal comp.","l")
-	#else: print "No modelS in WS"
+	self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "modelS" ),ROOT.RooFit.Components("modelS"  ),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kRed))#,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
+	if self.frame.findObject( "modelS"):self.legend.AddEntry( self.frame.findObject( "modelS" ),"Signal comp.","l")
+	else: print "No modelS in WS"
 	
-	#self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "modelB" ),ROOT.RooFit.Components("modelB"),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kGreen))#,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
-	#if self.frame.findObject( "modelB"):self.legend.AddEntry( self.frame.findObject( "modelB" ),"BG comp.","l")
-	#else: print "No modelB in WS"
+	self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "modelB" ),ROOT.RooFit.Components("modelB"),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kGreen))#,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
+	if self.frame.findObject( "modelB"):self.legend.AddEntry( self.frame.findObject( "modelB" ),"BG comp.","l")
+	else: print "No modelB in WS"
 	
 	self.w.pdf(model).plotOn(self.frame)
         self.c=ROOT.TCanvas("c","c")
@@ -1061,8 +1054,6 @@ class Fitter(object):
         self.frame.GetYaxis().SetTitle('')
         self.frame.GetXaxis().SetTitle(xtitle)
         self.frame.SetTitle('')
-        #if (filename.find("Jet")!=-1) and poi.find("MVV")!=-1:
-        #    self.c.SetLogy()
         self.c.Draw()
                         
         

@@ -21,10 +21,12 @@ def getBinning(binsMVV,minx,maxx,bins):
     if binsMVV=="":
         for i in range(0,bins+1):
             l.append(minx + i* (maxx - minx)/bins)
+        
     else:
         s = binsMVV.split(",")
         for w in s:
             l.append(int(w))
+            
     return l
 
 def truncate(binning,mmin,mmax):
@@ -110,6 +112,23 @@ for mass in sorted(samples.keys()):
 
     binning= truncate(getBinning(options.binsMVV,options.min,options.max,1000),0.75*mass,1.25*mass)    
     histo = plotter.drawTH1Binned(options.mvv,options.cut+"*(jj_LV_mass>%f&&jj_LV_mass<%f)"%(0.75*mass,1.25*mass),"1",binning)
+
+    #gauss  = ROOT.TF1("gauss" ,"gaus",0.95*mass,1.05*mass)  
+    #histo.Fit(gauss,"R")
+    #mean = gauss.GetParameter(1)
+    #sigma = gauss.GetParameter(2)
+ 
+    #print "____________________________________"
+    #print "mean "+str(mean)
+    #print "sigma "+str(sigma)
+    #print "set paramters of double CB constant aground the ones from gaussian fit"
+    #fitter.w.var("mean").setVal(mean)
+    #fitter.w.var("mean").setConstant(1)
+    #fitter.w.var("sigma").setVal(sigma)
+    #fitter.w.var("sigma").setConstant(1)
+    #print "_____________________________________"
+
+
 
     Fhists.cd()
     histo.Write("%i"%mass)

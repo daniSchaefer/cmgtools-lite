@@ -5,7 +5,7 @@ import time
 from array import array
 
 ROOT.gErrorIgnoreLevel = ROOT.kWarning
-ROOT.gROOT.ProcessLine(".x tdrstyle.cc");
+#ROOT.gROOT.ProcessLine(".x tdrstyle.cc");
 
 #python runFitPlots.py -n workspace.root -l LPLP -i JJ_LPLP.root
 
@@ -467,6 +467,9 @@ def doZprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
            if "model_s" in str(pdfs[i].GetName()):
 	     print "full model : ",pdfs[i].GetName()
 	     h[i].Fill(zv,lv[i][zv]*(norm_res+norm_nonres+norm_s)) 
+           if "Bulk" in str(pdfs[i].GetName()):
+	     print "signal : ",pdfs[i].GetName()
+	     h[i].Fill(zv,lv[i][zv]*(norm_s))
     
     #htot = ROOT.TH1F("htot","htot",len(zBinslowedge)-1,zBinslowedge)
     #htot.Add(h[1])
@@ -556,6 +559,9 @@ def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
 	    if "Vjet" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_res)
             if "model_b" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res))
             if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res+norm_s))
+            if "Bulk" in str(pdfs[i].GetName()):
+	     print "signal : ",pdfs[i].GetName()
+	     h[i].Fill(zv,lv[i][zv]*(norm_s))
 
     #htot = ROOT.TH1F("htot","htot",len(xBinslowedge)-1,xBinslowedge)
     #htot.Add(h[1])
@@ -616,7 +622,7 @@ def doYprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
                     #else:
                         #if "Jets" in p.GetName() or "Signal" in p.GetName():
                             ##print ' "integrate" over analytical function'
-                            #nn=100
+                            #nn=1000
                             #for n in range(0,nn):
                                 #w = yBinsWidth[yk]
                                 #step = w/float(nn)
@@ -636,6 +642,9 @@ def doYprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
 	    if "Vjet" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_res)
             if "model_b" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res))
             if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res+norm_s))
+            if "Bulk" in str(pdfs[i].GetName()):
+	     print "signal : ",pdfs[i].GetName()
+	     h[i].Fill(zv,lv[i][zv]*(norm_s))
 
     htot = ROOT.TH1F("htot","htot",len(yBinslowedge)-1,yBinslowedge)
     #htot.Add(h[1])

@@ -6,12 +6,7 @@ import optparse
 import numpy
 from  CMS_lumi import *
 from array import array
-from forCorr_JJ_WJets_HPHP import JJ_WJets_HPHP_Res_l1_0, JJ_WJets_HPHP_Res_l1_1, JJ_WJets_HPHP_Res_l1_2, JJ_WJets_HPHP_Res_l1_3,JJ_WJets_HPHP_Res_l1_4,JJ_WJets_HPHP_Res_l1_5,JJ_WJets_HPHP_Res_l2_0, JJ_WJets_HPHP_Res_l2_1, JJ_WJets_HPHP_Res_l2_2, JJ_WJets_HPHP_Res_l2_3,JJ_WJets_HPHP_Res_l2_4,JJ_WJets_HPHP_Res_l2_5
-
-from forCorr_JJ_WJets_HPLP import JJ_WJets_HPLP_Res_l1_0, JJ_WJets_HPLP_Res_l1_1, JJ_WJets_HPLP_Res_l1_2, JJ_WJets_HPLP_Res_l1_3,JJ_WJets_HPLP_Res_l1_4,JJ_WJets_HPLP_Res_l1_5,JJ_WJets_HPLP_Res_l2_0, JJ_WJets_HPLP_Res_l2_1, JJ_WJets_HPLP_Res_l2_2, JJ_WJets_HPLP_Res_l2_3,JJ_WJets_HPLP_Res_l2_4,JJ_WJets_HPLP_Res_l2_5
-
-from forCorr_JJ_ZJets_HPHP import JJ_ZJets_HPHP_Res_l1_0, JJ_ZJets_HPHP_Res_l1_1, JJ_ZJets_HPHP_Res_l1_2, JJ_ZJets_HPHP_Res_l1_3,JJ_ZJets_HPHP_Res_l1_4,JJ_ZJets_HPHP_Res_l1_5,JJ_ZJets_HPHP_Res_l2_0, JJ_ZJets_HPHP_Res_l2_1, JJ_ZJets_HPHP_Res_l2_2, JJ_ZJets_HPHP_Res_l2_3,JJ_ZJets_HPHP_Res_l2_4,JJ_ZJets_HPHP_Res_l2_5
-
+from  forCorr_JJ_WJets_HPLP import JJ_VJets__Res_l1_nominal,JJ_VJets__Res_l2_800to1200,JJ_VJets__Res_l1_1200to1600,JJ_VJets__Res_l1_1600to2000,JJ_VJets__Res_l1_2000to5000   
 
 #arser = optparse.OptionParser()
 #parser.add_option("-v","--variable",dest="variable",help="variable name to be used for example tau21, softdopmass",default='')
@@ -27,6 +22,16 @@ def setMjetFunc(param, label):
     n = ROOT.RooRealVar("n_"+label,"n_"+label,param['n']["val"])
     alpha2 = ROOT.RooRealVar("alpha2_"+label,"alpha2_"+label,param['alpha2']["val"])
     n2 = ROOT.RooRealVar("n2_"+label,"n2_"+label,param['n2']["val"])
+    return [mean,sigma,alpha,n,alpha2,n2]
+
+
+def setMjetErr(param, label):
+    mean = ROOT.RooRealVar("mean_"+label,"mean_"+label,param['mean']["err"])
+    sigma = ROOT.RooRealVar("sigma_"+label,"sigma_"+label,param['sigma']["err"])
+    alpha = ROOT.RooRealVar("alpha_"+label,"alpha_"+label,param['alpha']["err"])
+    n = ROOT.RooRealVar("n_"+label,"n_"+label,param['n']["err"])
+    alpha2 = ROOT.RooRealVar("alpha2_"+label,"alpha2_"+label,param['alpha2']["err"])
+    n2 = ROOT.RooRealVar("n2_"+label,"n2_"+label,param['n2']["err"])
     return [mean,sigma,alpha,n,alpha2,n2]
 
 
@@ -115,325 +120,55 @@ if __name__=="__main__":
     frame = x.frame()
     test_frame = x.frame()
     
-    param = setMjetFunc(JJ_WJets_HPHP_Res_l1_0,"nominal") 
+    param = setMjetFunc(JJ_VJets__Res_l1_nominal ,"nominal") 
     func = ROOT.RooDoubleCB("nominal",'model',x,param[0],param[1],param[2],param[3],param[4],param[5])
     
-    param_alt1 = setMjetFunc(JJ_WJets_HPHP_Res_l1_1,"alt1")
+    param_alt1 = setMjetFunc(JJ_VJets__Res_l2_800to1200,"alt1")
     func_alt1 = ROOT.RooDoubleCB("nominal",'model',x,param_alt1[0],param_alt1[1],param_alt1[2],param_alt1[3],param_alt1[4],param_alt1[5])
     
-    param_alt2 = setMjetFunc(JJ_WJets_HPHP_Res_l1_2,"alt2")
-    func_alt2 = ROOT.RooDoubleCB("nominal",'model',x,param_alt2[0],param_alt2[1],param_alt2[2],param_alt2[3],param_alt2[4],param_alt2[5])
+    #param_alt2 = setMjetFunc(JJ_VJets__Res_l1_1000to1200,"alt2")
+    #func_alt2 = ROOT.RooDoubleCB("nominal",'model',x,param_alt2[0],param_alt2[1],param_alt2[2],param_alt2[3],param_alt2[4],param_alt2[5])
     
-    param_alt3 = setMjetFunc(JJ_WJets_HPHP_Res_l1_3,"alt3")
+    param_alt3 = setMjetFunc(JJ_VJets__Res_l1_1200to1600,"alt3")
     func_alt3 = ROOT.RooDoubleCB("nominal",'model',x,param_alt3[0],param_alt3[1],param_alt3[2],param_alt3[3],param_alt3[4],param_alt3[5])
     
-    param_alt4 = setMjetFunc(JJ_WJets_HPHP_Res_l1_4,"alt4")
+    param_alt4 = setMjetFunc(JJ_VJets__Res_l1_1600to2000,"alt4")
     func_alt4 = ROOT.RooDoubleCB("nominal",'model',x,param_alt4[0],param_alt4[1],param_alt4[2],param_alt4[3],param_alt4[4],param_alt4[5])
     
-    param_alt5 = setMjetFunc(JJ_WJets_HPHP_Res_l1_5,"alt5")
+    param_alt5 = setMjetFunc(JJ_VJets__Res_l1_2000to5000,"alt5")
     func_alt5 = ROOT.RooDoubleCB("nominal",'model',x,param_alt5[0],param_alt5[1],param_alt5[2],param_alt5[3],param_alt5[4],param_alt5[5])
+    
+    
+    arg = ROOT.RooArgSet(x)
+    arglist = ROOT.RooArgList(arg)   
+    
+    func.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlack))
+    func_alt1.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
+    #func_alt2.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
+    func_alt3.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlue),ROOT.RooFit.LineWidth(1))
+    func_alt4.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kGreen),ROOT.RooFit.LineWidth(1))
+    func_alt5.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kOrange),ROOT.RooFit.LineWidth(1))
+    
+    legend = ROOT.TLegend(0.7,0.6,0.9,0.9);
+    legend.SetHeader("HPHP")
+    legend.AddEntry(frame.getObject(0),"nominal shape","l");
+    legend.AddEntry(frame.getObject(1),"800-1200 GeV","l");
+    legend.AddEntry(frame.getObject(2),"1200-1600 GeV","l");
+    legend.AddEntry(frame.getObject(3),"1600-2000 GeV","l");
+    legend.AddEntry(frame.getObject(4),"2000-5000 GeV","l");
+    
     
     #func.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlack))
-    #func_alt1.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlue))
-    
-    up_param =setMjetFuncUp(JJ_WJets_HPHP_Res_l1_0)
-    down_param = setMjetFuncDown(JJ_WJets_HPHP_Res_l1_0)
-    
-    #func_up = ROOT.RooDoubleCB("up",'model',x,up_param[0],up_param[1],up_param[2],up_param[3],up_param[4],up_param[5])
-    #func_down = ROOT.RooDoubleCB("down",'model',x,down_param[0],down_param[1],down_param[2],down_param[3],down_param[4],down_param[5])
-    
-    #func_up.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kBlue),ROOT.RooFit.DrawOption("F"))
-    #func_down.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kWhite),ROOT.RooFit.DrawOption("F"))
-    #mjet_nominal = setMjetFunc("nominal",x,JJ_WJets_HPHP_Res_l1_0)
-    #print mjet_nominal
-    #mjet_nominal.plotOn(frame)
-    
-    max, min , mjet = findErrorRegion(JJ_WJets_HPHP_Res_l1_0,x)
-    hmin = ROOT.TH1F("min","min",len(mjet),mjet[0],mjet[-1])
-    hmax = ROOT.TH1F("max","max",len(mjet),mjet[0],mjet[-1])
-    i=0
-    for m in mjet:
-        hmin.Fill(m,min[i])
-        hmax.Fill(m,max[i])
-        i+=1
-    
-    arg = ROOT.RooArgSet(x)
-    arglist = ROOT.RooArgList(arg)   
-    func_up_h = ROOT.RooDataHist("up","up",arglist,ROOT.RooFit.Import(hmax))
-    func_up =ROOT.RooHistPdf("up","hp",arglist,arglist,func_up_h)
-    func_up.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kBlue),ROOT.RooFit.DrawOption("F"))
-    
-    func_down_h = ROOT.RooDataHist("down","down",arglist,ROOT.RooFit.Import(hmin))
-    func_down =ROOT.RooHistPdf("down","down",arglist,arglist,func_down_h)
-    func_down.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kWhite),ROOT.RooFit.DrawOption("F"))
-    
-    
-    #g = ROOT.TGraph()
-    #for i in range(0,len(mjet)):
-        #g.SetPoint(i,mjet[i],max[i])
-    #for i in range(len(mjet),2*len(mjet)):
-        #g.SetPoint(i,mjet[i-len(mjet)],min[i-len(mjet)])
-    
-    #g.plotOn(frame)
-    
-    #func.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlack))
-    func_alt1.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt2.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt3.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt4.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt5.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlack))
     c = ROOT.TCanvas("c","c",400,400)
+    c.SetLeftMargin(0.15)
+    frame.GetYaxis().SetTitle('arbitrary scale')
+    frame.SetTitle('')
+    frame.GetYaxis().SetTitleOffset(1.4)
     frame.Draw()
+    legend.Draw()
     #test_frame.Draw()
-    c.SaveAs("testCorrelations_Wjets.png")
-    c.SaveAs("testCorrelations_Wjets.pdf")
+    c.SaveAs("testCorrelations_Vjets_HPLP.png")
+    c.SaveAs("testCorrelations_Vjets_HPLP.pdf")
     
-    # l2 
-    x = ROOT.RooRealVar("mjet","mjet",55,215)
-    frame = x.frame()
-    
-    param = setMjetFunc(JJ_WJets_HPHP_Res_l2_0,"nominal") 
-    func = ROOT.RooDoubleCB("nominal",'model',x,param[0],param[1],param[2],param[3],param[4],param[5])
-    
-    param_alt1 = setMjetFunc(JJ_WJets_HPHP_Res_l2_1,"alt1")
-    func_alt1 = ROOT.RooDoubleCB("nominal",'model',x,param_alt1[0],param_alt1[1],param_alt1[2],param_alt1[3],param_alt1[4],param_alt1[5])
-    
-    param_alt2 = setMjetFunc(JJ_WJets_HPHP_Res_l2_2,"alt2")
-    func_alt2 = ROOT.RooDoubleCB("nominal",'model',x,param_alt2[0],param_alt2[1],param_alt2[2],param_alt2[3],param_alt2[4],param_alt2[5])
-    
-    param_alt3 = setMjetFunc(JJ_WJets_HPHP_Res_l2_3,"alt3")
-    func_alt3 = ROOT.RooDoubleCB("nominal",'model',x,param_alt3[0],param_alt3[1],param_alt3[2],param_alt3[3],param_alt3[4],param_alt3[5])
-    
-    param_alt4 = setMjetFunc(JJ_WJets_HPHP_Res_l2_4,"alt4")
-    func_alt4 = ROOT.RooDoubleCB("nominal",'model',x,param_alt4[0],param_alt4[1],param_alt4[2],param_alt4[3],param_alt4[4],param_alt4[5])
-    
-    param_alt5 = setMjetFunc(JJ_WJets_HPHP_Res_l2_5,"alt5")
-    func_alt5 = ROOT.RooDoubleCB("nominal",'model',x,param_alt5[0],param_alt5[1],param_alt5[2],param_alt5[3],param_alt5[4],param_alt5[5])
-    
-    
-    max, min , mjet = findErrorRegion(JJ_WJets_HPHP_Res_l2_0,x)
-    hmin = ROOT.TH1F("min","min",len(mjet),mjet[0],mjet[-1])
-    hmax = ROOT.TH1F("max","max",len(mjet),mjet[0],mjet[-1])
-    i=0
-    for m in mjet:
-        hmin.Fill(m,min[i])
-        hmax.Fill(m,max[i])
-        i+=1
-    
-    arg = ROOT.RooArgSet(x)
-    arglist = ROOT.RooArgList(arg)   
-    func_up_h = ROOT.RooDataHist("up","up",arglist,ROOT.RooFit.Import(hmax))
-    func_up =ROOT.RooHistPdf("up","hp",arglist,arglist,func_up_h)
-    func_up.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kBlue),ROOT.RooFit.DrawOption("F"))
-    
-    func_down_h = ROOT.RooDataHist("down","down",arglist,ROOT.RooFit.Import(hmin))
-    func_down =ROOT.RooHistPdf("down","down",arglist,arglist,func_down_h)
-    func_down.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kWhite),ROOT.RooFit.DrawOption("F"))
-    
-
-    func_alt1.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt2.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt3.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt4.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt5.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlack))
-    c = ROOT.TCanvas("c","c",400,400)
-    frame.Draw()
-    #test_frame.Draw()
-    c.SaveAs("testCorrelations_Wjets_l2.png")
-    c.SaveAs("testCorrelations_Wjets_l2.pdf")
-    
-    # l2 
-    x = ROOT.RooRealVar("mjet","mjet",55,215)
-    frame = x.frame()
-    
-    param = setMjetFunc(JJ_ZJets_HPHP_Res_l2_0,"nominal") 
-    func = ROOT.RooDoubleCB("nominal",'model',x,param[0],param[1],param[2],param[3],param[4],param[5])
-    
-    param_alt1 = setMjetFunc(JJ_ZJets_HPHP_Res_l2_1,"alt1")
-    func_alt1 = ROOT.RooDoubleCB("nominal",'model',x,param_alt1[0],param_alt1[1],param_alt1[2],param_alt1[3],param_alt1[4],param_alt1[5])
-    
-    param_alt2 = setMjetFunc(JJ_ZJets_HPHP_Res_l2_2,"alt2")
-    func_alt2 = ROOT.RooDoubleCB("nominal",'model',x,param_alt2[0],param_alt2[1],param_alt2[2],param_alt2[3],param_alt2[4],param_alt2[5])
-    
-    param_alt3 = setMjetFunc(JJ_ZJets_HPHP_Res_l2_3,"alt3")
-    func_alt3 = ROOT.RooDoubleCB("nominal",'model',x,param_alt3[0],param_alt3[1],param_alt3[2],param_alt3[3],param_alt3[4],param_alt3[5])
-    
-    param_alt4 = setMjetFunc(JJ_ZJets_HPHP_Res_l2_4,"alt4")
-    func_alt4 = ROOT.RooDoubleCB("nominal",'model',x,param_alt4[0],param_alt4[1],param_alt4[2],param_alt4[3],param_alt4[4],param_alt4[5])
-    
-    param_alt5 = setMjetFunc(JJ_ZJets_HPHP_Res_l2_5,"alt5")
-    func_alt5 = ROOT.RooDoubleCB("nominal",'model',x,param_alt5[0],param_alt5[1],param_alt5[2],param_alt5[3],param_alt5[4],param_alt5[5])
-    
-    
-    max, min , mjet = findErrorRegion(JJ_ZJets_HPHP_Res_l2_0,x)
-    hmin = ROOT.TH1F("min","min",len(mjet),mjet[0],mjet[-1])
-    hmax = ROOT.TH1F("max","max",len(mjet),mjet[0],mjet[-1])
-    i=0
-    for m in mjet:
-        hmin.Fill(m,min[i])
-        hmax.Fill(m,max[i])
-        i+=1
-    
-    arg = ROOT.RooArgSet(x)
-    arglist = ROOT.RooArgList(arg)   
-    func_up_h = ROOT.RooDataHist("up","up",arglist,ROOT.RooFit.Import(hmax))
-    func_up =ROOT.RooHistPdf("up","hp",arglist,arglist,func_up_h)
-    func_up.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kBlue),ROOT.RooFit.DrawOption("F"))
-    
-    func_down_h = ROOT.RooDataHist("down","down",arglist,ROOT.RooFit.Import(hmin))
-    func_down =ROOT.RooHistPdf("down","down",arglist,arglist,func_down_h)
-    func_down.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kWhite),ROOT.RooFit.DrawOption("F"))
-    
-
-    func_alt1.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt2.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt3.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt4.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt5.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlack))
-    c = ROOT.TCanvas("c","c",400,400)
-    frame.Draw()
-    #test_frame.Draw()
-    c.SaveAs("testCorrelations_Zjets_l2.png")
-    c.SaveAs("testCorrelations_Zjets_l2.pdf")
-    
-    
-    # l1 
-    x = ROOT.RooRealVar("mjet","mjet",55,215)
-    frame = x.frame()
-    
-    param = setMjetFunc(JJ_ZJets_HPHP_Res_l1_0,"nominal") 
-    func = ROOT.RooDoubleCB("nominal",'model',x,param[0],param[1],param[2],param[3],param[4],param[5])
-    
-    param_alt1 = setMjetFunc(JJ_ZJets_HPHP_Res_l1_1,"alt1")
-    func_alt1 = ROOT.RooDoubleCB("nominal",'model',x,param_alt1[0],param_alt1[1],param_alt1[2],param_alt1[3],param_alt1[4],param_alt1[5])
-    
-    param_alt2 = setMjetFunc(JJ_ZJets_HPHP_Res_l1_2,"alt2")
-    func_alt2 = ROOT.RooDoubleCB("nominal",'model',x,param_alt2[0],param_alt2[1],param_alt2[2],param_alt2[3],param_alt2[4],param_alt2[5])
-    
-    param_alt3 = setMjetFunc(JJ_ZJets_HPHP_Res_l1_3,"alt3")
-    func_alt3 = ROOT.RooDoubleCB("nominal",'model',x,param_alt3[0],param_alt3[1],param_alt3[2],param_alt3[3],param_alt3[4],param_alt3[5])
-    
-    param_alt4 = setMjetFunc(JJ_ZJets_HPHP_Res_l1_4,"alt4")
-    func_alt4 = ROOT.RooDoubleCB("nominal",'model',x,param_alt4[0],param_alt4[1],param_alt4[2],param_alt4[3],param_alt4[4],param_alt4[5])
-    
-    param_alt5 = setMjetFunc(JJ_ZJets_HPHP_Res_l1_5,"alt5")
-    func_alt5 = ROOT.RooDoubleCB("nominal",'model',x,param_alt5[0],param_alt5[1],param_alt5[2],param_alt5[3],param_alt5[4],param_alt5[5])
-    
-    
-    max, min , mjet = findErrorRegion(JJ_ZJets_HPHP_Res_l1_0,x)
-    hmin = ROOT.TH1F("min","min",len(mjet),mjet[0],mjet[-1])
-    hmax = ROOT.TH1F("max","max",len(mjet),mjet[0],mjet[-1])
-    i=0
-    for m in mjet:
-        hmin.Fill(m,min[i])
-        hmax.Fill(m,max[i])
-        i+=1
-    
-    arg = ROOT.RooArgSet(x)
-    arglist = ROOT.RooArgList(arg)   
-    func_up_h = ROOT.RooDataHist("up","up",arglist,ROOT.RooFit.Import(hmax))
-    func_up =ROOT.RooHistPdf("up","hp",arglist,arglist,func_up_h)
-    func_up.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kBlue),ROOT.RooFit.DrawOption("F"))
-    
-    func_down_h = ROOT.RooDataHist("down","down",arglist,ROOT.RooFit.Import(hmin))
-    func_down =ROOT.RooHistPdf("down","down",arglist,arglist,func_down_h)
-    func_down.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kWhite),ROOT.RooFit.DrawOption("F"))
-    
-
-    func_alt1.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt2.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt3.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt4.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt5.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlack))
-    c = ROOT.TCanvas("c","c",400,400)
-    frame.Draw()
-    #test_frame.Draw()
-    c.SaveAs("testCorrelations_Zjets.png")
-    c.SaveAs("testCorrelations_Zjets.pdf")
-    
-    
-    ####################### Wjet HPLP ####################################################################
-    # l1 
-    x = ROOT.RooRealVar("mjet","mjet",55,215)
-    frame = x.frame()
-    test_frame = x.frame()
-    
-    param = setMjetFunc(JJ_WJets_HPLP_Res_l1_0,"nominal") 
-    func = ROOT.RooDoubleCB("nominal",'model',x,param[0],param[1],param[2],param[3],param[4],param[5])
-    
-    param_alt1 = setMjetFunc(JJ_WJets_HPLP_Res_l1_1,"alt1")
-    func_alt1 = ROOT.RooDoubleCB("nominal",'model',x,param_alt1[0],param_alt1[1],param_alt1[2],param_alt1[3],param_alt1[4],param_alt1[5])
-    
-    param_alt2 = setMjetFunc(JJ_WJets_HPLP_Res_l1_2,"alt2")
-    func_alt2 = ROOT.RooDoubleCB("nominal",'model',x,param_alt2[0],param_alt2[1],param_alt2[2],param_alt2[3],param_alt2[4],param_alt2[5])
-    
-    param_alt3 = setMjetFunc(JJ_WJets_HPLP_Res_l1_3,"alt3")
-    func_alt3 = ROOT.RooDoubleCB("nominal",'model',x,param_alt3[0],param_alt3[1],param_alt3[2],param_alt3[3],param_alt3[4],param_alt3[5])
-    
-    param_alt4 = setMjetFunc(JJ_WJets_HPLP_Res_l1_4,"alt4")
-    func_alt4 = ROOT.RooDoubleCB("nominal",'model',x,param_alt4[0],param_alt4[1],param_alt4[2],param_alt4[3],param_alt4[4],param_alt4[5])
-    
-    param_alt5 = setMjetFunc(JJ_WJets_HPLP_Res_l1_5,"alt5")
-    func_alt5 = ROOT.RooDoubleCB("nominal",'model',x,param_alt5[0],param_alt5[1],param_alt5[2],param_alt5[3],param_alt5[4],param_alt5[5])
-    
-    #func.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlack))
-    #func_alt1.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlue))
-    
-    up_param =setMjetFuncUp(JJ_WJets_HPLP_Res_l1_0)
-    down_param = setMjetFuncDown(JJ_WJets_HPLP_Res_l1_0)
-    
-    #func_up = ROOT.RooDoubleCB("up",'model',x,up_param[0],up_param[1],up_param[2],up_param[3],up_param[4],up_param[5])
-    #func_down = ROOT.RooDoubleCB("down",'model',x,down_param[0],down_param[1],down_param[2],down_param[3],down_param[4],down_param[5])
-    
-    #func_up.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kBlue),ROOT.RooFit.DrawOption("F"))
-    #func_down.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kWhite),ROOT.RooFit.DrawOption("F"))
-    #mjet_nominal = setMjetFunc("nominal",x,JJ_WJets_HPLP_Res_l1_0)
-    #print mjet_nominal
-    #mjet_nominal.plotOn(frame)
-    
-    max, min , mjet = findErrorRegion(JJ_WJets_HPLP_Res_l1_0,x)
-    hmin = ROOT.TH1F("min","min",len(mjet),mjet[0],mjet[-1])
-    hmax = ROOT.TH1F("max","max",len(mjet),mjet[0],mjet[-1])
-    i=0
-    for m in mjet:
-        hmin.Fill(m,min[i])
-        hmax.Fill(m,max[i])
-        i+=1
-    
-    arg = ROOT.RooArgSet(x)
-    arglist = ROOT.RooArgList(arg)   
-    func_up_h = ROOT.RooDataHist("up","up",arglist,ROOT.RooFit.Import(hmax))
-    func_up =ROOT.RooHistPdf("up","hp",arglist,arglist,func_up_h)
-    func_up.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kBlue),ROOT.RooFit.DrawOption("F"))
-    
-    func_down_h = ROOT.RooDataHist("down","down",arglist,ROOT.RooFit.Import(hmin))
-    func_down =ROOT.RooHistPdf("down","down",arglist,arglist,func_down_h)
-    func_down.plotOn(frame,ROOT.RooFit.FillColor(ROOT.kWhite),ROOT.RooFit.DrawOption("F"))
-    
-    
-    #g = ROOT.TGraph()
-    #for i in range(0,len(mjet)):
-        #g.SetPoint(i,mjet[i],max[i])
-    #for i in range(len(mjet),2*len(mjet)):
-        #g.SetPoint(i,mjet[i-len(mjet)],min[i-len(mjet)])
-    
-    #g.plotOn(frame)
-    
-    #func.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlack))
-    func_alt1.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt2.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt3.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt4.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func_alt5.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kRed),ROOT.RooFit.LineWidth(1))
-    func.plotOn(frame,ROOT.RooFit.LineColor(ROOT.kBlack))
-    c = ROOT.TCanvas("c","c",400,400)
-    frame.Draw()
-    #test_frame.Draw()
-    c.SaveAs("testCorrelations_Wjets.png")
-    c.SaveAs("testCorrelations_Wjets.pdf")
     
     

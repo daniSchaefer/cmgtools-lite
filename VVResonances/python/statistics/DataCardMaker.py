@@ -820,9 +820,13 @@ class DataCardMaker:
         pdfName="_".join([name,self.tag])
         if len(resolutionSysts)>=1:
             wjet = ROOT.RooDoubleCB(pdfName,pdfName,self.w.var(Mjet),self.w.function(mean),self.w.function(sigma),self.w.var(alpha),self.w.var(n),self.w.var(alpha2),self.w.var(n2))
+        #getattr(self.w,'import')(vvMass,ROOT.RooFit.Rename(pdfName))
         else:
             wjet = ROOT.RooDoubleCB(pdfName,pdfName,self.w.var(Mjet),self.w.var(mean),self.w.var(sigma),self.w.var(alpha),self.w.var(n),self.w.var(alpha2),self.w.var(n2))
         getattr(self.w,'import')(wjet,ROOT.RooFit.Rename(pdfName))
+        
+        
+    
 
     def addMVVBackgroundShapePow(self,name,variable,newTag="",preconstrains={}):
         
@@ -847,6 +851,86 @@ class DataCardMaker:
         qcd = ROOT.RooPower(pdfName,pdfName,self.w.var(MVV),self.w.var(p0))
         getattr(self.w,'import')(qcd,ROOT.RooFit.Rename(pdfName))
 
+    def addMjetBackgroundShapeVJetsRes2(self,name,variable,newTag="",preconstrains={},preconstrains2={},scale ={},resolution={}):
+        print "start importing shapes for resonant Vjets backgorund "+str(name)
+        
+        Mjet=variable
+        self.w.var(Mjet)
+        if self.w.var(Mjet)==None:
+            self.w.factory(Mjet+"[0,10000]")
+        
+        scaleStr='0'
+        resolutionStr='0'
+
+        scaleSysts=[]
+        resolutionSysts=[]
+        for syst,factor in scale.iteritems():
+            self.w.factory(syst+"[0,-0.1,0.1]")
+            scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            scaleSysts.append(syst)
+        for syst,factor in resolution.iteritems():
+            self.w.factory(syst+"[0,-0.5,0.5]")
+            resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            resolutionSysts.append(syst)
+
+        if newTag !="": tag=newTag
+        else: tag=name+"_"+self.tag
+
+        mean="_".join(["mean",tag])
+        if len(scaleSysts)>=1:
+            self.w.factory("expr::{name}('{param}*(1+{vv_syst})',{vv_systs})".format(name=mean,param=preconstrains['mean']['val'],vv_syst=scaleStr,vv_systs=','.join(scaleSysts)))
+        else:
+            self.w.factory("{name}[{val},-{err},{err}]".format(name=mean,val=preconstrains['mean']['val'],err=0))
+            self.w.var(mean).setConstant(1)
+                
+        sigma="_".join(["sigma",tag])
+        if len(resolutionSysts)>=1:
+            self.w.factory("expr::{name}('({param})*(1+{vv_syst})',{vv_systs})".format(name=sigma,param=preconstrains['sigma']['val'],vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
+        else:
+            self.w.factory("{name}[{val},-{err},{err}]".format(name=sigma,val=preconstrains['sigma']['val'],err=0))
+            self.w.var(sigma).setConstant(1)
+        
+        alpha="_".join(["alpha",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=alpha,val=preconstrains['alpha']['val'],err=0))
+        self.w.var(alpha).setConstant(1)
+        
+        n="_".join(["n",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=n,val=preconstrains['n']['val'],err=0))
+        self.w.var(n).setConstant(1)
+        
+        alpha2="_".join(["alpha2",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=alpha2,val=preconstrains['alpha2']['val'],err=0))
+        self.w.var(alpha2).setConstant(1)
+        
+        n2="_".join(["n2",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=n2,val=preconstrains['n2']['val'],err=0))
+	self.w.var(n2).setConstant(1)
+	
+	
+	mean_g="_".join(["mean_Vjets_nonRes",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=mean_g,val=preconstrains2['c0']['val'],err=0))
+	self.w.var(mean_g).setConstant(1)
+	
+	sigma_g="_".join(["sigma_Vjets_nonRes",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=sigma_g,val=preconstrains2['c1']['val'],err=0))
+	self.w.var(sigma_g).setConstant(1)
+	
+	
+	fVar="CMS_VV_JJ_VJets_f"#"_".join(["f",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=fVar,val=preconstrains2['cf']['val'],err=0))
+	self.w.var(fVar).setConstant(1)
+	print "******************************************************************"
+	print fVar
+
+        pdfName="_".join([name,self.tag])
+        if len(resolutionSysts)>=1:
+            wjet_res = ROOT.RooDoubleCB(pdfName+'_Res',pdfName+'_Res',self.w.var(Mjet),self.w.function(mean),self.w.function(sigma),self.w.var(alpha),self.w.var(n),self.w.var(alpha2),self.w.var(n2))
+            gaus = ROOT.RooGaussian(pdfName+'_Vjets_nonRes',pdfName+'_Vjets_nonRes',self.w.var(Mjet),self.w.var(mean_g),self.w.var(sigma_g))
+            wjet = ROOT.RooAddPdf(pdfName,pdfName,wjet_res,gaus,self.w.var(fVar))
+        else:
+            wjet = ROOT.RooDoubleCB(pdfName,pdfName,self.w.var(Mjet),self.w.var(mean),self.w.var(sigma),self.w.var(alpha),self.w.var(n),self.w.var(alpha2),self.w.var(n2))
+        getattr(self.w,'import')(wjet,ROOT.RooFit.Rename(pdfName))
+    
     def addMVVBackgroundShapeEXPN(self,name,variable,newTag="",preconstrains={}):
         
         MVV=variable

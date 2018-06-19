@@ -265,21 +265,7 @@ for hist in histograms:
  hist.Write(hist.GetName())
  finalHistograms[hist.GetName()]=hist
 
- #################################
-c = ROOT.TCanvas("c","C",400,400)
-finalHistograms["histo_nominal"].SetLineColor(ROOT.kBlue)
-finalHistograms["histo_nominal"].GetYaxis().SetTitle("arbitrary scale")
-finalHistograms["histo_nominal"].GetXaxis().SetTitle("dijet mass")
-finalHistograms["histo_nominal"].Draw("hist")
-data = finalHistograms["mvv_nominal"]
-data.Scale(1./data.Integral())
-data.SetMarkerColor(ROOT.kBlack)
-data.Draw("same")
-stack.Draw("same")
-c.SetLogy()
-c.SaveAs("debug_Vjets_mVV_kernels.pdf")
-print "for debugging save   debug_Vjets_mVV_kernels.png "
-########################################################
+ 
 
 #histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
 #histogram_altshapeDown.Write()
@@ -319,6 +305,36 @@ if (options.output).find("VJets")!=-1:
      smoothTail1D(histogram_opt2_up)
 histogram_opt2_down.Write()
 histogram_opt2_up.Write() 
+
+#################################
+c = ROOT.TCanvas("c","C",400,400)
+finalHistograms["histo_nominal"].SetLineColor(ROOT.kBlue)
+finalHistograms["histo_nominal"].GetYaxis().SetTitle("arbitrary scale")
+finalHistograms["histo_nominal"].GetXaxis().SetTitle("dijet mass")
+finalHistograms["histo_nominal"].Draw("hist")
+histogram_pt_up.SetLineColor(ROOT.kRed)
+histogram_pt_up.Draw("histsame")
+histogram_pt_down.SetLineColor(ROOT.kRed)
+histogram_pt_down.Draw("histsame")
+
+histogram_opt_up.SetLineColor(ROOT.kPink)
+histogram_opt_up.Draw("histsame")
+histogram_opt_down.SetLineColor(ROOT.kPink)
+histogram_opt_down.Draw("histsame")
+
+data = finalHistograms["mvv_nominal"]
+data.Scale(1./data.Integral())
+data.SetMarkerColor(ROOT.kBlack)
+data.Draw("same")
+stack.Draw("same")
+c.SetLogy()
+tmplabel="HPHP"
+if options.output.find('HPLP')!=-1:
+    tmplabel="HPLP"
+c.SaveAs("debug_Vjets_mVV_kernels"+tmplabel+".pdf")
+print "for debugging save   debug_Vjets_mVV_kernels.png "
+########################################################
+
 
 f.Close()
 

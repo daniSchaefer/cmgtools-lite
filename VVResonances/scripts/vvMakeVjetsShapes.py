@@ -131,6 +131,7 @@ print 'Fitting Mjet:'
 
 for leg in legs:
  tmp=[]
+ tmp_nonres=[]
  fitter=Fitter(['x'])
  fitter.jetResonanceVjets('model','x')
  #fitter.gaus('model','x')
@@ -147,10 +148,35 @@ for leg in legs:
 
  #histo = plotter.drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)","1",80,options.mini,options.maxi)
  
- histo = ROOT.TH1F("res","resonant backgrounds",30,55,125)
+ histo = ROOT.TH1F("res","resonant backgrounds",80,55,215)
+ histo_nonRes = ROOT.TH1F("res","resonant backgrounds",80,55,215)
 
  c = ROOT.TCanvas("c","c",400,400)
  stack = ROOT.THStack("stackplot","stackplot")
+ stack2 = ROOT.THStack("stackplot2","stackplot2")
+ legend2 = ROOT.TLegend(0.6,0.7,0.8,0.8)
+ for p in range(0,len(plotters)):
+     tmp_nonres .append( plotters[p].drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==0)*(jj_"+leg+"_softDrop_mass>55&&jj_"+leg+"_softDrop_mass<215)","1",80,55,215)) #(jj_"+leg+"_mergedVTruth==1)*
+     tmp_nonres[-1].SetName(str(p))
+     tmp_nonres[-1].SetFillColorAlpha(ROOT.kBlue,0.6)
+     tmp_nonres[-1].SetLineColor(ROOT.kBlue)
+     text = names[p]
+     if p==0:
+         tmp_nonres[-1].SetLineColor(ROOT.kRed)
+         tmp_nonres[-1].SetFillColorAlpha(ROOT.kRed, 0.6)
+         tmp_nonres[-1].SetMaximum(0.006)
+     if p==2:
+         tmp_nonres[-1].SetLineColor(ROOT.kGreen)
+         tmp_nonres[-1].SetFillColorAlpha(ROOT.kGreen, 0.6)
+         
+     legend2.AddEntry(tmp_nonres[-1],text ,"l")
+ for t in range(0,len(tmp_nonres)):
+     histo_nonRes.Add(tmp_nonres[t])
+     stack2.Add(tmp_nonres[t])
+     
+ exp  = ROOT.TF1("gaus" ,"gaus",55,215)  
+ histo_nonRes.Fit(exp,"R")
+ 
  
  c.SetLeftMargin(0.15)
  legend = ROOT.TLegend(0.6,0.7,0.8,0.8)
@@ -158,7 +184,7 @@ for leg in legs:
  #histo.Draw("hist")
  print "number of plotter "+str(len(plotters))
  for p in range(0,len(plotters)):
-     tmp .append( plotters[p].drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)*(jj_"+leg+"_softDrop_mass>55&&jj_"+leg+"_softDrop_mass<215)","1",30,55,125))
+     tmp .append( plotters[p].drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)*(jj_"+leg+"_softDrop_mass>55&&jj_"+leg+"_softDrop_mass<215)","1",80,55,215)) #(jj_"+leg+"_mergedVTruth==1)*
      tmp[-1].SetName(str(p))
      tmp[-1].SetFillColorAlpha(ROOT.kBlue,0.6)
      tmp[-1].SetLineColor(ROOT.kBlue)
@@ -167,7 +193,6 @@ for leg in legs:
          tmp[-1].SetLineColor(ROOT.kRed)
          tmp[-1].SetFillColorAlpha(ROOT.kRed, 0.6)
          tmp[-1].SetMaximum(0.006)
-
      if p==2:
          tmp[-1].SetLineColor(ROOT.kGreen)
          tmp[-1].SetFillColorAlpha(ROOT.kGreen, 0.6)
@@ -179,6 +204,7 @@ for leg in legs:
  for t in range(0,len(tmp)):
      histo.Add(tmp[t])
      stack.Add(tmp[t])
+ stack.Add(histo_nonRes)
  print histo.Integral()
  if leg.find("l1")!=-1:
      NRes[0] += histo.Integral()
@@ -186,8 +212,24 @@ for leg in legs:
      NRes[1] += histo.Integral()
  
  
+ gauss  = ROOT.TF1("gauss" ,"gaus",74,94)  
+ histo.Fit(gauss,"R")
+ mean = gauss.GetParameter(1)
+ sigma = gauss.GetParameter(2)
+ 
+ print "____________________________________"
+ print "mean "+str(mean)
+ print "sigma "+str(sigma)
+ print "set paramters of double CB constant aground the ones from gaussian fit"
+ fitter.w.var("mean").setVal(mean)
+ fitter.w.var("mean").setConstant(1)
+ fitter.w.var("sigma").setVal(sigma)
+ fitter.w.var("sigma").setConstant(1)
+ print "_____________________________________"
+ 
+ 
  fitter.importBinnedData(histo,['x'],'data')
- fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1),ROOT.RooFit.Save(1)])
+ fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1),ROOT.RooFit.Save(1),ROOT.RooFit.Range(55,120)]) #55,140 works well with fitting only the resonant part
  #ROOT.RooFit.Minos(ROOT.kTRUE)
  
  histo.Draw()
@@ -197,13 +239,26 @@ for leg in legs:
  stack.Draw("histsame")
  legend.Draw("same")
  histo.Draw("same")
+ #histo_nonRes.Draw("same")
  c.SaveAs("test.pdf")
  
+ ctest2 = ROOT.TCanvas('ctest2','nonresonant component',400,400)
+ ctest2.SetLeftMargin(0.15)
+ histo_nonRes.GetXaxis().SetTitle("m_{jet}")
+ histo_nonRes.GetYaxis().SetTitle("arbitrary scale")
+ histo_nonRes.GetYaxis().SetTitleOffset(1.3)
+ histo_nonRes.Draw()
+ stack2.Draw("histsame")
+ histo_nonRes.Draw("same")
+ ctest2.SaveAs("NonRes.png")
 
  fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_Res.png")
- params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}, "alpha":{ "val": fitter.w.var("alpha").getVal(), "err": fitter.w.var("alpha")},"alpha2":{"val": fitter.w.var("alpha2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()},"n2": {"val": fitter.w.var("n2").getVal(), "err": fitter.w.var("n2").getError()}}
+ params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}, "alpha":{ "val": fitter.w.var("alpha").getVal(), "err": fitter.w.var("alpha").getError()},"alpha2":{"val": fitter.w.var("alpha2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()},"n2": {"val": fitter.w.var("n2").getVal(), "err": fitter.w.var("n2").getError()}}
  
  
+ ratio = histo.Integral()/histo_nonRes.Integral()
+ params[label+"_nonRes_"+leg]= {'c0':{"val" : exp.GetParameter(1)}, 'c1': {"val": exp.GetParameter(2)}, 'cf':{"val":ratio}}
+     
  #params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}}
 
  #if leg.find("l1")!=-1:
