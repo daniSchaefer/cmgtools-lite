@@ -134,7 +134,6 @@ for leg in legs:
  tmp_nonres=[]
  fitter=Fitter(['x'])
  fitter.jetResonanceVjets('model','x')
- #fitter.gaus('model','x')
 
  if options.fixPars!="1":
      fixedPars =options.fixPars.split(',')
@@ -297,6 +296,7 @@ if options.store!="":
     f=open(options.store,"w")
     for par in params:
         f.write(str(par)+ " = " +str(params[par])+"\n")
+
     #print NRes
     #print NnonRes
     #f.write(label+"_ratio_l1 = "+str(NRes[0]/(NRes[0]+NnonRes[0]))+"\n")

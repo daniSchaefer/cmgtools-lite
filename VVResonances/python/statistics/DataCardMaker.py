@@ -14,7 +14,7 @@ class DataCardMaker:
         self.systematics=[]
         self.cat = cat
         self.tag=self.physics+"_"+category+"_"+period
-        if self.cat!="": self.rootFile = ROOT.TFile("datacardInputs_"+cat+".root","RECREATE")
+	if self.cat!="": self.rootFile = ROOT.TFile("datacardInputs_"+cat+".root","RECREATE")
         else: self.rootFile = ROOT.TFile("datacardInputs_"+self.tag+".root","RECREATE")
         self.rootFile.cd()
         self.w=ROOT.RooWorkspace("w","w")
@@ -354,6 +354,48 @@ class DataCardMaker:
         getattr(self.w,'import')(vvMass,ROOT.RooFit.Rename(pdfName))
 
         f.close()
+
+    def addMJJSignalShapeNOEXP(self,name,variable,newTag="",preconstrains={},scale ={},resolution={}):
+       
+        scaleStr='0'
+        resolutionStr='0'
+
+        scaleSysts=[]
+        resolutionSysts=[]
+        for syst,factor in scale.iteritems():
+            self.w.factory(syst+"[0,-0.1,0.1]")
+            scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            scaleSysts.append(syst)
+        for syst,factor in resolution.iteritems():
+            self.w.factory(syst+"[0,-0.5,0.5]")
+            resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            resolutionSysts.append(syst)
+       
+        MJJ=variable            
+        if self.w.var(MJJ) == None: self.w.factory(MJJ+"[0,1000]")
+
+
+        SCALEVar="_".join(["mean",name,self.tag])
+        self.w.factory("expr::{name}('({param})*(1+{vv_syst})',{vv_systs})".format(name=SCALEVar,param=preconstrains['mean']['val'],vv_syst=scaleStr,vv_systs=','.join(scaleSysts)))
+
+        SIGMAVar="_".join(["sigma",name,self.tag])
+        self.w.factory("expr::{name}('({param})*(1+{vv_syst})',{vv_systs})".format(name=SIGMAVar,param=preconstrains['sigma']['val'],vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
+
+        ALPHAVar="_".join(["alpha",name,self.tag])
+        self.w.factory("{name}[{param}]".format(name=ALPHAVar,param=preconstrains['alpha']['val']))
+
+        NVar="_".join(["n",name,self.tag])
+        self.w.factory("{name}[{param}]".format(name=NVar,param=preconstrains['n']['val']))
+
+        ALPHAVar2="_".join(["alpha2",name,self.tag])
+        self.w.factory("{name}[{param}]".format(name=ALPHAVar2,param=preconstrains['alpha2']['val']))
+
+        NVar2="_".join(["n2",name,self.tag])
+        self.w.factory("{name}[{param}]".format(name=NVar2,param=preconstrains['n2']['val']))
+
+        pdfName="_".join([name,self.tag])
+        vvMass = ROOT.RooDoubleCB(pdfName,pdfName,self.w.var(MJJ),self.w.function(SCALEVar),self.w.function(SIGMAVar),self.w.function(ALPHAVar),self.w.function(NVar),self.w.function(ALPHAVar2),self.w.function(NVar2))
+        getattr(self.w,'import')(vvMass,ROOT.RooFit.Rename(pdfName))
 
     def addHistoShapeFromFile(self,name,observables,filename,histoname,systematics=[],conditional = False,order=0,newTag=""):     
         varset=ROOT.RooArgSet()
