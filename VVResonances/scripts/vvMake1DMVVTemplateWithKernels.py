@@ -29,6 +29,8 @@ parser.add_option("-e","--firstEv",dest="firstEv",type=int,help="first event",de
 parser.add_option("-E","--lastEv",dest="lastEv",type=int,help="last event",default=-1)
 parser.add_option("--binsMVV",dest="binsMVV",help="use special binning",default="")
 parser.add_option("-t","--triggerweight",dest="triggerW",action="store_true",help="Use trigger weights",default=False)
+parser.add_option("--corrFactorW",dest="corrFactorW",type=float,help="add correction factor xsec",default=1.)
+parser.add_option("--corrFactorZ",dest="corrFactorZ",type=float,help="add correction factor xsec",default=41.34/581.8)
 
 (options,args) = parser.parse_args()
 
@@ -132,6 +134,14 @@ for filename in os.listdir(args[0]):
               print "Using trigger weights from tree"
             for w in weights_:
               if w != '': dataPlotters[-1].addCorrectionFactor(w,'branch')
+            corrFactor = 1
+            if filename.find('Z') != -1: 
+                corrFactor = options.corrFactorZ
+                print "add correction factor for Z+jets sample"
+            if filename.find('W') != -1: 
+                corrFactor = options.corrFactorW
+                print "add correction factor for W+jets sample"
+            dataPlotters[-1].addCorrectionFactor(corrFactor,'flat')
             dataPlotters[-1].filename=fname
             dataPlottersNW.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
             dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
@@ -218,7 +228,12 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
    histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,array('f',binning))  
    if not(options.usegenmass): 
     datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'jj_l1_gen_pt',scale,res,histTMP)
-   else: datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'jj_l1_gen_softDrop_mass',scale,res,histTMP) 
+   else:
+        #if options.name.find("VJet"))!=-1:
+            #datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'jj_l1_gen_softDrop_mass',scale,res,histTMP)
+        #else:
+        
+        datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'jj_l1_gen_softDrop_mass',scale,res,histTMP) 
 
    if histTMP.Integral()>0:
     histTMP.Scale(histI2.Integral()/histTMP.Integral())
