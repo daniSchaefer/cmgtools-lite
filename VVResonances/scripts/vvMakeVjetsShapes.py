@@ -134,7 +134,7 @@ for leg in legs:
  tmp_nonres=[]
  fitter=Fitter(['x'])
  fitter.jetResonanceVjets('model','x')
-
+ 
  if options.fixPars!="1":
      fixedPars =options.fixPars.split(',')
      if len(fixedPars) > 0:
@@ -230,16 +230,21 @@ for leg in legs:
  fitter.importBinnedData(histo,['x'],'data')
  fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1),ROOT.RooFit.Save(1),ROOT.RooFit.Range(55,120)]) #55,140 works well with fitting only the resonant part
  #ROOT.RooFit.Minos(ROOT.kTRUE)
+ func = fitter.getFunc()
  
- histo.Draw()
+ 
+ #histo.Draw()
+ histo.SetTitle("")
  histo.GetXaxis().SetTitle("m_{jet}")
  histo.GetYaxis().SetTitle("arbitrary scale")
- histo.GetYaxis().SetTitleOffset(1.55)
- stack.Draw("histsame")
+ histo.GetYaxis().SetTitleOffset(1.65)
+ stack.Draw("hist")
  legend.Draw("same")
  histo.Draw("same")
+ #func = fitter.getFunc()
+ #func.Draw("same")
  #histo_nonRes.Draw("same")
- c.SaveAs("test.pdf")
+ c.SaveAs("test.png")
  
  ctest2 = ROOT.TCanvas('ctest2','nonresonant component',400,400)
  ctest2.SetLeftMargin(0.15)

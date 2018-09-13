@@ -83,7 +83,7 @@ cuts['res'] = '(jj_l1_mergedVTruth==1&&jj_l1_softDrop_mass>60&&jj_l1_softDrop_ma
 
 purities=['HPHP','HPLP','LPLP','NP']
 
-purities=['HPHP','HPLP']
+purities=['HPHP']
 
 
 BulkGravWWTemplate="BulkWW"

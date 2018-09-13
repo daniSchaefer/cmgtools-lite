@@ -9,6 +9,7 @@ from CMGTools.VVResonances.statistics.Fitter import Fitter
 from math import log
 import os, sys, re, optparse,pickle,shutil,json
 ROOT.gROOT.SetBatch(True)
+ROOT.gStyle.SetOptStat(0)
 
 def returnString(func):
     st='0'
@@ -271,12 +272,20 @@ for mass in sorted(samples.keys()):
     else:
         logfileJER.write("\n")
     c2 = ROOT.TCanvas("c","c",800,800)
-    c2.cd()    
+    c2.cd()
+    legend = ROOT.TLegend(0.1,0.7,0.48,0.9)
+    JERhtmp.SetLineColor(ROOT.kBlack)
     JERhtmp.Draw("hist")
     JERhtmp_Up.SetLineColor(ROOT.kBlue)
     JERhtmp_Up.Draw("histsame")
     JERhtmp_Down.SetLineColor(ROOT.kRed)
     JERhtmp_Down.Draw("histsame")
+    legend.AddEntry(JERhtmp_Down,"JER down","l")
+    legend.AddEntry(JERhtmp,"nominal" ,"l")
+    legend.AddEntry(JERhtmp_Up, "JER up","l")
+    
+    text = ROOT.TLatex()
+    text.DrawLatex(mass-100,1000,"#color[2]{#mu ="+str(round(resDown[0],2))+" #sigma = "+str(round(resDown[1],2))+" }; #mu ="+str(round(resDown[0],2))+" #sigma = "+str(round(resDown[1],2))+"  ;#color[4]{#mu ="+str(round(resUp[0],2))+" #sigma = "+str(round(resUp[1],2))+" }" )
 
     c2.SaveAs(options.output.replace(".txt","_"+str(mass)+"_JER.pdf"))
 logfile.close() 

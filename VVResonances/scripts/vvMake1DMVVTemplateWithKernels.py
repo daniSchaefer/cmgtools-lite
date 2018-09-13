@@ -12,6 +12,7 @@ from CMGTools.VVResonances.plotting.TreePlotter import TreePlotter
 from CMGTools.VVResonances.plotting.MergedPlotter import MergedPlotter
 ROOT.gSystem.Load("libCMGToolsVVResonances")
 ROOT.gStyle.SetOptStat(0)
+ROOT.gStyle.SetOptFit(0)
 
 parser = optparse.OptionParser()
 parser.add_option("-o","--output",dest="output",help="Output",default='')
@@ -147,6 +148,7 @@ for filename in os.listdir(args[0]):
             dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
             dataPlottersNW[-1].addCorrectionFactor('genWeight','tree')
             if options.triggerW: dataPlottersNW[-1].addCorrectionFactor('triggerWeight','tree')
+            dataPlottersNW[-1].addCorrectionFactor(corrFactor,'flat')
             for w in weights_: 
              if w != '': dataPlottersNW[-1].addCorrectionFactor(w,'branch')
             dataPlottersNW[-1].filename=fname
@@ -322,27 +324,44 @@ histogram_opt2_down.Write()
 histogram_opt2_up.Write() 
 
 #################################
-c = ROOT.TCanvas("c","C",400,400)
+c = ROOT.TCanvas("c","C",600,400)
+c.SetRightMargin(0.11)
+c.SetTopMargin(0.11)
 finalHistograms["histo_nominal"].SetLineColor(ROOT.kBlue)
 finalHistograms["histo_nominal"].GetYaxis().SetTitle("arbitrary scale")
 finalHistograms["histo_nominal"].GetXaxis().SetTitle("dijet mass")
+#finalHistograms["histo_nominal"].GetXaxis().SetNdivisions(6)
 finalHistograms["histo_nominal"].Draw("hist")
 histogram_pt_up.SetLineColor(ROOT.kRed)
+histogram_pt_up.SetLineWidth(2)
 histogram_pt_up.Draw("histsame")
 histogram_pt_down.SetLineColor(ROOT.kRed)
+histogram_pt_down.SetLineWidth(2)
 histogram_pt_down.Draw("histsame")
-
-histogram_opt_up.SetLineColor(ROOT.kPink)
+#stack.Draw()
+histogram_opt_up.SetLineColor(ROOT.kGreen)
+histogram_opt_up.SetLineWidth(2)
 histogram_opt_up.Draw("histsame")
-histogram_opt_down.SetLineColor(ROOT.kPink)
+histogram_opt_down.SetLineColor(ROOT.kGreen)
+histogram_opt_down.SetLineWidth(2)
 histogram_opt_down.Draw("histsame")
-
+text = ROOT.TLatex()
+text.DrawLatex(1200,1,"#font[62]{CMS} #font[52]{Simulation}")
 data = finalHistograms["mvv_nominal"]
 data.Scale(1./data.Integral())
 data.SetMarkerColor(ROOT.kBlack)
+data.SetMarkerStyle(7)
 data.Draw("same")
-stack.Draw("same")
 c.SetLogy()
+
+
+l = ROOT.TLegend(0.17,0.2,0.6,0.33)
+l.AddEntry(data,"simulation","lp")
+l.AddEntry(finalHistograms["histo_nominal"],"template","l")
+l.AddEntry(histogram_pt_up,"#propto m_{jj}","l")
+l.AddEntry(histogram_opt_up,"#propto 1/m_{jj}","l")
+l.Draw("same")
+
 tmplabel="HPHP"
 if options.output.find('HPLP')!=-1:
     tmplabel="HPLP"

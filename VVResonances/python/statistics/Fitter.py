@@ -981,6 +981,9 @@ class Fitter(object):
 	 f = ROOT.TFile.Open('fitresults.root','RECREATE')
 	 fitresults.Write()
 	 f.Close()
+	 
+    def getFunc(self,model = "model"):
+        return self.w.pdf(model)
 
     def getLegend(self):
         self.legend = ROOT.TLegend(0.7510112,0.7183362,0.8502143,0.919833)
