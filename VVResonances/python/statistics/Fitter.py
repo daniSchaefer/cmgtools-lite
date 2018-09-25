@@ -1073,10 +1073,94 @@ class Fitter(object):
         self.w.data(data).plotOn(self.frame)
         self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.ProjWData(ROOT.RooArgSet(self.w.var(otherpoi)),self.w.data(data)))
         self.c=ROOT.TCanvas("c","c")
-        self.c.cd()
+        self.c.cd() 
         self.frame.Draw()
         self.c.SaveAs(filename)
         return self.frame.chiSquare()
+    
+    
+    def drawVjets(self,outname,histos,scales,model="model",data="data",poi="x"):
+        self.frame=self.w.var(poi).frame(ROOT.RooFit.Range(55,215))
+        self.frame.SetTitle("")
+        self.frame.SetXTitle("m_{jet} (GeV)")
+        self.frame.SetYTitle("Arbitrary scale")
+        self.frame.SetTitleOffset(1.1,"Y")
+        self.frame.SetTitleSize(0.045,"X")
+        self.frame.SetTitleSize(0.045,"Y")
+        histos[0].Scale(1/histos[0].Integral() )
+        histos[1].Scale(1/histos[1].Integral() )
+        histos[2].Scale(1/histos[2].Integral() )
+        
+        histos[0].Scale(scales[0])
+        histos[1].Scale(scales[1])
+        histos[2].Scale(scales[2])
+        
+        histos[0].SetFillColor(ROOT.kRed)
+        histos[1].SetFillColor(ROOT.kGreen)
+        histos[2].SetFillColor(ROOT.kBlue)
+        
+        histos[0].SetLineColor(ROOT.kRed)
+        histos[1].SetLineColor(ROOT.kGreen)
+        histos[2].SetLineColor(ROOT.kBlue)
+        
+        histos[0].Add(histos[1])
+        histos[0].Add(histos[2])
+        
+        histos[1].Add(histos[2])
+        
+        self.importBinnedData(histos[0],['x'],'data0')
+        self.importBinnedData(histos[1],['x'],'data1')
+        self.importBinnedData(histos[2],['x'],'data2')
+        
+        #self.w.data("data0").add(self.w.data("data1"))
+        #self.w.data("data0").add(self.w.data("data2"))
+        
+        
+        #self.w.data("data1").add(self.w.data("data2"))
+        
+        self.w.data("data0").plotOn(self.frame,ROOT.RooFit.FillColor(13),ROOT.RooFit.FillStyle(3144),ROOT.RooFit.DrawOption( "5" ),ROOT.RooFit.Name("errorbars"))
+        self.w.pdf(model).plotOn(self.frame, ROOT.RooFit.LineColor(ROOT.kBlack),ROOT.RooFit.Name("fit"))
+        #self.w.data("data1").plotOn(self.frame,ROOT.RooFit.FillColor(ROOT.kGreen),ROOT.RooFit.DrawOption( "BX" ))
+        #self.w.data("data2").plotOn(self.frame,ROOT.RooFit.FillColor(ROOT.kBlue),ROOT.RooFit.DrawOption( "BX" ))
+        
+        self.c=ROOT.TCanvas("c","c")       
+        self.c.cd() 
+        self.c.SetFillColor(0)
+        self.c.SetBorderMode(0)
+        self.c.SetFrameFillStyle(0)
+        self.c.SetFrameBorderMode(0)
+        self.c.SetLeftMargin(0.13)
+        self.c.SetRightMargin(0.08)
+        self.c.SetTopMargin( 0.1 )
+        self.c.SetBottomMargin( 0.12 )
+   
+      
+
+
+
+        l = ROOT.TLegend(0.5607383,0.6063123,0.9,0.8089701)
+        l.SetLineWidth(2)
+        l.SetBorderSize(0)
+        l.SetFillColor(0)
+        l.SetTextFont(42)
+        l.SetTextSize(0.04)
+        l.SetTextAlign(12)
+        l.AddEntry(self.frame.findObject("fit"),'double CB','L')
+        l.AddEntry(self.frame.findObject("errorbars"),'MC uncertainty','F')
+        l.AddEntry(histos[0],'W+jets','F')
+        l.AddEntry(histos[1],'Z+jets','F')
+        l.AddEntry(histos[2],'t#bar{t}','F')
+        self.frame.Draw()
+        l.Draw()
+        histos[0].Draw("histFsame")
+        histos[1].Draw("histFsame")
+        histos[2].Draw("histFsame")
+        self.frame.Draw("same")
+        l.Draw()
+        text = ROOT.TLatex()
+        text.DrawLatexNDC(0.13,0.92,"#font[62]{CMS} #font[52]{Simulation}")
+        self.c.SaveAs(outname)
+        
         
     def getFrame(self,model = "model",data="data",poi="x",xtitle='x',mass=1000):
         self.frame=self.w.var(poi).frame()

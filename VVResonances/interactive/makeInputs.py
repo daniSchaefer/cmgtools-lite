@@ -83,7 +83,7 @@ cuts['res'] = '(jj_l1_mergedVTruth==1&&jj_l1_softDrop_mass>60&&jj_l1_softDrop_ma
 
 purities=['HPHP','HPLP','LPLP','NP']
 
-purities=['HPHP']
+purities=['HPHP',"HPLP"]
 
 
 BulkGravWWTemplate="BulkWW"
@@ -425,7 +425,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 
 
 #fitVJets("JJ_VJets",resTemplate,1,41.34/581.8)
-#fitVJets("JJ_VJets",resTemplate,0.3425,0.3425)
+fitVJets("JJ_VJets",resTemplate,0.3425,0.3425)
 
 #makeBackgroundShapesMVVKernel("VJets","JJ",VJetsTemplate17,"*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)&&(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1D",0)
 makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<120)&&(jj_l2_softDrop_mass>60&&jj_l2_softDrop_mass<120)","1D",0,0.3425,0.3425)

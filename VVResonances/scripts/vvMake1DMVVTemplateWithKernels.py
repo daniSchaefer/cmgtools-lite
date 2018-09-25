@@ -80,7 +80,7 @@ def smoothTail1D(proj):
     proj.Scale(1.0/scale)
     
     
-    beginFitX = 1500
+    beginFitX = 2500#1500
     expo=ROOT.TF1("expo","[0]*(1-x/13000.)^[1]/(x/13000)^[2]",2000,8000) 
     expo.SetParameters(0,16.,2.)
     expo.SetParLimits(2,1.,20.)
@@ -91,7 +91,7 @@ def smoothTail1D(proj):
         x=proj.GetXaxis().GetBinCenter(j)
         if x>beginFitX:
             if beginsmooth==False:
-                if x<2100: 
+                if x< 3500: #2100: 
                    if abs(proj.GetBinContent(j) - expo.Eval(x)) < 0.00009:# and abs(expo.Derivative(x)- (hist.GetBinContent(j):
                     print beginFitX
                     print "begin smoothing at " +str(x)
@@ -104,6 +104,7 @@ def smoothTail1D(proj):
                 else: beginsmooth = True
             if beginsmooth:
                 proj.SetBinContent(j,expo.Eval(x))
+    proj.Scale(scale)
     return 1
 
 weights_ = options.weights.split(',')
@@ -217,6 +218,10 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
 
    histI2.Delete()
    histTMP.Delete()
+ 
+ #histogram_nominal.SetLineColor(ROOT.kRed)
+ #histogram_nominal.SetFillColorAlpha(ROOT.kRed, 0.6)
+ #stack.Add(histogram_nominal)
 
  if len(sampleTypes)<2: continue
  elif plotter.filename.find(sampleTypes[1].replace('.root','')) != -1: #alternative shape Herwig
@@ -230,11 +235,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
    histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,array('f',binning))  
    if not(options.usegenmass): 
     datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'jj_l1_gen_pt',scale,res,histTMP)
-   else:
-        #if options.name.find("VJet"))!=-1:
-            #datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'jj_l1_gen_softDrop_mass',scale,res,histTMP)
-        #else:
-        
+   else:        
         datamaker=ROOT.cmg.GaussianSumTemplateMaker1D(dataset,options.var,'jj_l1_gen_softDrop_mass',scale,res,histTMP) 
 
    if histTMP.Integral()>0:
@@ -244,7 +245,11 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     
    histI2.Delete()
    histTMP.Delete()
-		          	      
+
+
+   histogram_altshapeUp.SetLineColor(ROOT.kBlue)
+   histogram_altshapeUp.SetFillColorAlpha(ROOT.kBlue, 0.6)
+   stack.Add(histogram_altshapeUp)
  if len(sampleTypes)<3: continue
  elif plotter.filename.find(sampleTypes[2].replace('.root','')) != -1: #alternative shape Pythia8+Madgraph (not used for syst but only for cross checks)
    print "Preparing alternative shapes for sampletype " ,sampleTypes[2]
@@ -267,59 +272,59 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
     
    histI2.Delete()
    histTMP.Delete()
+   histogram_altshape2.SetLineColor(ROOT.kGreen)
+   histogram_altshape2.SetFillColorAlpha(ROOT.kGreen, 0.6)
+   stack.Add(histogram_altshape2)
 
 
 print " ********** ALL DONE, now save in output file ", options.output
 f=ROOT.TFile(options.output,"RECREATE")
 f.cd()
 finalHistograms={}
+if (options.output).find("VJets")!=-1:
+    histograms[0].Add(histograms[1])
+    histograms[0].Add(histograms[2])
+    
+    histograms[3].Add(histograms[4])
+    histograms[3].Add(histograms[5])
+    print "add all the histograms "
+scale = histograms[0].Integral()
+scale2 = histograms[3].Integral()
 for hist in histograms:
  # hist.Write(hist.GetName()+"_raw")
  if (options.output).find("VJets")!=-1 and hist.GetName()!="mvv_nominal":
      print "smooth tails of 1D histogram for vjets background"
      if hist.Integral() > 0:
         smoothTail1D(hist)
+        if hist.GetName().find("histogram_nominal")!=-1:
+            hist.Scale(scale)
+        if hist.GetName().find("mvv_nominal")!=-1:
+            hist.Scale(scale2)
  hist.Write(hist.GetName())
  finalHistograms[hist.GetName()]=hist
 
- 
+
 
 #histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
 #histogram_altshapeDown.Write()
 
 alpha=1.5/5000
 histogram_pt_down,histogram_pt_up=unequalScale(finalHistograms["histo_nominal"],"histo_nominal_PT",alpha)
-if (options.output).find("VJets")!=-1:
-     print "smooth tails of 1D histogram for vjets background"
-     smoothTail1D(histogram_pt_down)
-     smoothTail1D(histogram_pt_up)
 histogram_pt_down.Write()
 histogram_pt_up.Write()
 
 alpha=1.5*800.
 histogram_opt_down,histogram_opt_up=unequalScale(finalHistograms["histo_nominal"],"histo_nominal_OPT",alpha,-1)
-if (options.output).find("VJets")!=-1:
-     print "smooth tails of 1D histogram for vjets background"
-     smoothTail1D(histogram_opt_down)
-     smoothTail1D(histogram_opt_up)
 histogram_opt_down.Write()
 histogram_opt_up.Write()
 
 alpha=5000.*5000.
 histogram_pt2_down,histogram_pt2_up=unequalScale(finalHistograms["histo_nominal"],"histo_nominal_PT2",alpha,2)
-if (options.output).find("VJets")!=-1:
-     print "smooth tails of 1D histogram for vjets background"
-     smoothTail1D(histogram_pt2_down)
-     smoothTail1D(histogram_pt2_up)
 histogram_pt2_down.Write()
 histogram_pt2_up.Write()
 
 alpha=800.*800.
 histogram_opt2_down,histogram_opt2_up=unequalScale(finalHistograms["histo_nominal"],"histo_nominal_OPT2",alpha,-2)
-if (options.output).find("VJets")!=-1:
-     print "smooth tails of 1D histogram for vjets background"
-     smoothTail1D(histogram_opt2_down)
-     smoothTail1D(histogram_opt2_up)
 histogram_opt2_down.Write()
 histogram_opt2_up.Write() 
 
@@ -330,15 +335,19 @@ c.SetTopMargin(0.11)
 finalHistograms["histo_nominal"].SetLineColor(ROOT.kBlue)
 finalHistograms["histo_nominal"].GetYaxis().SetTitle("arbitrary scale")
 finalHistograms["histo_nominal"].GetXaxis().SetTitle("dijet mass")
-#finalHistograms["histo_nominal"].GetXaxis().SetNdivisions(6)
+sf = finalHistograms["histo_nominal"].Integral()
+histogram_pt_up     .Scale(sf/histogram_pt_up.Integral())
+histogram_pt_down   .Scale(sf/histogram_pt_down.Integral())
+histogram_opt_up    .Scale(sf/histogram_opt_up.Integral())
+histogram_opt_down  .Scale(sf/histogram_opt_down.Integral())
 finalHistograms["histo_nominal"].Draw("hist")
+#stack.Draw("histsame")
 histogram_pt_up.SetLineColor(ROOT.kRed)
 histogram_pt_up.SetLineWidth(2)
 histogram_pt_up.Draw("histsame")
 histogram_pt_down.SetLineColor(ROOT.kRed)
 histogram_pt_down.SetLineWidth(2)
 histogram_pt_down.Draw("histsame")
-#stack.Draw()
 histogram_opt_up.SetLineColor(ROOT.kGreen)
 histogram_opt_up.SetLineWidth(2)
 histogram_opt_up.Draw("histsame")
@@ -346,9 +355,9 @@ histogram_opt_down.SetLineColor(ROOT.kGreen)
 histogram_opt_down.SetLineWidth(2)
 histogram_opt_down.Draw("histsame")
 text = ROOT.TLatex()
-text.DrawLatex(1200,1,"#font[62]{CMS} #font[52]{Simulation}")
+text.DrawLatex(1200,0.1,"#font[62]{CMS} #font[52]{Simulation}")
 data = finalHistograms["mvv_nominal"]
-data.Scale(1./data.Integral())
+data.Scale(sf/data.Integral())
 data.SetMarkerColor(ROOT.kBlack)
 data.SetMarkerStyle(7)
 data.Draw("same")

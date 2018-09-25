@@ -176,7 +176,8 @@ for leg in legs:
  exp  = ROOT.TF1("gaus" ,"gaus",55,215)  
  histo_nonRes.Fit(exp,"R")
  
- 
+ histos=[]
+ scales=[]
  c.SetLeftMargin(0.15)
  legend = ROOT.TLegend(0.6,0.7,0.8,0.8)
  histo.SetLineColor(ROOT.kBlack)
@@ -203,6 +204,8 @@ for leg in legs:
  for t in range(0,len(tmp)):
      histo.Add(tmp[t])
      stack.Add(tmp[t])
+     histos.append(tmp[t])
+     scales.append(tmp[t].Integral())
  stack.Add(histo_nonRes)
  print histo.Integral()
  if leg.find("l1")!=-1:
@@ -232,19 +235,24 @@ for leg in legs:
  #ROOT.RooFit.Minos(ROOT.kTRUE)
  func = fitter.getFunc()
  
- 
+ purity = "LPLP"
+ if options.output.find("HPHP")!=-1:
+     purity = "HPHP"
+ if options.output.find("HPLP")!=-1:
+     purity = "HPLP"
+ fitter.drawVjets("Vjets_mjetRes_"+leg+"_"+purity+".pdf",[histos[2],histos[1],histos[0]],[scales[2],scales[1],scales[0]])
  #histo.Draw()
- histo.SetTitle("")
- histo.GetXaxis().SetTitle("m_{jet}")
- histo.GetYaxis().SetTitle("arbitrary scale")
- histo.GetYaxis().SetTitleOffset(1.65)
- stack.Draw("hist")
- legend.Draw("same")
- histo.Draw("same")
+ #histo.SetTitle("")
+ #histo.GetXaxis().SetTitle("m_{jet}")
+ #histo.GetYaxis().SetTitle("arbitrary scale")
+ #histo.GetYaxis().SetTitleOffset(1.65)
+ #stack.Draw("hist")
+ #legend.Draw("same")
+ #histo.Draw("same")
  #func = fitter.getFunc()
  #func.Draw("same")
  #histo_nonRes.Draw("same")
- c.SaveAs("test.png")
+ #c.SaveAs("test.png")
  
  ctest2 = ROOT.TCanvas('ctest2','nonresonant component',400,400)
  ctest2.SetLeftMargin(0.15)
