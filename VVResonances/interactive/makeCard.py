@@ -58,7 +58,7 @@ for sig in signals:
     #card.addShapes("nonRes",["MJ1","MJ2","MJJ"],rootFile0,"histo",['PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ'],False,0,"",rootFile,['altshape2Z:CMS_VV_JJ_nonRes_Alt2','altshapeZ:CMS_VV_JJ_nonRes_Alt']) 
  
     rootFile=indir+"JJ_nonRes_3D_"+p+".root"
-    card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile,"histo",['altshapeZ:CMS_VV_JJ_nonRes_altshapeZ','altshape2Z:CMS_VV_JJ_nonRes_altshape2Z','PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ','TRIG:CMS_VV_JJ_nonRes_TRIG'],False,0)
+    card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile,"histo",['altshapeZ:CMS_VV_JJ_nonRes_altshapeZ','altshape2Z:CMS_VV_JJ_nonRes_altshape2Z','PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ'],False,0)
     card.addFixedYieldFromFile("nonRes",2,indir+"JJ_nonRes_"+p+".root","nonRes")
 
     #DATA
@@ -102,7 +102,6 @@ for sig in signals:
     card.addSystematic("CMS_VV_JJ_nonRes_PTZ","param",[0.0,0.33])
     card.addSystematic("CMS_VV_JJ_nonRes_OPTXY","param",[0,0.33])
     card.addSystematic("CMS_VV_JJ_nonRes_OPTZ","param",[0.0,0.33])
-    card.addSystematic("CMS_VV_JJ_nonRes_TRIG","param",[0.0,0.33])
     card.addSystematic("CMS_VV_JJ_nonRes_altshape","param",[0.0,0.33])
     card.addSystematic("CMS_VV_JJ_nonRes_altshape2","param",[0.0,0.33])
 

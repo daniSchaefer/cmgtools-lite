@@ -98,9 +98,9 @@ WJetsTemplate17= "WJetsToQQ_HT800"
 ZJetsTemplate17= "ZJetsToQQ_HT800"
 VJetsTemplate17= "JetsToQQ_HT800"
 # use arbitrary cross section 0.001 so limits converge better
-BRWW=1.*0.001
-BRZZ=1.*0.001*0.6991*0.6991
-BRWZ=1.*0.001*0.6991*0.676
+BRWW=1.*0.0001
+BRZZ=1.*0.0001*0.6991*0.6991
+BRWZ=1.*0.0001*0.6991*0.676
 
 dataTemplate="JetHT"
 nonResTemplate="Dijet_NLO" #high stat
