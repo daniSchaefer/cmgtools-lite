@@ -83,7 +83,7 @@ cuts['res'] = '(jj_l1_mergedVTruth==1&&jj_l1_softDrop_mass>60&&jj_l1_softDrop_ma
 
 purities=['HPHP','HPLP','LPLP','NP']
 
-purities=['HPHP',"HPLP"]
+purities=['HPHP']#,"HPLP"]
 
 
 BulkGravWWTemplate="BulkWW"
@@ -103,7 +103,7 @@ BRZZ=1.*0.0001*0.6991*0.6991
 BRWZ=1.*0.0001*0.6991*0.676
 
 dataTemplate="JetHT"
-nonResTemplate="QCD_Pt_" #high stat
+nonResTemplate="QCD_Pt-" #high stat
 
 # nonResTemplate="QCD_Pt-" #low stat --> use this for tests
 #nonResTemplate="Dijet" #to compare shapes
@@ -363,7 +363,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
    	   jobList, files = makeData(template,cut,rootFile,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,factors,name,data,jobname,samples,True,HCALbinsMVV,addOption)
    	   mergeData(jobname,p,rootFile)
    else:
-        cmd='vvMakeData.py samples -s "{samples}" -d {data} -c "{cut}"  -o "{rootFile}" -v "(TMath::Log( jj_l1_softDrop_mass * jj_l1_softDrop_mass /jj_l1_pt )),(TMath::Log( jj_l2_softDrop_mass * jj_l2_softDrop_mass /jj_l2_pt )),jj_LV_mass" -b "{bins},{bins},{BINS}" -m "{mini},{mini},{MINI}" -M "{maxi},{maxi},{MAXI}" -f {factors} --name "{name}" {addOption}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV,bins=binsMJ,MINI=minMVV,MAXI=maxMVV,mini=minMJ,maxi=maxMJ,factors=factors,name=name,data=data,addOption=addOption)
+        cmd='vvMakeData.py samples -s "{samples}" -d {data} -c "{cut}"  -o "{rootFile}" -v "TMath::Log( jj_l1_softDrop_mass * jj_l1_softDrop_mass / jj_l1_pt ),TMath::Log( jj_l2_softDrop_mass * jj_l2_softDrop_mass / jj_l2_pt ),jj_LV_mass" -b "{bins},{bins},{BINS}" -m "{mini},{mini},{MINI}" -M "{maxi},{maxi},{MAXI}" -f {factors} --name "{name}" {addOption}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV,bins=binsMJ,MINI=minMVV,MAXI=maxMVV,mini=minMJ,maxi=maxMJ,factors=factors,name=name,data=data,addOption=addOption)
         cmd=cmd+HCALbinsMVV
         os.system(cmd)
    
