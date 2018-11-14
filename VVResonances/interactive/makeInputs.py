@@ -103,7 +103,7 @@ BRZZ=1.*0.0001*0.6991*0.6991
 BRWZ=1.*0.0001*0.6991*0.676
 
 dataTemplate="JetHT"
-nonResTemplate="Dijet_NLO" #high stat
+nonResTemplate="QCD_Pt_" #high stat
 
 # nonResTemplate="QCD_Pt-" #low stat --> use this for tests
 #nonResTemplate="Dijet" #to compare shapes
@@ -113,8 +113,8 @@ if period == 2016:
    resTemplate= "WJetsToQQ_HT600toInf,ZJetsToQQ_HT600toInf" 
    
   
-minMJ=55.0
-maxMJ=215.0
+minMJ=0.0
+maxMJ=6.0
 
 
 binsMJ=80
@@ -363,7 +363,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
    	   jobList, files = makeData(template,cut,rootFile,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,factors,name,data,jobname,samples,True,HCALbinsMVV,addOption)
    	   mergeData(jobname,p,rootFile)
    else:
-        cmd='vvMakeData.py samples -s "{samples}" -d {data} -c "{cut}"  -o "{rootFile}" -v "jj_l1_softDrop_mass,jj_l2_softDrop_mass,jj_LV_mass" -b "{bins},{bins},{BINS}" -m "{mini},{mini},{MINI}" -M "{maxi},{maxi},{MAXI}" -f {factors} --name "{name}" {addOption}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV,bins=binsMJ,MINI=minMVV,MAXI=maxMVV,mini=minMJ,maxi=maxMJ,factors=factors,name=name,data=data,addOption=addOption)
+        cmd='vvMakeData.py samples -s "{samples}" -d {data} -c "{cut}"  -o "{rootFile}" -v "(TMath::Log( jj_l1_softDrop_mass * jj_l1_softDrop_mass /jj_l1_pt )),(TMath::Log( jj_l2_softDrop_mass * jj_l2_softDrop_mass /jj_l2_pt )),jj_LV_mass" -b "{bins},{bins},{BINS}" -m "{mini},{mini},{MINI}" -M "{maxi},{maxi},{MAXI}" -f {factors} --name "{name}" {addOption}'.format(samples=template,cut=cut,rootFile=rootFile,BINS=binsMVV,bins=binsMJ,MINI=minMVV,MAXI=maxMVV,mini=minMJ,maxi=maxMJ,factors=factors,name=name,data=data,addOption=addOption)
         cmd=cmd+HCALbinsMVV
         os.system(cmd)
    
@@ -425,12 +425,12 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 
 
 #fitVJets("JJ_VJets",resTemplate,1,41.34/581.8)
-fitVJets("JJ_VJets",resTemplate,0.3425,0.3425)
+#fitVJets("JJ_VJets",resTemplate,0.3425,0.3425)
 
 #makeBackgroundShapesMVVKernel("VJets","JJ",VJetsTemplate17,"*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)&&(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1D",0)
-makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<120)&&(jj_l2_softDrop_mass>60&&jj_l2_softDrop_mass<120)","1D",0,0.3425,0.3425)
+#makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<120)&&(jj_l2_softDrop_mass>60&&jj_l2_softDrop_mass<120)","1D",0,0.3425,0.3425)
 
-#makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],"nR")
+makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],"nR")
 #makeNormalizations("VJets","JJ",resTemplate,0,cuts["res"],"nRes","ZJetsToQQ:0.071")
 #makeNormalizations("VJets_all","JJ",resTemplate,0,"1","nRes","ZJetsToQQ:0.071")
 #makeNormalizations("VJets","JJ",resTemplate,0,cuts["resl1"],"nRes","ZJetsToQQ:0.3425,WJetsToQQ:0.3425")
