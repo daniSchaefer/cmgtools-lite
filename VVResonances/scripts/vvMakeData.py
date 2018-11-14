@@ -42,6 +42,7 @@ dataPlotters=[]
 for filename in os.listdir(args[0]):
     for sampleType in sampleTypes:
         if filename.find(sampleType)!=-1:
+            if filename.find("_"+sampleType)!=-1: continue
             fnameParts=filename.split('.')
             fname=fnameParts[0]
             ext=fnameParts[1]
