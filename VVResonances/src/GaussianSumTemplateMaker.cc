@@ -99,6 +99,7 @@ GaussianSumTemplateMaker::GaussianSumTemplateMaker(const RooDataSet* dataset, co
      for (int i=1;i<output->GetNbinsX()+1;++i) {
        for (int j=1;j<output->GetNbinsY()+1;++j) {  
          output->SetBinContent(i,j,histoarray[i][j]);
+         //std::cout << i << " "<< j << " "<< histoarray[i][j] << std::endl;
        }}
 
 
