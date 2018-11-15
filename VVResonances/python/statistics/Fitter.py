@@ -332,12 +332,12 @@ class Fitter(object):
 
     def jetResonance(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-        self.w.factory("mean[80,50,200]")
-        self.w.factory("sigma[10,2,40]")
+        self.w.factory("mean[1.5,0.,6.]")
+        self.w.factory("sigma[0.5,0.,2.]")
         self.w.factory("alpha[3,0.5,10]")
-        self.w.factory("n[2]")
+        self.w.factory("n[2,0.,6.]")
         self.w.factory("alpha2[3,0.5,10]")
-        self.w.factory("n2[2]")
+        self.w.factory("n2[2,0.,6.]")
 
         peak = ROOT.RooDoubleCB(name+'S','modelS',self.w.var(poi),self.w.var('mean'),self.w.var('sigma'),self.w.var('alpha'),self.w.var('n'),self.w.var("alpha2"),self.w.var("n2"))
         getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name+'S'))
@@ -366,14 +366,14 @@ class Fitter(object):
 
     def jetResonanceNOEXP(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-        self.w.factory("mean[80,50,200]")
-        self.w.factory("sigma[10,3,40]")
-        self.w.factory("alpha[1,0.1,50]")
-        self.w.factory("n[2,0,100]")
-        self.w.factory("alpha2[1,0.5,10]")
-        self.w.factory("n2[2,0,100]")
-        self.w.factory("slope[0.0]")
+        self.w.factory("mean[1.5,0.,6.]")
+        self.w.factory("sigma[0.5,0.,2.]")
+        self.w.factory("alpha[3,0.5,10]")
+        self.w.factory("n[2,0.,6.]")
+        self.w.factory("alpha2[3,0.5,10]")
+        self.w.factory("n2[2,0.,6.]")
         self.w.factory("f[0.0]")
+        self.w.factory("slope[0.0]")
 
         peak = ROOT.RooDoubleCB(name,'modelS',self.w.var(poi),self.w.var('mean'),self.w.var('sigma'),self.w.var('alpha'),self.w.var('n'),self.w.var("alpha2"),self.w.var("n2"))
         getattr(self.w,'import')(peak,ROOT.RooFit.Rename(name))

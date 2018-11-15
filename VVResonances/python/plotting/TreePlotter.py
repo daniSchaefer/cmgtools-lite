@@ -18,6 +18,10 @@ class TreePlotter(PlotterBase):
         super(TreePlotter,self).__init__()
         self.random=ROOT.TRandom(101082)
         self.N=self.tree.GetEntries()
+        
+        
+    def close(self):
+        self.file.Close()
 
     def setupFromFile(self,filename):
         f=open(filename)

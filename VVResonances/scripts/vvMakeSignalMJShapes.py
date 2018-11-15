@@ -34,9 +34,7 @@ parser.add_option("-t","--triggerweight",dest="triggerW",action="store_true",hel
 #define output dictionary
 
 samples={}
-graphs={'mean':ROOT.TGraphErrors(),'sigma':ROOT.TGraphErrors(),'alpha':ROOT.TGraphErrors(),'n':ROOT.TGraphErrors(),'f':ROOT.TGraphErrors(),'slope':ROOT.TGraphErrors(),'alpha2':ROOT.TGraphErrors(),'n2':ROOT.TGraphErrors()}
-#if options.sample.find("Wprime")!=-1:
-    #graphs = {'meanW':ROOT.TGraphErrors(),'sigmaW':ROOT.TGraphErrors(),'alphaW':ROOT.TGraphErrors(),'n':ROOT.TGraphErrors(),'f':ROOT.TGraphErrors(),'alphaW2':ROOT.TGraphErrors(),'meanZ':ROOT.TGraphErrors(),'sigmaZ':ROOT.TGraphErrors(),'alphaZ':ROOT.TGraphErrors(),'alphaZ2':ROOT.TGraphErrors()}
+graphs={'mean':ROOT.TGraphErrors(),'sigma':ROOT.TGraphErrors(),'alpha':ROOT.TGraphErrors(),'n':ROOT.TGraphErrors(),'f':ROOT.TGraphErrors(),'alpha2':ROOT.TGraphErrors(),'n2':ROOT.TGraphErrors(),'slope':ROOT.TGraphErrors()}
 
 for filename in os.listdir(args[0]):
     if not (filename.find(options.sample)!=-1):
@@ -74,7 +72,8 @@ for mass in sorted(samples.keys()):
     plotter.addCorrectionFactor('genWeight','tree')
 #    plotter.addCorrectionFactor('xsec','tree')
     plotter.addCorrectionFactor('puWeight','tree')
-    plotter.addCorrectionFactor('triggerWeight','tree')
+    if options.triggerW == True:
+        plotter.addCorrectionFactor('triggerWeight','tree')
        
         
     fitter=Fitter(['x'])
@@ -94,7 +93,10 @@ for mass in sorted(samples.keys()):
 
 
 #    fitter.w.var("MH").setVal(mass)
-    histo = plotter.drawTH1(options.mvv,options.cut,"1",int((options.maxi-options.mini)/4),options.mini,options.maxi)
+    print options.mvv
+    print options.mini
+    print options.maxi
+    histo = plotter.drawTH1(options.mvv,options.cut,"1",80,options.mini,options.maxi)
 
     fitter.importBinnedData(histo,['x'],'data')
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
@@ -102,15 +104,20 @@ for mass in sorted(samples.keys()):
     fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_"+str(mass)+".png")
 
     for var,graph in graphs.iteritems():
+        print "this was value "+str(var)
         value,error=fitter.fetch(var)
         graph.SetPoint(N,mass,value)
         graph.SetPointError(N,0.0,error)
-                
     N=N+1
-        
+    print "coming to here "
+    
+plotter.close()    
+print "bla"    
 F=ROOT.TFile(options.output,"RECREATE")
 F.cd()
 for name,graph in graphs.iteritems():
     graph.Write(name)
 F.Close()
+print "blub"
+del graphs,plotter,fitter
             

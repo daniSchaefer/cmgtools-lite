@@ -70,7 +70,7 @@ purities=['HPHP','HPLP','LPLP','NP']
 purities=['HPHP']#,"HPLP"]
 
 
-BulkGravWWTemplate="BulkWW_2000"
+BulkGravWWTemplate="BulkWW_"
 BulkGravZZTemplate="BulkGravToZZToZhadZhad_narrow_M2000"
 WprimeTemplate= "WprimeToWZ"
 WJetsTemplate= "WJetsToQQ_HT600"
@@ -87,7 +87,7 @@ BRZZ=1.*0.0001*0.6991*0.6991
 BRWZ=1.*0.0001*0.6991*0.676
 
 dataTemplate="JetHT"
-nonResTemplate="QCD_Pt_" #high stat
+nonResTemplate="QCD_Pt-" #high stat
 
 # nonResTemplate="QCD_Pt-" #low stat --> use this for tests
 #nonResTemplate="Dijet" #to compare shapes
@@ -98,7 +98,7 @@ if period == 2016:
    
   
 minMJ=0.0
-maxMJ=6.0
+maxMJ=5.0
 
 
 binsMJ=80
@@ -153,14 +153,14 @@ def makeSignalShapesMJ(filename,template,leg):
   rootFile=filename+"_MJ"+leg+"_"+p+".root"
   jsonFile=filename+"_MJ"+leg+"_"+p+".json"
   doExp=0
-  fixPars="alpha:1.08,n:2,n2:2"
+  fixPars="alpha:1.08"
   if p=='HPHP':
       if template.find("Wprime")!=-1:
           fixPars="alpha:1.505,n:2,n2:2"
       if template.find("Zprime")!=-1:
           fixPars="n:2.85,alpha:1.083,n2:3.36"   
       cmd='vvMakeSignalMJShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "TMath::Log(jj_{leg}_softDrop_mass * jj_{leg}_softDrop_mass/jj_{leg}_pt)" -m {minMJ} -M {maxMJ} -e {doExp} -f "{fixPars}" --minMX {minMX} --maxMX {maxMX} {addOption} samples '.format(template=template,cut=cut,rootFile=rootFile,leg=leg,minMJ=minMJ,maxMJ=maxMJ,doExp=doExp,minMX=minMX,maxMX=maxMX,fixPars=fixPars,addOption=addOption)
-      #cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol3,alpha:pol0,n:pol0,alpha2:pol3,n2:pol0,slope:pol0,f:pol3" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
+      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol3,alpha:pol3,n:pol0,alpha2:pol3,n2:pol3,slope:pol0,f:pol0" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
 
   else:
       # doExp=1
@@ -168,9 +168,13 @@ def makeSignalShapesMJ(filename,template,leg):
       if template.find("Wprime")!=-1:
           fixPars="n:2,n2:2"
       cmd='vvMakeSignalMJShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "TMath::Log(jj_{leg}_softDrop_mass * jj_{leg}_softDrop_mass/jj_{leg}_pt)" -m {minMJ} -M {maxMJ} -e {doExp} -f "{fixPars}" --minMX {minMX} --maxMX {maxMX} {addOption} samples '.format(template=template,cut=cut,rootFile=rootFile,leg=leg,minMJ=minMJ,maxMJ=maxMJ,doExp=doExp,minMX=minMX,maxMX=maxMX,fixPars=fixPars,addOption=addOption)
-      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol3,alpha:pol3,n:pol0,alpha2:pol3,n2:pol0,slope:pol0,f:pol0" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
+      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol3,alpha:pol3,n:pol4,alpha2:pol3,n2:pol3,slope:pol0,f:pol0" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
+      
+  print cmd
   os.system(cmd)
-  #os.system(cmdjson)
+  print "meep"
+  os.system(cmdjson)
+  
 
 
 def makeSignalYields(filename,template,branchingFraction,sfP = {'HPHP':1.0,'HPLP':1.0,'LPLP':1.0}):
@@ -260,7 +264,7 @@ def makeBackgroundShapesMVVConditional(name,filename,template,leg,addCut="",jobN
     jobList, files = Make2DTemplateWithKernels(rootFile,template,cut,leg,binsMVV,minMVV,maxMVV,resFile,binsMJ,minMJ,maxMJ,samples,jobname,wait,HCALbinsMVV,addOption)
     if wait: merge2DTemplate(jobList,files,jobname,p,leg,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,HCALbinsMVV)
   else:
-      cmd='vvMake2DTemplateWithKernels.py -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "TMath::Log(jj_{leg}_gen_softDrop_mass * jj_{leg}_gen_softDrop_mass/jj_{leg}_gen_pt),jj_gen_partialMass"  -b {binsMJ} -B {binsMVV} -x {minMJ} -X {maxMJ} -y {minMVV} -Y {maxMVV}  -r {res} {addOption} samples'.format(rootFile=rootFile,samples=template,cut=cut,leg=leg,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJ=binsMJ,minMJ=minMJ,maxMJ=maxMJ,addOption=addOption)
+      cmd='vvMake2DTemplateWithKernels.py -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "jj_{leg}_gen_softDrop_mass,jj_gen_partialMass"  -b {binsMJ} -B {binsMVV} -x {minMJ} -X {maxMJ} -y {minMVV} -Y {maxMVV}  -r {res} {addOption} samples'.format(rootFile=rootFile,samples=template,cut=cut,leg=leg,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJ=binsMJ,minMJ=minMJ,maxMJ=maxMJ,addOption=addOption)
       cmd=cmd+HCALbinsMVV
       os.system(cmd)
       
@@ -341,7 +345,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 #makeSignalYields("JJ_WprimeWZ",WprimeTemplate,BRWZ,{'HPHP':0.99*0.99,'HPLP':0.99*1.03,'LPLP':1.03*1.03})
 
 #makeSignalShapesMVV("JJ_BulkGWW",BulkGravWWTemplate)
-makeSignalShapesMJ("JJ_BulkGWW",BulkGravWWTemplate,'l1')
+#makeSignalShapesMJ("JJ_BulkGWW",BulkGravWWTemplate,'l1')
 #makeSignalShapesMJ("JJ_BulkGWW",BulkGravWWTemplate,'l2')
 #makeSignalYields("JJ_BulkGWW",BulkGravWWTemplate,BRWW,{'HPHP':0.99*0.99,'HPLP':0.99*1.03,'LPLP':1.03*1.03})
 
@@ -376,9 +380,9 @@ makeSignalShapesMJ("JJ_BulkGWW",BulkGravWWTemplate,'l1')
 	#sys.exit()
 	#mergeKernelJobs()
 #else:
-	#wait = True
+wait = True
 	#makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'],"1D",wait)
-	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
+makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
 	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
 
 
