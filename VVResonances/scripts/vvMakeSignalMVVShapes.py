@@ -153,4 +153,6 @@ F.cd()
 for name,graph in graphs.iteritems():
     graph.Write(name)
 F.Close()
+
+del graphs,plotter,fitter
             

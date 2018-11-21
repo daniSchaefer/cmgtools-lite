@@ -63,15 +63,16 @@ cuts['NP'] = '(('+cat['LP1']+'&&'+cat['NP2']+')||('+cat['NP1']+'&&'+cat['LP2']+'
 cuts['nonres'] = '1'
 cuts['resl1'] = '(jj_l1_mergedVTruth==1)'
 cuts['resl2'] = '(jj_l2_mergedVTruth==1)'
+cuts['nonRes'] = '(jj_l2_mergedVTruth!=1)'
 cuts['res'] = '(jj_l1_mergedVTruth==1&&jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<110)'
 
 purities=['HPHP','HPLP','LPLP','NP']
 
-purities=['HPHP']#,"HPLP"]
+purities=["HPHP"]
 
 
 BulkGravWWTemplate="BulkWW_"
-BulkGravZZTemplate="BulkGravToZZToZhadZhad_narrow_M2000"
+BulkGravZZTemplate="BulkGravToZZToZhadZhad_narrow"
 WprimeTemplate= "WprimeToWZ"
 WJetsTemplate= "WJetsToQQ_HT600"
 ZJetsTemplate= "ZJetsToQQ_HT600"
@@ -126,10 +127,15 @@ else:
 cuts['acceptance']= "(jj_LV_mass>{minMVV}&&jj_LV_mass<{maxMVV}&&jj_l1_softDrop_mass>{minMJ}&&jj_l1_softDrop_mass<{maxMJ}&&jj_l2_softDrop_mass>{minMJ}&&jj_l2_softDrop_mass<{maxMJ})".format(minMVV=minMVV,maxMVV=maxMVV,minMJ=55.,maxMJ=215.)
 cuts['acceptanceGEN']='(jj_l1_gen_softDrop_mass>20&&jj_l2_gen_softDrop_mass>20&&jj_l1_gen_softDrop_mass<300&&jj_l2_gen_softDrop_mass<300&&jj_gen_partialMass>400)'
 
-cuts['acceptanceMJ']= "(jj_l1_softDrop_mass>{minMJ}&&jj_l1_softDrop_mass<{maxMJ}&&jj_l2_softDrop_mass>{minMJ}&&jj_l2_softDrop_mass<{maxMJ})".format(minMJ=minMJ,maxMJ=maxMJ) 
+cuts['acceptanceMJ']= "(jj_l1_softDrop_mass>{minMJ}&&jj_l1_softDrop_mass<{maxMJ}&&jj_l2_softDrop_mass>{minMJ}&&jj_l2_softDrop_mass<{maxMJ})".format(minMJ=55,maxMJ=215) 
 
 cuts['looseacceptanceMJ']= "(jj_l1_softDrop_mass>35&&jj_l1_softDrop_mass<300&&jj_l2_softDrop_mass>35&&jj_l2_softDrop_mass<300)"
 cuts['acceptanceMVV'] = "(jj_LV_mass>{minMVV}&&jj_LV_mass<{maxMVV})".format(minMVV=minMVV,maxMVV=maxMVV)
+
+
+
+
+
 
 def makeSignalShapesMVV(filename,template):
  cut='*'.join([cuts['common'],cuts['metfilters'],cuts['acceptanceMJ']])
@@ -160,15 +166,15 @@ def makeSignalShapesMJ(filename,template,leg):
       if template.find("Zprime")!=-1:
           fixPars="n:2.85,alpha:1.083,n2:3.36"   
       cmd='vvMakeSignalMJShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "TMath::Log(jj_{leg}_softDrop_mass * jj_{leg}_softDrop_mass/jj_{leg}_pt)" -m {minMJ} -M {maxMJ} -e {doExp} -f "{fixPars}" --minMX {minMX} --maxMX {maxMX} {addOption} samples '.format(template=template,cut=cut,rootFile=rootFile,leg=leg,minMJ=minMJ,maxMJ=maxMJ,doExp=doExp,minMX=minMX,maxMX=maxMX,fixPars=fixPars,addOption=addOption)
-      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol3,alpha:pol3,n:pol0,alpha2:pol3,n2:pol3,slope:pol0,f:pol0" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
+      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol3,alpha:pol3,n:pol4,alpha2:pol3,n2:pol3,slope:pol0,f:pol0" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
 
   else:
       # doExp=1
-      fixPars="alpha:1.125,n:2,n2:2"
+      fixPars= "1"#"alpha:1.125,n:2,n2:2"
       if template.find("Wprime")!=-1:
           fixPars="n:2,n2:2"
       cmd='vvMakeSignalMJShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "TMath::Log(jj_{leg}_softDrop_mass * jj_{leg}_softDrop_mass/jj_{leg}_pt)" -m {minMJ} -M {maxMJ} -e {doExp} -f "{fixPars}" --minMX {minMX} --maxMX {maxMX} {addOption} samples '.format(template=template,cut=cut,rootFile=rootFile,leg=leg,minMJ=minMJ,maxMJ=maxMJ,doExp=doExp,minMX=minMX,maxMX=maxMX,fixPars=fixPars,addOption=addOption)
-      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol3,alpha:pol3,n:pol4,alpha2:pol3,n2:pol3,slope:pol0,f:pol0" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
+      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol1,alpha:pol3,n:pol4,alpha2:pol3,n2:pol3,slope:pol0,f:pol0" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
       
   print cmd
   os.system(cmd)
@@ -201,6 +207,13 @@ def fitVJets(filename,template,Wxsec=1,Zxsec=1):
     cmd+=HCALbinsMVV
     os.system(cmd)
     
+    
+    
+    
+    
+    
+    
+    
 def makeDetectorResponse(name,filename,template,addCut="1",jobName="DetPar"):
 		pwd = os.getcwd()
 		samples = pwd +"/samples"
@@ -220,6 +233,10 @@ def makeDetectorResponse(name,filename,template,addCut="1",jobName="DetPar"):
 		
 		print "Done with ",resFile
   
+  
+  
+  
+  
 
 def makeBackgroundShapesMVVKernel(name,filename,template,addCut="1",jobName="1DMVV",wait=True,corrFactorW=1,corrFactorZ=1):
  pwd = os.getcwd()
@@ -233,7 +250,7 @@ def makeBackgroundShapesMVVKernel(name,filename,template,addCut="1",jobName="1DM
   print "Reading " ,resFile
   print "Saving to ",rootFile
   cut='*'.join([cuts['common'],cuts['metfilters'],cuts[p],addCut,cuts['acceptanceGEN'],cuts['acceptanceMJ']])
-  samples = pwd +"/samples"
+  samples = pwd +"/samples"  
 
   if submitToBatch:
     print "submit to batch "
@@ -242,9 +259,14 @@ def makeBackgroundShapesMVVKernel(name,filename,template,addCut="1",jobName="1DM
     jobList, files = Make1DMVVTemplateWithKernels(rootFile,template,cut,resFile,binsMVV,minMVV,maxMVV,samples,jobname,wait,HCALbinsMVV,addOption)
     if wait: merge1DMVVTemplate(jobList,files,jobname,p,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,HCALbinsMVV)
   else:
+    #if name.find("VJets")== -1: template += ",QCD_Pt-,QCD_HT"
     cmd='vvMake1DMVVTemplateWithKernels.py -H "x" -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "jj_gen_partialMass" -b {binsMVV}  -x {minMVV} -X {maxMVV} -r {res} {addOption} samples --corrFactorW {corrFactorW} --corrFactorZ {corrFactorZ} '.format(rootFile=rootFile,samples=template,cut=cut,res=resFile,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,addOption=addOption,corrFactorW=corrFactorW,corrFactorZ=corrFactorZ)
     cmd = cmd+HCALbinsMVV
     os.system(cmd)	  
+
+
+
+
 
 def makeBackgroundShapesMVVConditional(name,filename,template,leg,addCut="",jobName="2DMVV",wait=True):
  pwd = os.getcwd()	
@@ -264,6 +286,7 @@ def makeBackgroundShapesMVVConditional(name,filename,template,leg,addCut="",jobN
     jobList, files = Make2DTemplateWithKernels(rootFile,template,cut,leg,binsMVV,minMVV,maxMVV,resFile,binsMJ,minMJ,maxMJ,samples,jobname,wait,HCALbinsMVV,addOption)
     if wait: merge2DTemplate(jobList,files,jobname,p,leg,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,HCALbinsMVV)
   else:
+      #if name.find("VJets")== -1: template += ",QCD_Pt-,QCD_HT"
       cmd='vvMake2DTemplateWithKernels.py -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "jj_{leg}_gen_softDrop_mass,jj_gen_partialMass"  -b {binsMJ} -B {binsMVV} -x {minMJ} -X {maxMJ} -y {minMVV} -Y {maxMVV}  -r {res} {addOption} samples'.format(rootFile=rootFile,samples=template,cut=cut,leg=leg,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,res=resFile,binsMJ=binsMJ,minMJ=minMJ,maxMJ=maxMJ,addOption=addOption)
       cmd=cmd+HCALbinsMVV
       os.system(cmd)
@@ -313,9 +336,10 @@ def mergeBackgroundShapes(name,filename):
   print "Saving to ",rootFile 
   cmd='vvMergeHistosToPDF3D.py -i "{inputx}" -I "{inputy}" -z "{inputz}" -o "{rootFile}"'.format(rootFile=rootFile,inputx=inputx,inputy=inputy,inputz=inputz)
   os.system(cmd)
-  print "Adding trigger shape uncertainties"
-  cmd='vvMakeTriggerShapes.py -i "{rootFile}"'.format(rootFile=rootFile)
-  os.system(cmd)
+  if useTriggerWeights == True:
+    print "Adding trigger shape uncertainties"
+    cmd='vvMakeTriggerShapes.py -i "{rootFile}"'.format(rootFile=rootFile)
+    os.system(cmd)
 
 
 def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",factors="1"):
@@ -361,7 +385,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 #makeSignalYields("JJ_BulkGZZ",BulkGravZZTemplate,BRZZ,{'HPHP':0.99*0.99,'HPLP':0.99*1.03,'LPLP':1.03*1.03})
 
 
-#makeDetectorResponse("nonRes","JJ",nonResTemplate,cuts['nonres'])
+#makeDetectorResponse("nonRes","JJ_dijet",nonResTemplate,cuts['nonres'])
 
 ## ------ do not use these ------
 ## makeBackgroundShapesMJKernel("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'])
@@ -381,9 +405,9 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 	#mergeKernelJobs()
 #else:
 wait = True
-	#makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'],"1D",wait)
-makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
-	#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
+#makeBackgroundShapesMVVKernel("nonRes","JJ_dijet",nonResTemplate,cuts['nonres'],"1D",wait)
+#makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
+makeBackgroundShapesMVVConditional("nonRes","JJ_dijet",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
 
 
 ##mergeKernelJobs()
@@ -396,10 +420,19 @@ makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonre
 #makeBackgroundShapesMVVKernel("VJets","JJ",VJetsTemplate17,"*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)&&(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1D",0)
 #makeBackgroundShapesMVVKernel("VJets","JJ",resTemplate,"*(jj_l1_softDrop_mass>60&&jj_l1_softDrop_mass<120)&&(jj_l2_softDrop_mass>60&&jj_l2_softDrop_mass<120)","1D",0,0.3425,0.3425)
 
+#makeNormalizations("WJets_all","JJ",WJetsTemplate17,0,"1","nRes","ZJetsToQQ:0.3425,WJetsToQQ:0.3425")
+#makeNormalizations("ZJets_all","JJ",ZJetsTemplate17,0,"1","nRes","ZJetsToQQ:0.3425,WJetsToQQ:0.3425")
+#makeNormalizations("ttJets_all","JJ",TTbarTemplate,0,"1","nRes","ZJetsToQQ:0.3425,WJetsToQQ:0.3425")
+
+
+#makeNormalizations("testSig","JJ",BulkGravWWTemplate,0,cuts['nonres'],"nR")
 #makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],"nR")
 #makeNormalizations("VJets","JJ",resTemplate,0,cuts["res"],"nRes","ZJetsToQQ:0.071")
 #makeNormalizations("VJets_all","JJ",resTemplate,0,"1","nRes","ZJetsToQQ:0.071")
 #makeNormalizations("VJets","JJ",resTemplate,0,cuts["resl1"],"nRes","ZJetsToQQ:0.3425,WJetsToQQ:0.3425")
+
+#makeNormalizations("VJets_all","JJ",resTemplate,0,"1","nRes","ZJetsToQQ:0.071")
+#makeNormalizations("VJets_nonRes","JJ",resTemplate,0,cuts["nonRes"],"nRes","ZJetsToQQ:0.3425,WJetsToQQ:0.3425")
 #makeNormalizations("VJets_all","JJ",resTemplate,0,"1","nRes","ZJetsToQQ:0.3425,WJetsToQQ:0.3425")
 ### makeNormalizations("data","JJ",dataTemplate,1,'1',"normD") #run on data. Currently run on pseudodata only (below)
 #from modules.submitJobs import makePseudodata

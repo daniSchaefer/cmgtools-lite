@@ -11,11 +11,10 @@ ROOT.gErrorIgnoreLevel = ROOT.kWarning
 
 ROOT.gStyle.SetOptStat(0)
 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.FATAL)
-colors = [ROOT.kBlack,ROOT.kPink-1,ROOT.kAzure+1,ROOT.kAzure+1,210,210,ROOT.kMagenta,ROOT.kMagenta,ROOT.kOrange,ROOT.kOrange,ROOT.kViolet,ROOT.kViolet]
+colors = [ROOT.kBlack,ROOT.kPink-1,ROOT.kAzure+1,210,210,ROOT.kMagenta,ROOT.kMagenta,ROOT.kOrange,ROOT.kOrange,ROOT.kViolet,ROOT.kViolet]
 
 
-try: os.stat(options.output)
-except: os.mkdir(options.output)
+
 
 def getListFromRange(xyzrange):
     r=[]
@@ -115,29 +114,29 @@ def MakePlots(histos,hdata,axis,nBins,options):
     xrange = options.xrange
     yrange = options.yrange
     zrange = options.zrange
-    if options.xrange == '0,-1': xrange = '55,215'
-    if options.yrange == '0,-1': yrange = '55,215'
+    if options.xrange == '0,-1': xrange = '0,5'
+    if options.yrange == '0,-1': yrange = '0,5'
     if options.zrange == '0,-1': zrange = '838,5000'
     if axis=='z':
      htitle = "Z-Proj. x : "+options.xrange+" y : "+options.yrange
      xtitle = "m_{jj} [GeV]"
      ymin = 0.02
      ymax = hdata.GetMaximum()*10
-     extra1 = xrange.split(',')[0]+' < m_{jet1} < '+ xrange.split(',')[1]+' GeV'
-     extra2 = yrange.split(',')[0]+' < m_{jet2} < '+ yrange.split(',')[1]+' GeV'
+     extra1 = xrange.split(',')[0]+' < #rho_{jet1} < '+ xrange.split(',')[1]+' GeV'
+     extra2 = yrange.split(',')[0]+' < #rho_{jet2} < '+ yrange.split(',')[1]+' GeV'
     elif axis=='x':
      htitle = "X-Proj. y : "+options.yrange+" z : "+options.zrange
-     xtitle = "m_{jet1} [GeV]"
+     xtitle = "#rho_{jet1}"
      ymin = 0.001
      ymax = hdata.GetMaximum()*1.3
-     extra1 = yrange.split(',')[0]+' < m_{jet2} < '+ yrange.split(',')[1]+' GeV'
+     extra1 = yrange.split(',')[0]+' < #rho_{jet2} < '+ yrange.split(',')[1]+' GeV'
      extra2 = zrange.split(',')[0]+' < m_{jj} < '+ zrange.split(',')[1]+' GeV'
     elif axis=='y':
      htitle = "Y-Proj. x : "+options.xrange+" z : "+options.zrange
-     xtitle = "m_{jet2} [GeV]"
+     xtitle = "#rho_{jet2}"
      ymin = 0.001
      ymax = hdata.GetMaximum()*1.3
-     extra1 = xrange.split(',')[0]+' < m_{jet1} < '+ xrange.split(',')[1]+' GeV'
+     extra1 = xrange.split(',')[0]+' < #rho_{jet1} < '+ xrange.split(',')[1]+' GeV'
      extra2 = zrange.split(',')[0]+' < m_{jj} < '+ zrange.split(',')[1]+' GeV'
                    
     leg = ROOT.TLegend(0.88,0.65,0.7,0.88)
@@ -188,7 +187,7 @@ def MakePlots(histos,hdata,axis,nBins,options):
     chi2 = getChi2proj(histos[1],hdata)
     print "Projection %s: Chi2/ndf = %.2f/%i"%(axis,chi2[0],chi2[1]),"= %.2f"%(chi2[0]/chi2[1])," prob = ",ROOT.TMath.Prob(chi2[0],chi2[1])
 
-    pt = ROOT.TPaveText(0.18,0.06,0.54,0.17,"NDC")
+    pt = ROOT.TPaveText(0.11,0.06,0.54,0.17,"NDC")
     pt.SetTextFont(62)
     pt.SetTextSize(0.04)
     pt.SetTextAlign(12)
@@ -199,7 +198,7 @@ def MakePlots(histos,hdata,axis,nBins,options):
     pt.AddText("Prob = %.3f"%ROOT.TMath.Prob(chi2[0],chi2[1]))
     pt.Draw()
 
-    pt2 = ROOT.TPaveText(0.18,0.80,0.53,0.93,"NDC")
+    pt2 = ROOT.TPaveText(0.18,0.74,0.53,0.83,"NDC")
     pt2.SetTextFont(62)
     pt2.SetTextSize(0.04)
     pt2.SetTextAlign(12)
@@ -561,7 +560,7 @@ def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
             if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res+norm_s))
             if "Bulk" in str(pdfs[i].GetName()):
 	     print "signal : ",pdfs[i].GetName()
-	     h[i].Fill(zv,lv[i][zv]*(norm_s))
+	     h[i].Fill(key,value*(norm_s))
 
     #htot = ROOT.TH1F("htot","htot",len(xBinslowedge)-1,xBinslowedge)
     #htot.Add(h[1])
@@ -644,7 +643,7 @@ def doYprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
             if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res+norm_s))
             if "Bulk" in str(pdfs[i].GetName()):
 	     print "signal : ",pdfs[i].GetName()
-	     h[i].Fill(zv,lv[i][zv]*(norm_s))
+	     h[i].Fill(key,value*(norm_s))
 
     htot = ROOT.TH1F("htot","htot",len(yBinslowedge)-1,yBinslowedge)
     #htot.Add(h[1])
@@ -791,12 +790,17 @@ if __name__=="__main__":
      parser.add_option("-d","--data",dest="data",action="store_true",help="make also postfit plots",default=True)
      parser.add_option("-l","--label",dest="label",help="add extra label such as pythia or herwig",default="")
      parser.add_option("--log",dest="log",help="write fit result to log file",default="fit_results.log")
-     parser.add_option("--pdfz",dest="pdfz",help="name of pdfs lie PTZUp etc",default="")
-     parser.add_option("--pdfx",dest="pdfx",help="name of pdfs lie PTXUp etc",default="")
-     parser.add_option("--pdfy",dest="pdfy",help="name of pdfs lie PTYUp etc",default="")
+     parser.add_option("--pdfz",dest="pdfz",help="name of pdfs lie PTZUp etc",default="nonRes_PTZDown_JJ_HPHP_13TeV,nonRes_OPTZDown_JJ_HPHP_13TeV,nonRes_PTZUp_JJ_HPHP_13TeV,nonRes_OPTZUp_JJ_HPHP_13TeV")
+     parser.add_option("--pdfx",dest="pdfx",help="name of pdfs lie PTXUp etc",default="nonRes_OPTXYDown_JJ_HPHP_13TeV,nonRes_OPTXYUp_JJ_HPHP_13TeV")
+     parser.add_option("--pdfy",dest="pdfy",help="name of pdfs lie PTYUp etc",default="nonRes_PTXYDown_JJ_HPHP_13TeV,nonRes_PTXYUp_JJ_HPHP_13TeV")
     
      
      (options,args) = parser.parse_args()
+     
+     try: os.stat(options.output)
+     except: os.mkdir(options.output)
+     
+     
      finMC = ROOT.TFile(options.input,"READ");
      hinMC = finMC.Get("nonRes");
      purity = options.input.replace('.root','').split('_')[-1] 
@@ -847,12 +851,13 @@ if __name__=="__main__":
 
      workspace.Print()
 
-     model = workspace.pdf("model_b") 
+     model = workspace.pdf("model_b")
+     model_s = workspace.pdf("model")
      data = workspace.data("data_obs")
      data.Print()
      print
      print "Observed number of events:",data.sumEntries()
-     args  = model.getComponents()
+     args  = model_s.getComponents()
      print "Expected number of QCD events:",(args["pdf_binJJ_"+purity+"_13TeV_bonly"].getComponents())["n_exp_binJJ_"+purity+"_13TeV_proc_nonRes"].getVal()
      print "Expected number of V+jets events:",(args["pdf_binJJ_"+purity+"_13TeV_bonly"].getComponents())["n_exp_binJJ_"+purity+"_13TeV_proc_Vjet"].getVal()
      print 
@@ -930,15 +935,21 @@ if __name__=="__main__":
 	 print "add pdf:",p
 	 args[p].Print()
          allpdfsy.append(args[p])
-	 	 	
+	
+     
      print
      norm_nonres = (args["pdf_binJJ_"+purity+"_13TeV_bonly"].getComponents())["n_exp_binJJ_"+purity+"_13TeV_proc_nonRes"].getVal()
+     print norm_nonres
      norm_res = (args["pdf_binJJ_"+purity+"_13TeV_bonly"].getComponents())["n_exp_binJJ_"+purity+"_13TeV_proc_Vjet"].getVal()
-     norm_s = (args["pdf_binJJ_"+purity+"_13TeV_nuis"].getComponents())["n_exp_binJJ_"+purity+"_13TeV_proc_"+sig].getVal()
+     print norm_res
+     print sig
+     print args["pdf_binJJ_"+purity+"_13TeV_nuis"]
+     norm_s = (args["pdf_binJJ_"+purity+"_13TeV_nuis"].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_proc_"+sig].getVal()
+     print norm_s
      print "QCD normalization after fit "+str(norm_nonres)
      print "V+jets normalization after fit "+str(norm_res)
      print
-     
+     #pdf_binJJ_HPHP_13TeV_nuis[ n_exp_final_binJJ_HPHP_13TeV_proc_BulkGWW 
      #################################################
      
      x = getListFromRange(options.xrange)

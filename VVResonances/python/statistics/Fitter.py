@@ -380,8 +380,8 @@ class Fitter(object):
 
     def jetResonanceVjets(self,name = 'model',poi='x'):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
-        self.w.factory("mean[80,50,150]")
-        self.w.factory("sigma[15,3,30]")
+        self.w.factory("mean[2.7,0,5]")
+        self.w.factory("sigma[2,0,5]")
         self.w.factory("alpha[1.8,0.0,5]")
         self.w.factory("n[0.8,0.,2.]")
         self.w.factory("alpha2[0.5,0,50]")
@@ -1080,16 +1080,17 @@ class Fitter(object):
     
     
     def drawVjets(self,outname,histos,scales,model="model",data="data",poi="x"):
-        self.frame=self.w.var(poi).frame(ROOT.RooFit.Range(55,215))
+        self.frame=self.w.var(poi).frame(ROOT.RooFit.Range(histos[0].GetXaxis().GetBinLowEdge(1),histos[0].GetXaxis().GetXmax()))
         self.frame.SetTitle("")
-        self.frame.SetXTitle("m_{jet} (GeV)")
+        self.frame.SetXTitle("#rho_{jet} (GeV)")
         self.frame.SetYTitle("Arbitrary scale")
         self.frame.SetTitleOffset(1.1,"Y")
         self.frame.SetTitleSize(0.045,"X")
         self.frame.SetTitleSize(0.045,"Y")
-        histos[0].Scale(1/histos[0].Integral() )
-        histos[1].Scale(1/histos[1].Integral() )
-        histos[2].Scale(1/histos[2].Integral() )
+        if histos[0].Integral()!=0 and histos[1].Integral()!=0 and histos[2].Integral()!=0:
+            histos[0].Scale(1/histos[0].Integral() )
+            histos[1].Scale(1/histos[1].Integral() )
+            histos[2].Scale(1/histos[2].Integral() )
         
         histos[0].Scale(scales[0])
         histos[1].Scale(scales[1])
@@ -1138,7 +1139,7 @@ class Fitter(object):
 
 
 
-        l = ROOT.TLegend(0.5607383,0.6063123,0.9,0.8089701)
+        l = ROOT.TLegend(0.607383,0.6063123,0.9,0.8089701)
         l.SetLineWidth(2)
         l.SetBorderSize(0)
         l.SetFillColor(0)

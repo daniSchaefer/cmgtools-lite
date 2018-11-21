@@ -61,20 +61,20 @@ class DataCardMaker:
         SIGMAVar="_".join(["SIGMA",name,self.tag])
         self.w.factory("expr::{name}('({param})*(1+{vv_syst})',MH,{vv_systs})".format(name=SIGMAVar,param=info['SIGMA'],vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
 
-        ALPHA1Var="_".join(["ALPHA1",name,self.tag])
-        self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=ALPHA1Var,param=info['ALPHA1']))
+        ALPHAVar="_".join(["ALPHA",name,self.tag])
+        self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=ALPHAVar,param=info['ALPHA']))
 
-        ALPHA2Var="_".join(["ALPHA2",name,self.tag])
-        self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=ALPHA2Var,param=info['ALPHA2']))
+        #ALPHA2Var="_".join(["ALPHA2",name,self.tag])
+        #self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=ALPHA2Var,param=info['ALPHA2']))
 
-        N1Var="_".join(["N1",name,self.tag])
-        self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=N1Var,param=info['N1']))
+        NVar="_".join(["N",name,self.tag])
+        self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=NVar,param=info['N']))
 
-        N2Var="_".join(["N2",name,self.tag])
-        self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=N2Var,param=info['N2']))        
+        #N2Var="_".join(["N2",name,self.tag])
+        #self.w.factory("expr::{name}('MH*0+{param}',MH)".format(name=N2Var,param=info['N2']))        
 
         pdfName="_".join([name,self.tag])
-        vvMass = ROOT.RooDoubleCB(pdfName,pdfName,self.w.var(MVV),self.w.function(SCALEVar),self.w.function(SIGMAVar),self.w.function(ALPHA1Var),self.w.function(N1Var),self.w.function(ALPHA2Var),self.w.function(N2Var))
+        vvMass = ROOT.RooCBShape(pdfName,pdfName,self.w.var(MVV),self.w.function(SCALEVar),self.w.function(SIGMAVar),self.w.function(ALPHAVar),self.w.function(NVar))
         getattr(self.w,'import')(vvMass,ROOT.RooFit.Rename(pdfName))
         f.close()
 	

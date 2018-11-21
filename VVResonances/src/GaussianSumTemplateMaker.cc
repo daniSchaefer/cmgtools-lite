@@ -43,17 +43,18 @@ GaussianSumTemplateMaker::GaussianSumTemplateMaker(const RooDataSet* dataset, co
   int nbinsY = output->GetNbinsY();
   
   std::vector<double> xs;
-  double xmjet[nbinsX+1];
+  int len = 81;
+  double xmjet[len];
   xmjet[0]= 55;
-  for (int i=1;i<nbinsX+1;i++)
+  for (int i=1;i<len;i++)
   {
     xmjet[i]= xmjet[i-1]+2;
-    std::cout << xmjet[i] << std::endl;
+    //std::cout << xmjet[i] << std::endl;
   }
   double histoarray[nbinsX+1][nbinsY+1] = {};
   for (int i=0;i<output->GetNbinsX()+1;++i) {
       xs.push_back(output->GetXaxis()->GetBinCenter(i));
-      std::cout << "xs[i] " << xs.at(i) << std::endl;
+     // std::cout << "xs[i] " << xs.at(i) << std::endl;
   }
 
   std::vector<double> yv;
@@ -62,12 +63,13 @@ GaussianSumTemplateMaker::GaussianSumTemplateMaker(const RooDataSet* dataset, co
       double w = output->GetYaxis()->GetBinWidth(j);  
       double ymin=output->GetYaxis()->GetBinLowEdge(j);
       double ymax= ymin+w;
-      double interval = 20.;
+      double interval = output->GetYaxis()->GetBinWidth(1)/4.;
       for (int k=0;k<=int(w/interval);k++)
       {
         double y = ymin + k* interval;
         if( y >= ymax) continue;
         yv.push_back(y);
+        //std::cout << y << std::endl;
         biny.push_back(j);
       }
   }
@@ -99,7 +101,7 @@ GaussianSumTemplateMaker::GaussianSumTemplateMaker(const RooDataSet* dataset, co
     scaley=hscaley->Interpolate(genpt)*geny;
     resx=hresx->Interpolate(genpt)*genx;
     resy=hresy->Interpolate(genpt)*geny;
-     for (int i=1;i<output->GetNbinsX()+1;++i) {
+     for (int i=1;i<len+1;++i) { //output->GetNbinsX()+1
        for (unsigned int j=0;j< yv.size();++j) {
         double normx = fabs((xmjet[i]-scalex)/resx);
         unsigned int indexx = int(normx*1000);
@@ -125,7 +127,7 @@ GaussianSumTemplateMaker::GaussianSumTemplateMaker(const RooDataSet* dataset, co
      for (int i=1;i<output->GetNbinsX()+1;++i) {
        for (int j=1;j<output->GetNbinsY()+1;++j) {  
          output->SetBinContent(i,j,histoarray[i][j]);
-         std::cout << i << " "<< j << " "<< histoarray[i][j] << std::endl;
+         //std::cout << i << " "<< j << " "<< histoarray[i][j] << std::endl;
        }}
 
 

@@ -48,7 +48,12 @@ def unequalScale(histo,name,alpha,power=1):
     newHistoU.SetName(name+"Up")
     newHistoD =copy.deepcopy(histo) 
     newHistoD.SetName(name+"Down")
-    maxFactor = max(pow(histo.GetXaxis().GetXmax(),power),pow(histo.GetXaxis().GetXmin(),power))
+    minx = histo.GetXaxis().GetXmin()
+    maxx = histo.GetXaxis().GetXmax()
+    if minx != 0:
+        maxFactor = max(pow(maxx,power),pow(minx,power))
+    else:
+        maxFactor = max(pow(maxx,power),pow(0.5,power))#pow(maxx,power)
     for i in range(1,histo.GetNbinsX()+1):
         x= histo.GetXaxis().GetBinCenter(i)
         for j in range(1,histo.GetNbinsY()+1):
@@ -89,11 +94,12 @@ def conditional(hist):
     for i in range(1,hist.GetNbinsY()+1):
         proj=hist.ProjectionX("q",i,i)
         integral=proj.Integral()
-        if integral==0.0:
-            print 'SLICE WITH NO EVENTS!!!!!!!!',hist.GetName()
-            continue
         for j in range(1,hist.GetNbinsX()+1):
-            hist.SetBinContent(j,i,hist.GetBinContent(j,i)/integral)
+            if integral==0.0:
+                print 'SLICE WITH NO EVENTS!!!!!!!!',hist.GetName()
+                hist.SetBinContent(j,i,0)
+            else:
+                hist.SetBinContent(j,i,hist.GetBinContent(j,i)/integral)
 
 
 (options,args) = parser.parse_args()
@@ -195,7 +201,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
   print "filename: ", plotter.filename, " preparing central values histo"
  
   #y:x
-  histI2D=plotter.drawTH2Binned("jj_LV_mass:jj_%s_softDrop_mass"%(leg),options.cut,"1",array('f',binsx),array('f',binsy),"Softdrop mass","M_{JJ} mass","GeV","GeV","COLZ" )
+  histI2D=plotter.drawTH2Binned("jj_LV_mass:TMath::Log(jj_%s_softDrop_mass*jj_%s_softDrop_mass/jj_%s_pt)"%(leg,leg,leg),options.cut,"1",array('f',binsx),array('f',binsy),"Softdrop mass","M_{JJ} mass","GeV","GeV","COLZ" )
 
   print " - Creating dataset - "
   dataset=plotterNW.makeDataSet(varsDataSet,options.cut,options.firstEv,options.lastEv)
@@ -219,7 +225,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
   print "Preparing alternative shapes for sampletype " ,sampleTypes[1]
   print "filename: ", plotter.filename, " preparing alternate shape histo"
 
-  histI2D=plotter.drawTH2Binned("jj_LV_mass:jj_%s_softDrop_mass"%(leg),options.cut,"1",array('f',binsx),array('f',binsy),"M_{qV} mass","GeV","Softdrop mass","GeV","COLZ" )
+  histI2D=plotter.drawTH2Binned("jj_LV_mass:TMath::Log(jj_%s_softDrop_mass*jj_%s_softDrop_mass/jj_%s_pt)"%(leg,leg,leg),options.cut,"1",array('f',binsx),array('f',binsy),"Softdrop mass","M_{JJ} mass","GeV","GeV","COLZ" )
 
   print " - Creating dataset - "
   dataset=plotterNW.makeDataSet(varsDataSet,options.cut,options.firstEv,options.lastEv)
@@ -233,7 +239,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
   if histTMP.Integral()>0:
     histTMP.Scale(histI2D.Integral()/histTMP.Integral())
     histogram_altshapeUp.Add(histTMP)
-    # mjet_mvv_altshapeUp.Add(histI2D)
+    mjet_mvv_altshapeUp.Add(histI2D)
    
   histTMP.Delete()
 
@@ -267,12 +273,13 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
   print "Preparing alternative shapes for sampletype " ,sampleTypes[2]
   print "filename: ", plotter.filename, " preparing alternate shape histo"
 
-  histI2D=plotter.drawTH2("jj_LV_mass:jj_%s_softDrop_mass"%(leg),options.cut,"1",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy),"M_{qV} mass","GeV","Softdrop mass","GeV","COLZ" )
-  histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
+  histI2D=plotter.drawTH2Binned("jj_LV_mass:TMath::Log(jj_%s_softDrop_mass*jj_%s_softDrop_mass/jj_%s_pt)"%(leg,leg,leg),options.cut,"1",array('f',binsx),array('f',binsy),"Softdrop mass","M_{JJ} mass","GeV","GeV","COLZ" )
 
   print " - Creating dataset - "
   dataset=plotterNW.makeDataSet(varsDataSet,options.cut,options.firstEv,options.lastEv)
 
+  print " - Creating 2D gaussian template - "
+  histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
   print " - Creating 2D gaussian template - "
   if not(options.usegenmass): 
    datamaker=ROOT.cmg.GaussianSumTemplateMaker(dataset,variables[0],variables[1],'jj_%s_gen_pt'%(leg),scale_x,scale_y,res_x,res_y,histTMP)
@@ -281,7 +288,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
   if histTMP.Integral()>0:
     histTMP.Scale(histI2D.Integral()/histTMP.Integral())
     histogram_altshape2.Add(histTMP) 
-    # mjet_mvv_altshape2.Add(histI2D)
+    mjet_mvv_altshape2.Add(histI2D)
     
   histI2D.Delete()
   histTMP.Delete()
@@ -301,12 +308,12 @@ for hist in histograms:
  expanded.Write()
  finalHistograms[hist.GetName()]=expanded
 
-# ##Mirror Herwig shape
-#histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
-#conditional(histogram_altshapeDown)
-#histogram_altshapeDown.Write()
+## ##Mirror Herwig shape
+##histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
+##conditional(histogram_altshapeDown)
+##histogram_altshapeDown.Write()
 
-alpha=1.5/215.
+alpha=1.5/5.
 histogram_pt_down,histogram_pt_up=unequalScale(finalHistograms['histo_nominal'],"histo_nominal_PT",alpha)
 conditional(histogram_pt_down)
 histogram_pt_down.Write()

@@ -66,7 +66,8 @@ for mass in sorted(samples.keys()):
     plotter.addCorrectionFactor('genWeight','tree')
     plotter.addCorrectionFactor('xsec','tree')
     plotter.addCorrectionFactor('puWeight','tree')
-    plotter.addCorrectionFactor('triggerWeight','tree')
+    if options.triggerW == True:
+        plotter.addCorrectionFactor('triggerWeight','tree')
     histo = plotter.drawTH1(options.mvv,options.cut,"1",500,options.min,options.max)
     err=ROOT.Double(0)
     integral=histo.IntegralAndError(1,histo.GetNbinsX(),err) 

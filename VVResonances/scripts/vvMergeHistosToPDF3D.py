@@ -22,20 +22,13 @@ def makeHisto(name,fx,nhistox,fy,nhistoy,fz,nhistoz,fout):
             raise TypeError
         if histoz == None: 
             raise TypeError
-    except TypeError: return -1
+    except TypeError: print "non type error : could not create histo "; return -1
     hxx = histox.ProjectionX("projX")
     hxy = histox.ProjectionY("projY")
     binningx= getBinning(hxx)
     binningz= getBinning(hxy)
     binningz2= getBinning(histoz)
-    binningz3= getBinning(histoy.ProjectionY("projY2"))
-    #print binningx
-    #print binningz
-    #print binningz2
-    #print binningz3
-   
-    #print len(binningz)-1
-    #print histoz.GetNbinsX() 
+    
     h=ROOT.TH3F(name,name,len(binningx)-1,binningx,len(binningx)-1,binningx,len(binningz)-1,binningz)
     for k in range(1,histoz.GetNbinsX()+2):
      for j in range(1,histoy.GetNbinsX()+2):

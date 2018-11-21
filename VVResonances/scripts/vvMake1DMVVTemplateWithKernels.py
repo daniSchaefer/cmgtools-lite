@@ -219,9 +219,6 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
    histI2.Delete()
    histTMP.Delete()
  
- #histogram_nominal.SetLineColor(ROOT.kRed)
- #histogram_nominal.SetFillColorAlpha(ROOT.kRed, 0.6)
- #stack.Add(histogram_nominal)
 
  if len(sampleTypes)<2: continue
  elif plotter.filename.find(sampleTypes[1].replace('.root','')) != -1: #alternative shape Herwig
@@ -341,7 +338,6 @@ histogram_pt_down   .Scale(sf/histogram_pt_down.Integral())
 histogram_opt_up    .Scale(sf/histogram_opt_up.Integral())
 histogram_opt_down  .Scale(sf/histogram_opt_down.Integral())
 finalHistograms["histo_nominal"].Draw("hist")
-#stack.Draw("histsame")
 histogram_pt_up.SetLineColor(ROOT.kRed)
 histogram_pt_up.SetLineWidth(2)
 histogram_pt_up.Draw("histsame")
@@ -354,6 +350,9 @@ histogram_opt_up.Draw("histsame")
 histogram_opt_down.SetLineColor(ROOT.kGreen)
 histogram_opt_down.SetLineWidth(2)
 histogram_opt_down.Draw("histsame")
+
+
+################# plot for debugging ########################
 text = ROOT.TLatex()
 text.DrawLatex(1200,0.1,"#font[62]{CMS} #font[52]{Simulation}")
 data = finalHistograms["mvv_nominal"]
@@ -374,31 +373,11 @@ l.Draw("same")
 tmplabel="HPHP"
 if options.output.find('HPLP')!=-1:
     tmplabel="HPLP"
-c.SaveAs("debug_Vjets_mVV_kernels"+tmplabel+".pdf")
-print "for debugging save   debug_Vjets_mVV_kernels.png "
+c.SaveAs("debug_"+options.output+"_mVV_kernels"+tmplabel+".pdf")
+print "for debugging save  "+"debug_"+options.output+"_mVV_kernels"+tmplabel+".pdf"
 ########################################################
 
 
 f.Close()
 
-'''
-histograms.append(histogram_altshapeDown)
-print "Drawing debugging plot ", "debug_"+options.output.replace(".root",".png") 
-canv = ROOT.TCanvas("c1","c1",800,600)
-leg = ROOT.TLegend(0.55010112,0.7183362,0.70202143,0.919833)
-canv.cd()
-for i,hist in enumerate(histograms):
- hist.SetLineWidth(3)
- hist.Rebin(2)
- hist.GetXaxis().SetTitle("Mass (GeV)")
- hist.GetXaxis().SetNdivisions(9,1,0)
- hist.GetYaxis().SetNdivisions(9,1,0)
- hist.GetYaxis().SetTitle("A.U")
- hist.GetXaxis().SetRangeUser(options.minx,options.maxx)
- hist.SetLineColor((i+1)*2)
- hist.DrawNormalized("HISTsame")
- leg.AddEntry(hist,hist.GetName(),"L")
-leg.Draw("same")
-canv.SaveAs("debug_"+options.output.replace(".root",".png") )
-'''
 
