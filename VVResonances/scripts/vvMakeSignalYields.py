@@ -75,7 +75,7 @@ for mass in sorted(samples.keys()):
     yieldgraph.SetPoint(N,mass,integral*options.BR)
     yieldgraph.SetPointError(N,0.0,err*options.BR)
     N=N+1
-
+    print "yield for mass "+str(mass)+" is "+str(integral*options.BR)
 
 
 

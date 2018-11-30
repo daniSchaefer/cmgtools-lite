@@ -175,6 +175,41 @@ makeHisto("histo_altshape2Down",inputx,"histo_altshape2Up",inputy,"histo_altshap
 print "Merge NLO"
 makeHisto("histo_NLO",inputx,"histo_NLO",inputy,"histo_NLO",inputz,"histo_NLO",output)
 
+print "make bin varied histos"
+makeHisto("histo_varBinXYUp",inputx,"histo_binUp",inputy,"histo_binUp",inputz,"histo_nominal",output)
+makeHisto("histo_varBinXYDown",inputx,"histo_binDown",inputy,"histo_binDown",inputz,"histo_nominal",output)
+
+makeHisto("histo_varBin1ZDown",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin1Down",output)
+makeHisto("histo_varBin1ZUp",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin1Up",output)
+makeHisto("histo_varBin2ZDown",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin2Down",output)
+makeHisto("histo_varBin2ZUp",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin2Up",output)
+makeHisto("histo_varBin3ZDown",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin3Down",output)
+makeHisto("histo_varBin3ZUp",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin3Up",output)
+makeHisto("histo_varBin4ZDown",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin4Down",output)
+makeHisto("histo_varBin4ZUp",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin4Up",output)
+
+makeHisto("histo_varBin5ZDown",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin5Down",output)
+makeHisto("histo_varBin5ZUp",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin5Up",output)
+
+makeHisto("histo_varBin6ZDown",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin6Down",output)
+makeHisto("histo_varBin6ZUp",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin6Up",output)
+
+makeHisto("histo_varBin7ZDown",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin7Down",output)
+makeHisto("histo_varBin7ZUp",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin7Up",output)
+
+makeHisto("histo_varBin8ZDown",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin8Down",output)
+makeHisto("histo_varBin8ZUp",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin8Up",output)
+
+makeHisto("histo_varBin9ZDown",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin9Down",output)
+makeHisto("histo_varBin9ZUp",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin9Up",output)
+
+makeHisto("histo_varBin10ZDown",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin10Down",output)
+makeHisto("histo_varBin10ZUp",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin10Up",output)
+makeHisto("histo_varBin11ZDown",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin11Down",output)
+makeHisto("histo_varBin11ZUp",inputx,"histo_nominal",inputy,"histo_nominal",inputz,"histo_bin11Up",output)
+
+
+
 print "Write file "+options.output
 
 inputx.Close()

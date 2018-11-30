@@ -34,31 +34,40 @@ for sig in signals:
     card.product3D("%s"%sig,"Wqq1","Wqq2","%s_MVV"%sig)
 
     ################# Vjets ##################################
-    #execfile(indir+"JJ_VJets_HPHP.py")
-    sys.path.append(indir) 
-    if p=='HPHP': from JJ_VJets_HPHP import JJ_VJets__Res_l1, JJ_VJets__Res_l2
-    if p=='HPLP': from JJ_VJets_HPLP import JJ_VJets__Res_l1, JJ_VJets__Res_l2
-    if p=='LPLP': from JJ_VJets_LPLP import JJ_VJets__Res_l1, JJ_VJets__Res_l2
+    #sys.path.append(indir) 
+    #if p=='HPHP': from JJ_VJets_HPHP import JJ_VJets__Res_l1, JJ_VJets__Res_l2
+    #if p=='HPLP': from JJ_VJets_HPLP import JJ_VJets__Res_l1, JJ_VJets__Res_l2
+    #if p=='LPLP': from JJ_VJets_LPLP import JJ_VJets__Res_l1, JJ_VJets__Res_l2
 
-    print JJ_VJets__Res_l1['mean']
+    #print JJ_VJets__Res_l1['mean']
 
-    card.addHistoShapeFromFile("Vjets_mjj",["MJJ"],indir+"JJ_VJets_MVV_"+p+".root","histo_nominal",['PT:CMS_VV_JJ_Vjets_PT','OPT:CMS_VV_JJ_Vjets_OPT'],False,0)#
-    card.addMjetBackgroundShapeVJetsRes("Vjets_l1","MJ1","",JJ_VJets__Res_l1,{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
-    card.addMjetBackgroundShapeVJetsRes("Vjets_l2","MJ2","",JJ_VJets__Res_l2,{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
-    #card.addMjetBackgroundShapeVJetsRes2("Vjets_l1","MJ1","",JJ_VJets__Res_l1,JJ_VJets__nonRes_l2,{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
-    #card.addMjetBackgroundShapeVJetsRes2("Vjets_l2","MJ2","",JJ_VJets__Res_l2,JJ_VJets__nonRes_l2 ,{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
+    #card.addHistoShapeFromFile("Vjets_mjj",["MJJ"],indir+"JJ_VJets_MVV_"+p+".root","histo_nominal",['PT:CMS_VV_JJ_Vjets_PT','OPT:CMS_VV_JJ_Vjets_OPT'],False,0)#
+    #card.addMjetBackgroundShapeVJets2("Vjets_l1","MJ1","",JJ_VJets__Res_l1,{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
+    #card.addMjetBackgroundShapeVJets2("Vjets_l2","MJ2","",JJ_VJets__Res_l2,{'CMS_scale_prunedj':1},{'CMS_res_prunedj':1.0})
+    
+    #card.conditionalDoubleProduct("Wjet","Vjets_l1","Vjets_l2","MJJ","Vjets_mjj")
+    
+    #card.addMjetBackgroundShapeTopPeak("Top_l1","MJ1","",JJ_VJets__Res_l1)
+    #card.addMjetBackgroundShapeTopPeak("Top_l2","MJ2","",JJ_VJets__Res_l2)
+    
+    #card.conditionalDoubleProduct("Top","Top_l1","Top_l2","MJJ","Vjets_mjj")
+    
+    #card.sum("Vjet","Wjet","Top",JJ_VJets__Res_l1["f"]["val"])
+    
+    
 
-    card.product3D("Vjet","Vjets_l1","Vjets_l2","Vjets_mjj")
-    card.addFixedYieldFromFile("Vjet",1,indir+"JJ_VJets_%s.root"%p,"VJets",1.0)
+    #card.addFixedYieldFromFile("Vjet",1,indir+"JJ_VJets_%s.root"%p,"VJets",1.0)
 
-    ################ QCD #####################
+    ################# QCD #####################
  
     rootFile=indir+"JJ_nonRes_3D_"+p+".root"
-    card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile,"histo",['PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ'],False,0) #'altshapeZ:CMS_VV_JJ_nonRes_altshapeZ','altshape2Z:CMS_VV_JJ_nonRes_altshape2Z'
-    card.addFixedYieldFromFile("nonRes",2,indir+"JJ_nonRes_"+p+".root","nonRes")
+    card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile,"histo",['PTXY:CMS_VV_JJ_nonRes_PTXY','OPTXY:CMS_VV_JJ_nonRes_OPTXY','OPTY:CMS_VV_JJ_nonRes_OPTY','OPTX:CMS_VV_JJ_nonRes_OPTX','PTZ:CMS_VV_JJ_nonRes_PTZ','OPTZ:CMS_VV_JJ_nonRes_OPTZ'],False,0) #'altshapeZ:CMS_VV_JJ_nonRes_altshapeZ','altshape2Z:CMS_VV_JJ_nonRes_altshape2Z' 
+    #'varBin1Z:CMS_VV_JJ_nonRes_varBin1Z','varBin2Z:CMS_VV_JJ_nonRes_varBin2Z','varBin3Z:CMS_VV_JJ_nonRes_varBin3Z','varBin4Z:CMS_VV_JJ_nonRes_varBin4Z','varBin5Z:CMS_VV_JJ_nonRes_varBin5Z','varBin6Z:CMS_VV_JJ_nonRes_varBin6Z','varBin7Z:CMS_VV_JJ_nonRes_varBin7Z','varBin8Z:CMS_VV_JJ_nonRes_varBin8Z','varBin9Z:CMS_VV_JJ_nonRes_varBin9Z','varBin10Z:CMS_VV_JJ_nonRes_varBin10Z','varBin11Z:CMS_VV_JJ_nonRes_varBin11Z'
+    card.addFixedYieldFromFile("nonRes",2,indir+"JJ_nonRes_"+p+".root","nonRes",1.0)
 
     ################# DATA #####################
     card.importBinnedData(indir+"JJ_nonRes_"+p+".root","nonRes",["MJ1","MJ2","MJJ"])
+    
 
 
     #############################  SYSTEMATICS ##############################
@@ -85,6 +94,7 @@ for sig in signals:
     card.addSystematic("CMS_res_j","param",[0.0,0.05])
     card.addSystematic("CMS_scale_prunedj","param",[0.0,0.009])
     card.addSystematic("CMS_res_prunedj","param",[0.0,0.2])
+    #card.addSystematic("CMS_res_prunedj","param",[0.0,0.05])
 
     #dijet mass uncertainty for V+jets
     card.addSystematic("CMS_VV_JJ_Vjets_PT","param",[0,0.1])
@@ -96,7 +106,21 @@ for sig in signals:
     card.addSystematic("CMS_VV_JJ_nonRes_PTXY","param",[0 ,0.33])
     card.addSystematic("CMS_VV_JJ_nonRes_PTZ","param",[0.0,0.33])
     card.addSystematic("CMS_VV_JJ_nonRes_OPTXY","param",[0,0.33])
+    card.addSystematic("CMS_VV_JJ_nonRes_OPTY","param",[0,0.33])
+    card.addSystematic("CMS_VV_JJ_nonRes_OPTX","param",[0,0.33])
     card.addSystematic("CMS_VV_JJ_nonRes_OPTZ","param",[0.0,0.33])
+    #card.addSystematic("CMS_VV_JJ_nonRes_OPT2XY","param",[0.0,0.33])
+    #card.addSystematic("CMS_VV_JJ_nonRes_varBin1Z","param",[0.0,1])
+    #card.addSystematic("CMS_VV_JJ_nonRes_varBin2Z","param",[0.0,1])
+    #card.addSystematic("CMS_VV_JJ_nonRes_varBin3Z","param",[0.0,1])
+    #card.addSystematic("CMS_VV_JJ_nonRes_varBin4Z","param",[0.0,1])
+    #card.addSystematic("CMS_VV_JJ_nonRes_varBin5Z","param",[0.0,1])
+    #card.addSystematic("CMS_VV_JJ_nonRes_varBin6Z","param",[0.0,1])
+    #card.addSystematic("CMS_VV_JJ_nonRes_varBin7Z","param",[0.0,1])
+    #card.addSystematic("CMS_VV_JJ_nonRes_varBin8Z","param",[0.0,1])
+    #card.addSystematic("CMS_VV_JJ_nonRes_varBin9Z","param",[0.0,1])
+    #card.addSystematic("CMS_VV_JJ_nonRes_varBin10Z","param",[0.0,1])
+    #card.addSystematic("CMS_VV_JJ_nonRes_varBin11Z","param",[0.0,1])
     #card.addSystematic("CMS_VV_JJ_nonRes_altshape","param",[0.0,0.33])
     #card.addSystematic("CMS_VV_JJ_nonRes_altshape2","param",[0.0,0.33])
 

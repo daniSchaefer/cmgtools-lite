@@ -35,7 +35,8 @@ parser.add_option("-t","--triggerweight",dest="triggerW",action="store_true",hel
 
 samples={}
 graphs={'mean':ROOT.TGraphErrors(),'sigma':ROOT.TGraphErrors(),'alpha':ROOT.TGraphErrors(),'n':ROOT.TGraphErrors(),'f':ROOT.TGraphErrors(),'alpha2':ROOT.TGraphErrors(),'n2':ROOT.TGraphErrors(),'slope':ROOT.TGraphErrors()}
-
+if options.sample.find("hbb")!=-1:
+    graphs={'mean':ROOT.TGraphErrors(),'sigma':ROOT.TGraphErrors(),'alpha':ROOT.TGraphErrors(),'n':ROOT.TGraphErrors(),'f':ROOT.TGraphErrors(),'meanH':ROOT.TGraphErrors(),'sigmaH':ROOT.TGraphErrors(),'alphaH':ROOT.TGraphErrors(),'nH':ROOT.TGraphErrors()} 
 for filename in os.listdir(args[0]):
     if not (filename.find(options.sample)!=-1):
         continue
@@ -80,9 +81,13 @@ for mass in sorted(samples.keys()):
     if options.doExp==1:
             fitter.jetResonance('model','x')
     else:
-            fitter.jetResonanceNOEXP('model','x')
+            if options.sample.find("hbb")!=-1:
+                fitter.jetDoublePeakH("model",'x')
+                print "use double peak for H -> bb and W"
+            else:
+                fitter.jetResonanceNOEXP('model','x')
 
-
+    print options.sample
     if options.fixPars!="1":
         fixedPars =options.fixPars.split(',')
         for par in fixedPars:
@@ -90,6 +95,7 @@ for mass in sorted(samples.keys()):
 	    if len(parVal) > 1:
              fitter.w.var(parVal[0]).setVal(float(parVal[1]))
              fitter.w.var(parVal[0]).setConstant(1)
+             print "set value constant "+str(parVal[0])
 
 
 #    fitter.w.var("MH").setVal(mass)
@@ -99,6 +105,32 @@ for mass in sorted(samples.keys()):
     histo = plotter.drawTH1(options.mvv,options.cut,"1",80,options.mini,options.maxi)
 
     fitter.importBinnedData(histo,['x'],'data')
+    if options.sample.find("hbb")!=-1:
+        window = {1200:[2.1,2.6,3,3.4], 1400: [2,2.4,2.7,3.4],1600:[1.7,2.3,2.6,3.3],1800:[1.7,2.3,2.5,3.1],2000:[1.6,2,2.5,3], 2500:[1.3,1.8,2.3,2.9],3000:[1.2,1.7,2.1,2.6],3500:[1,1.5,2,2.5], 4000:[0.7,1.5,1.7,2.4],4500:[0.6,1.3,1.6,2.3] }
+        
+        
+        gauss  = ROOT.TF1("gauss" ,"gaus",window[mass][0],window[mass][1])
+        histo.Fit(gauss,"R")
+        mean = gauss.GetParameter(1)
+        sigma = gauss.GetParameter(2)
+        print "set paramters of double CB constant aground the ones from gaussian fit"
+        fitter.w.var("mean").setVal(mean)
+        fitter.w.var("mean").setConstant(1)
+        #fitter.w.var("sigma").setVal(sigma)
+        #fitter.w.var("sigma").setConstant(1)
+        
+        gaussH  = ROOT.TF1("gaussH" ,"gaus",window[mass][2],window[mass][3])
+        histo.Fit(gaussH,"R")
+        mean = gaussH.GetParameter(1)
+        sigma = gaussH.GetParameter(2)
+        print "set paramters of double CB constant aground the ones from gaussian fit"
+        fitter.w.var("meanH").setVal(mean)
+        fitter.w.var("meanH").setConstant(1)
+        fitter.w.var("sigmaH").setVal(sigma)
+        fitter.w.var("sigmaH").setConstant(1)
+        
+    
+    
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0),ROOT.RooFit.Minos(1)])
     fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_"+str(mass)+".png")
@@ -117,7 +149,10 @@ F=ROOT.TFile(options.output,"RECREATE")
 F.cd()
 for name,graph in graphs.iteritems():
     graph.Write(name)
+    print "write graph "+str(name)
 F.Close()
-print "blub"
+print "write output file "+str(options.output)
 del graphs,plotter,fitter
             
+
+print options.sample

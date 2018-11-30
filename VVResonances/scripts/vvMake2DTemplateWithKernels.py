@@ -313,19 +313,19 @@ for hist in histograms:
 ##conditional(histogram_altshapeDown)
 ##histogram_altshapeDown.Write()
 
-alpha=1.5/5.
-histogram_pt_down,histogram_pt_up=unequalScale(finalHistograms['histo_nominal'],"histo_nominal_PT",alpha)
-conditional(histogram_pt_down)
-histogram_pt_down.Write()
-conditional(histogram_pt_up)
-histogram_pt_up.Write()
+#alpha=1.5/5.
+#histogram_pt_down,histogram_pt_up=unequalScale(finalHistograms['histo_nominal'],"histo_nominal_PT",alpha)
+#conditional(histogram_pt_down)
+#histogram_pt_down.Write()
+#conditional(histogram_pt_up)
+#histogram_pt_up.Write()
 
-alpha=1.5*55.
-h1,h2=unequalScale(finalHistograms['histo_nominal'],"histo_nominal_OPT",alpha,-1)
-conditional(h1)
-h1.Write()
-conditional(h2)
-h2.Write()
+#alpha=1.5*55.
+#h1,h2=unequalScale(finalHistograms['histo_nominal'],"histo_nominal_OPT",alpha,-1)
+#conditional(h1)
+#h1.Write()
+#conditional(h2)
+#h2.Write()
         		
 f.Close()
 

@@ -396,6 +396,160 @@ class DataCardMaker:
         pdfName="_".join([name,self.tag])
         vvMass = ROOT.RooDoubleCB(pdfName,pdfName,self.w.var(MJJ),self.w.function(SCALEVar),self.w.function(SIGMAVar),self.w.function(ALPHAVar),self.w.function(NVar),self.w.function(ALPHAVar2),self.w.function(NVar2))
         getattr(self.w,'import')(vvMass,ROOT.RooFit.Rename(pdfName))
+        
+        
+    def addMjetBackgroundShapeVJets2(self,name,variable,newTag="",preconstrains={},scale ={},resolution={}):
+        print "start importing shapes for resonant Vjets backgorund "+str(name)
+        
+        Mjet=variable
+        self.w.var(Mjet)
+        
+        MVV="MJJ" 
+        if self.w.var(MVV)==None:
+            self.w.factory(MVV+"[0,10000]")
+        if self.w.var(Mjet)==None:
+            self.w.factory(Mjet+"[0,10000]")
+        
+        scaleStr='0'
+        resolutionStr='0'
+
+        scaleSysts=[]
+        resolutionSysts=[]
+        for syst,factor in scale.iteritems():
+            self.w.factory(syst+"[0,-0.1,0.1]")
+            scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            scaleSysts.append(syst)
+        for syst,factor in resolution.iteritems():
+            self.w.factory(syst+"[0,-0.5,0.5]")
+            resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
+            resolutionSysts.append(syst)
+
+        if newTag !="": tag=newTag
+        else: tag=name+"_"+self.tag
+
+        mean="_".join(["mean",tag])
+        if len(scaleSysts)>=1:
+            self.w.factory("expr::{name}('{param}*(1+{vv_syst})',MJJ,{vv_systs})".format(name=mean,param=preconstrains['mean']['val'],vv_syst=scaleStr,vv_systs=','.join(scaleSysts)))
+            
+            print "==============================================="
+            print preconstrains['mean']['val']
+            
+            print "expr::{name}('{param}*(1+{vv_syst})',MJJ,{vv_systs})".format(name=mean,param=preconstrains['mean']['val'],vv_syst=scaleStr,vv_systs=','.join(scaleSysts))
+            #self.w.var(MVV).setVal(1200)
+           
+            
+        else:
+            self.w.factory("{name}[{val},-{err},{err}]".format(name=mean,val=preconstrains['mean']['val'],err=0))
+            self.w.var(mean).setConstant(1)
+                
+        sigma="_".join(["sigma",tag])
+        if len(resolutionSysts)>=1:
+            self.w.factory("expr::{name}('({param})*(1+{vv_syst})',{vv_systs})".format(name=sigma,param=preconstrains['sigma']['val'],vv_syst=resolutionStr,vv_systs=','.join(resolutionSysts)))
+        else:
+            self.w.factory("{name}[{val},-{err},{err}]".format(name=sigma,val=preconstrains['sigma']['val'],err=0))
+            self.w.var(sigma).setConstant(1)
+        
+        alpha="_".join(["alpha",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=alpha,val=preconstrains['alpha']['val'],err=0))
+        self.w.var(alpha).setConstant(1)
+        
+        n="_".join(["n",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=n,val=preconstrains['n']['val'],err=0))
+        self.w.var(n).setConstant(1)
+        
+        alpha2="_".join(["alpha2",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=alpha2,val=preconstrains['alpha2']['val'],err=0))
+        self.w.var(alpha2).setConstant(1)
+        
+        n2="_".join(["n2",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=n2,val=preconstrains['n2']['val'],err=0))
+	self.w.var(n2).setConstant(1)
+	
+	meanTop="_".join(["meanTop",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=meanTop,val=preconstrains['meanTop']['val'],err=0))
+	self.w.var(meanTop).setConstant(1)
+	
+	
+	sigmaTop="_".join(["sigmaTop",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=sigmaTop,val=preconstrains['sigmaTop']['val'],err=0))
+	self.w.var(sigmaTop).setConstant(1)
+	
+	
+	alphaTop="_".join(["alphaTop",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=alphaTop,val=preconstrains['alphaTop']['val'],err=0))
+	self.w.var(alphaTop).setConstant(1)
+	
+	
+	alphaTop2="_".join(["alphaTop2",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=alphaTop2,val=preconstrains['alphaTop2']['val'],err=0))
+	self.w.var(alphaTop2).setConstant(1)
+	
+	f="_".join(["f",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=f,val=preconstrains['f']['val'],err=0))
+	self.w.var(f).setConstant(1)
+	
+	# add fraction + add separate function for top peak
+
+
+
+        pdfName="_".join([name,self.tag])
+        #if len(resolutionSysts)>=1:
+        wjet = ROOT.RooDoubleCB(pdfName,pdfName,self.w.var(Mjet),self.w.function(mean),self.w.function(sigma),self.w.var(alpha),self.w.var(n),self.w.var(alpha2),self.w.var(n2))
+
+        getattr(self.w,'import')(wjet,ROOT.RooFit.Rename(pdfName))    
+     
+     
+    def addMjetBackgroundShapeTopPeak(self,name,variable,newTag="",preconstrains={}): 
+        Mjet=variable
+        self.w.var(Mjet)
+        if self.w.var(Mjet)==None:
+            self.w.factory(Mjet+"[0,10000]")
+            
+        MVV="MJJ" 
+        if self.w.var(MVV)==None:
+            self.w.factory(MVV+"[0,10000]")
+            
+        if newTag !="": tag=newTag
+        else: tag=name+"_"+self.tag
+        
+        n="_".join(["n",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=n,val=preconstrains['n']['val'],err=0))
+        self.w.var(n).setConstant(1)
+        
+        
+        n2="_".join(["n2",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=n2,val=preconstrains['n2']['val'],err=0))
+	self.w.var(n2).setConstant(1)
+        
+         
+        meanTop="_".join(["meanTop",tag])
+        self.w.factory("expr::{name}('{param}',MJJ)".format(name=meanTop,param=preconstrains['meanTop']['val']))
+	print " +++++++++++++++++++++++++++++++++++++++++"
+	print preconstrains['meanTop']['val']
+	print " +++++++++++++++++++++++++++++++++++++++++"
+	sigmaTop="_".join(["sigmaTop",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=sigmaTop,val=preconstrains['sigmaTop']['val'],err=0))
+	self.w.var(sigmaTop).setConstant(1)
+	
+	
+	alphaTop="_".join(["alphaTop",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=alphaTop,val=preconstrains['alphaTop']['val'],err=0))
+	self.w.var(alphaTop).setConstant(1)
+	
+	
+	alphaTop2="_".join(["alphaTop2",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=alphaTop2,val=preconstrains['alphaTop2']['val'],err=0))
+	self.w.var(alphaTop2).setConstant(1)
+	
+	f="_".join(["f",tag])
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=f,val=preconstrains['f']['val'],err=0))
+	self.w.var(f).setConstant(1)
+	
+	pdfName="_".join([name,self.tag])
+        peak = ROOT.RooDoubleCB(pdfName,pdfName,self.w.var(Mjet),self.w.function(meanTop),self.w.var(sigmaTop),self.w.var(alphaTop),self.w.var(n),self.w.var(alphaTop2),self.w.var(n2))
+    
+        getattr(self.w,"import")(peak)
+        
 
     def addHistoShapeFromFile(self,name,observables,filename,histoname,systematics=[],conditional = False,order=0,newTag=""):     
         varset=ROOT.RooArgSet()
@@ -868,6 +1022,10 @@ class DataCardMaker:
         getattr(self.w,'import')(wjet,ROOT.RooFit.Rename(pdfName))
         
         
+        
+        
+        
+        
     
 
     def addMVVBackgroundShapePow(self,name,variable,newTag="",preconstrains={}):
@@ -1188,6 +1346,9 @@ class DataCardMaker:
         pdfName="_".join([name,self.tag])
         pdfName1="_".join([pdf1,self.tag])
         pdfName2="_".join([pdf2,self.tag])
+        print " ++++++++++++++++++++++++++++++++++++++++++++++"
+        print pdfName
+        print " ++++++++++++++++++++++++++++++++++++++++++++++"
         #if sumVarExpr=='':
         #    self.w.factory(sumVar+"[0,1]")
         #else:    

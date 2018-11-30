@@ -305,7 +305,7 @@ for hist in histograms:
 #histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
 #histogram_altshapeDown.Write()
 
-alpha=1.5/5000
+alpha=1.5/800
 histogram_pt_down,histogram_pt_up=unequalScale(finalHistograms["histo_nominal"],"histo_nominal_PT",alpha)
 histogram_pt_down.Write()
 histogram_pt_up.Write()
