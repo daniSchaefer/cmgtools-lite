@@ -45,7 +45,8 @@ for filename in os.listdir(args[0]):
     ext=fnameParts[1]
     if ext.find("root") ==-1:
         continue
-        
+    if filename.find("private")!=-1:
+        continue
 
     mass = float(fname.split('_')[-1])
     if mass < options.minMX or mass > options.maxMX: continue
@@ -63,10 +64,10 @@ for mass in sorted(samples.keys()):
     print 'fitting',str(mass) 
     plotter=TreePlotter(args[0]+'/'+samples[mass]+'.root','tree')
     plotter.setupFromFile(args[0]+'/'+samples[mass]+'.pck')
-    plotter.addCorrectionFactor('genWeight','tree')
+    plotter.addCorrectionFactor('genWeight_LO','tree')
     plotter.addCorrectionFactor('xsec','tree')
     plotter.addCorrectionFactor('puWeight','tree')
-    plotter.addCorrectionFactor('triggerWeight','tree')
+    plotter.addCorrectionFactor('jj_triggerWeight','tree')
     histo = plotter.drawTH1(options.mvv,options.cut,"1",500,options.min,options.max)
     err=ROOT.Double(0)
     integral=histo.IntegralAndError(1,histo.GetNbinsX(),err) 

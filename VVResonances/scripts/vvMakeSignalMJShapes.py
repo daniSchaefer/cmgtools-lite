@@ -71,10 +71,10 @@ for mass in sorted(samples.keys()):
     print 'fitting',str(mass) 
     plotter=TreePlotter(args[0]+'/'+samples[mass]+'.root','tree')
 #    plotter.setupFromFile(args[0]+'/'+samples[mass]+'.pck')
-    plotter.addCorrectionFactor('genWeight','tree')
+    plotter.addCorrectionFactor('genWeight_LO','tree')
 #    plotter.addCorrectionFactor('xsec','tree')
     plotter.addCorrectionFactor('puWeight','tree')
-    plotter.addCorrectionFactor('triggerWeight','tree')
+    plotter.addCorrectionFactor('jj_triggerWeight','tree')
        
         
     fitter=Fitter(['x'])

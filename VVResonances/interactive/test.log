@@ -1,0 +1,19 @@
+CMS_VV_JJ_nonRes_OPTXY = -0.638595 +/- 0.63859 L(-1.332 - 1.332) 
+CMS_VV_JJ_nonRes_OPTZ =  0.0000 +/- 0.37920 L(-1.332 - 1.332) 
+CMS_VV_JJ_nonRes_PTXY =  0.0000 +/- 0.37920 L(-1.332 - 1.332) 
+CMS_VV_JJ_nonRes_PTZ =  0.0000 +/- 0.37920 L(-1.332 - 1.332) 
+CMS_VV_JJ_nonRes_norm_HPHP =  0.0000 +/- 1.9928 L(-7 - 7) 
+CMS_VV_JJ_tau21_eff =  0.0000 +/- 1.0391 L(-7 - 7) 
+CMS_lumi =  0.0000 +/- 1.0391 L(-7 - 7) 
+CMS_pdf =  0.0000 +/- 1.0391 L(-7 - 7) 
+CMS_res_j =  0.0000 +/- 0.051557 L(-0.2 - 0.2) 
+CMS_res_prunedj =  0.0000 +/- 0.20623 L(-0.8 - 0.8) 
+CMS_scale_j =  0.0000 +/- 0.020623 L(-0.08 - 0.08) 
+CMS_scale_prunedj =  0.0000 +/- 0.0096927 L(-0.0376 - 0.0376) 
+CMS_tau21_PtDependence =  0.0000 +/- 0.042277 L(-0.164 - 0.164) 
+#################################################
+CMS_VV_JJ_nonRes_OPTXY & -1.92347836573\\ 
+CMS_VV_JJ_nonRes_OPTZ & 0.0\\ 
+CMS_VV_JJ_nonRes_PTXY & 0.0\\ 
+CMS_VV_JJ_nonRes_PTZ & 0.0\\ 
+CMS_VV_JJ_nonRes_norm_HPHP & 0.0\\ 

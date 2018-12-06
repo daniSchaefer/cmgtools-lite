@@ -54,7 +54,9 @@ for filename in os.listdir(args[0]):
                 dataPlotters[-1].addCorrectionFactor('xsec','tree')
                 dataPlotters[-1].addCorrectionFactor('genWeight','tree')
                 dataPlotters[-1].addCorrectionFactor('puWeight','tree')
-                if options.triggerW: dataPlotters[-1].addCorrectionFactor('triggerWeight','tree')	
+                if options.triggerW:
+                    print "Using triggerweights! Are you sure?"
+                    dataPlotters[-1].addCorrectionFactor('triggerWeight','tree')	
             corrFactors = options.factors.split(',')
 	    for c in corrFactors:
 	     if len(c.split(':')) < 2: continue

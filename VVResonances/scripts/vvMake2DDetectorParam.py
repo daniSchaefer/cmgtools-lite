@@ -18,7 +18,6 @@ parser.add_option("-c","--cut",dest="cut",help="Cut to apply for yield in gen sa
 parser.add_option("-v","--vars",dest="vars",help="variable for gen",default='')
 parser.add_option("-b","--binsx",dest="binsx",help="bins",default='')
 parser.add_option("-g","--genVars",dest="genVars",help="variable for gen",default='')
-parser.add_option("-t","--triggerweight",dest="triggerW",action="store_true",help="Use trigger weights",default=False)
 
 (options,args) = parser.parse_args()
 
@@ -39,7 +38,6 @@ for filename in os.listdir(args[0]):
             dataPlotters[-1].addCorrectionFactor('xsec','tree')
             dataPlotters[-1].addCorrectionFactor('genWeight','tree')
             dataPlotters[-1].addCorrectionFactor('puWeight','tree')
-            if options.triggerW: dataPlotters[-1].addCorrectionFactor('triggerWeight','tree')
                       
 data=MergedPlotter(dataPlotters)
 
@@ -54,9 +52,13 @@ for b in binsxStr:
 binsz_x=[]
 binsz_y=[]
 for b in range(0,51):
+# for b in range(0,21):
     binsz_x.append(0.7+0.7*b/50.0)
+    # binsz_x.append(0.1*b)
 for b in range(0,51):
-    binsz_y.append(0.6+0.6*b/50.0)	
+# for b in range(0,21):
+    binsz_y.append(0.6+0.6*b/50.0)
+    # binsz_y.append(0.1*b)
     
 binsDijet = [800, 838, 890, 944, 1000, 1058, 1118, 1181, 1246, 1313, 1383, 1455, 1530,1607, 1687, 1770, 1856, 1945, 2037, 2132, 2231, 2332, 2438, 2546, 2659, 2775, 2895, 3019,3147, 3279, 3416, 3558, 3704, 3854, 4010, 4171, 4337, 4509, 4686, 4869, 5058, 5253, 5455,5663, 5877, 6099, 6328, 6564, 6808]
 varDijet = 'jj_gen_partialMass'
@@ -67,7 +69,7 @@ resxHisto=ROOT.TH1F("resxHisto","resHisto",len(binsx)-1,array('d',binsx))
 scaleyHisto=ROOT.TH1F("scaleyHisto","scaleHisto",len(binsx)-1,array('d',binsx))
 resyHisto=ROOT.TH1F("resyHisto","resHisto",len(binsx)-1,array('d',binsx))
 
-#scaleNsubjHisto=ROOT.TH1F("scaleNsubjHisto","scaleHisto",len(binsx)-1,array('d',binsx))		
+#scaleNsubjHisto=ROOT.TH1F("scaleNsubjHisto","scaleHisto",len(binsx)-1,array('d',binsx))        
 #resNsubjHisto=ROOT.TH1F("resNsubjHisto","resHisto",len(binsx)-1,array('d',binsx))
  
 variables=options.vars.split(',')
@@ -90,84 +92,85 @@ superHY=data.drawTH2Binned(variables[1]+'/'+genVariables[1]+':'+genVariables[2],
 
 for bin in range(1,superHX.GetNbinsX()+1):
 
-	# tmp=superHX.ProjectionY("q",bin,bin)
-# 	scalexHisto.SetBinContent(bin,tmp.GetMean())
-# 	scalexHisto.SetBinError(bin,tmp.GetMeanError())
-# 	resxHisto.SetBinContent(bin,tmp.GetRMS())
-# 	resxHisto.SetBinError(bin,tmp.GetRMSError())
+    # tmp=superHX.ProjectionY("q",bin,bin)
+#   scalexHisto.SetBinContent(bin,tmp.GetMean())
+#   scalexHisto.SetBinError(bin,tmp.GetMeanError())
+#   resxHisto.SetBinContent(bin,tmp.GetRMS())
+#   resxHisto.SetBinError(bin,tmp.GetRMSError())
 #
-# 	tmp=superHY.ProjectionY("q",bin,bin)
-# 	scaleyHisto.SetBinContent(bin,tmp.GetMean())
-# 	scaleyHisto.SetBinError(bin,tmp.GetMeanError())
-# 	resyHisto.SetBinContent(bin,tmp.GetRMS())
-# 	resyHisto.SetBinError(bin,tmp.GetRMSError())
-	
-	tmp=superHX.ProjectionY("q",bin,bin)
-	startbin   = 0.
-	maxcontent = 0.
-	for b in range(tmp.GetXaxis().GetNbins()):
-	  if tmp.GetXaxis().GetBinCenter(b+1) > startbin and tmp.GetBinContent(b+1)>maxcontent:
-	    maxbin = b
-	    maxcontent = tmp.GetBinContent(b+1)
-	tmpmean = tmp.GetXaxis().GetBinCenter(maxbin)
-	tmpwidth = 0.5
-	g1 = ROOT.TF1("g1","gaus", tmpmean-tmpwidth,tmpmean+tmpwidth)
-	tmp.Fit(g1, "SR")
-	# c1 =ROOT.TCanvas("c","",800,800)
-	# tmp.Draw()
-	# c1.SaveAs("debug_fit1_mvvres_%i.png"%bin)
-	tmpmean = g1.GetParameter(1)
-	tmpwidth = g1.GetParameter(2)
-	g1 = ROOT.TF1("g1","gaus", tmpmean-(tmpwidth*2),tmpmean+(tmpwidth*2))
-	tmp.Fit(g1, "SR")
-	# c1 =ROOT.TCanvas("c","",800,800)
-	# tmp.Draw()
-	# c1.SaveAs("debug_fit2_mvvres_%i.png"%bin)
-	tmpmean = g1.GetParameter(1)
-	tmpmeanErr = g1.GetParError(1)
-	tmpwidth = g1.GetParameter(2)
-	tmpwidthErr = g1.GetParError(2)
-	scalexHisto.SetBinContent(bin,tmpmean)
-	scalexHisto.SetBinError  (bin,tmpmeanErr)
-	resxHisto.SetBinContent  (bin,tmpwidth)
-	resxHisto.SetBinError    (bin,tmpwidthErr)
-for bin in range(1,superHY.GetNbinsX()+1):	
-	tmp=superHY.ProjectionY("q",bin,bin)
-	startbin   = 0.
-	maxcontent = 0.
-	for b in range(tmp.GetXaxis().GetNbins()):
-	  if tmp.GetXaxis().GetBinCenter(b+1) > startbin and tmp.GetBinContent(b+1)>maxcontent:
-	    maxbin = b
-	    maxcontent = tmp.GetBinContent(b+1)
-	tmpmean = tmp.GetXaxis().GetBinCenter(maxbin)
-	tmpwidth = 0.3
-	g1 = ROOT.TF1("g1","gaus", tmpmean-tmpwidth,tmpmean+tmpwidth)
-	tmp.Fit(g1, "SR")
-	# c1 =ROOT.TCanvas("c","",800,800)
-	# tmp.Draw()
-	# c1.SaveAs("debug_fit1_mjres_%i.png"%bin)
-	tmpmean = g1.GetParameter(1)
-	tmpwidth = g1.GetParameter(2)
-	g1 = ROOT.TF1("g1","gaus", tmpmean-(tmpwidth*1.1),tmpmean+(tmpwidth*1.1))
-	tmp.Fit(g1, "SR")
-	# c1 =ROOT.TCanvas("c","",800,800)
-	# tmp.Draw()
-	# c1.SaveAs("debug_fit2_mjres_%i.png"%bin)
-	tmpmean = g1.GetParameter(1)
-	tmpmeanErr = g1.GetParError(1)
-	tmpwidth = g1.GetParameter(2)
-	tmpwidthErr = g1.GetParError(2)
-	scaleyHisto.SetBinContent(bin,tmpmean)
-	scaleyHisto.SetBinError  (bin,tmpmeanErr)
-	resyHisto.SetBinContent  (bin,tmpwidth)
-	resyHisto.SetBinError    (bin,tmpwidthErr)
-	
-	# tmp=superHNsubj.ProjectionY("q",bin,bin)
-	# scaleNsubjHisto.SetBinContent(bin,tmp.GetMean())
-	# scaleNsubjHisto.SetBinError(bin,tmp.GetMeanError())
-	# resNsubjHisto.SetBinContent(bin,tmp.GetRMS())
-	# resNsubjHisto.SetBinError(bin,tmp.GetRMSError())
-	    
+#   tmp=superHY.ProjectionY("q",bin,bin)
+#   scaleyHisto.SetBinContent(bin,tmp.GetMean())
+#   scaleyHisto.SetBinError(bin,tmp.GetMeanError())
+#   resyHisto.SetBinContent(bin,tmp.GetRMS())
+#   resyHisto.SetBinError(bin,tmp.GetRMSError())
+    
+    tmp=superHX.ProjectionY("q",bin,bin)
+    startbin   = 0.
+    maxcontent = 0.
+    for b in range(tmp.GetXaxis().GetNbins()):
+      if tmp.GetXaxis().GetBinCenter(b+1) > startbin and tmp.GetBinContent(b+1)>maxcontent:
+        maxbin = b
+        maxcontent = tmp.GetBinContent(b+1)
+    tmpmean = tmp.GetXaxis().GetBinCenter(maxbin)
+    tmpwidth = 0.5
+    g1 = ROOT.TF1("g1","gaus", tmpmean-tmpwidth,tmpmean+tmpwidth)
+    tmp.Fit(g1, "SR")
+    # c1 =ROOT.TCanvas("c","",800,800)
+    # tmp.Draw()
+    # c1.SaveAs("debug_fit1_mvvres_%i.png"%bin)
+    tmpmean = g1.GetParameter(1)
+    tmpwidth = g1.GetParameter(2)
+    g1 = ROOT.TF1("g1","gaus", tmpmean-(tmpwidth*2),tmpmean+(tmpwidth*2))
+    tmp.Fit(g1, "SR")
+    # c1 =ROOT.TCanvas("c","",800,800)
+    # tmp.Draw()
+    # c1.SaveAs("debug_fit2_mvvres_%i.png"%bin)
+    tmpmean = g1.GetParameter(1)
+    tmpmeanErr = g1.GetParError(1)
+    tmpwidth = g1.GetParameter(2)
+    tmpwidthErr = g1.GetParError(2)
+    scalexHisto.SetBinContent(bin,tmpmean)
+    scalexHisto.SetBinError  (bin,tmpmeanErr)
+    resxHisto.SetBinContent  (bin,tmpwidth)
+    resxHisto.SetBinError    (bin,tmpwidthErr)
+for bin in range(1,superHY.GetNbinsX()+1):  
+    
+    tmp=superHY.ProjectionY("q",bin,bin)
+    startbin   = 0.
+    maxcontent = 0.
+    for b in range(tmp.GetXaxis().GetNbins()):
+      if tmp.GetXaxis().GetBinCenter(b+1) > startbin and tmp.GetBinContent(b+1)>maxcontent:
+        maxbin = b
+        maxcontent = tmp.GetBinContent(b+1)
+    tmpmean = tmp.GetXaxis().GetBinCenter(maxbin)
+    tmpwidth = 0.3
+    g1 = ROOT.TF1("g1","gaus", tmpmean-tmpwidth,tmpmean+tmpwidth)
+    tmp.Fit(g1, "SR")
+    # c1 =ROOT.TCanvas("c","",800,800)
+    # tmp.Draw()
+    # c1.SaveAs("debug_fit1_mjres_%i.png"%bin)
+    tmpmean = g1.GetParameter(1)
+    tmpwidth = g1.GetParameter(2)
+    g1 = ROOT.TF1("g1","gaus", tmpmean-(tmpwidth*1.1),tmpmean+(tmpwidth*1.1))
+    tmp.Fit(g1, "SR")
+    # c1 =ROOT.TCanvas("c","",800,800)
+    # tmp.Draw()
+    # c1.SaveAs("debug_fit2_mjres_%i.png"%bin)
+    tmpmean = g1.GetParameter(1)
+    tmpmeanErr = g1.GetParError(1)
+    tmpwidth = g1.GetParameter(2)
+    tmpwidthErr = g1.GetParError(2)
+    scaleyHisto.SetBinContent(bin,tmpmean)
+    scaleyHisto.SetBinError  (bin,tmpmeanErr)
+    resyHisto.SetBinContent  (bin,tmpwidth)
+    resyHisto.SetBinError    (bin,tmpwidthErr)
+    
+    # tmp=superHNsubj.ProjectionY("q",bin,bin)
+    # scaleNsubjHisto.SetBinContent(bin,tmp.GetMean())
+    # scaleNsubjHisto.SetBinError(bin,tmp.GetMeanError())
+    # resNsubjHisto.SetBinContent(bin,tmp.GetRMS())
+    # resNsubjHisto.SetBinError(bin,tmp.GetRMSError())
+        
 scalexHisto.Write()
 scaleyHisto.Write()
 #scaleNsubjHisto.Write()

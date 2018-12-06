@@ -1,0 +1,4 @@
+for signal samples JECUncertainty_BulkWW_MVV.txt
+mass   :    JER       :     JERUP     :  JERDown      :  difference % 
+       : mean ; sigma : mean ; sigma  :  mean ; sigma :  mean  ; sigma 
+1000.0 : 1029.86 ; 66.57 : 1030.65 ; 69.87 : 1028.98 ; 63.02 : -0.08/0.09 ; -4.96/5.32

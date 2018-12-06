@@ -1,0 +1,12 @@
+universe = vanilla
+executable = 1D_HPHP.sh
+output = out/$(Process).out
+error = error/$(Process).err
+log = log/$(Process).log
+transfer_output_files = ""
+getenv = True
+Requirements =  ( (TARGET.ProvidesCPU) && (TARGET.ProvidesEkpResources) ) 
++RequestWalltime = 14400
+RequestMemory = 2000
+accounting_group = cms.top
+queue arguments from arguments.txt

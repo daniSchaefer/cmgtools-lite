@@ -1,0 +1,2 @@
+for signal samples JECUncertainty_BulkWW_MVV.txt
+mass   :    JES       :     JESUP     :  JESDown      :  difference % 

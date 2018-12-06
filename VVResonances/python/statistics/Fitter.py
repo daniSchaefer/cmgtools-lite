@@ -2,10 +2,11 @@ import ROOT
 import json
 from numpy import random
 from array import array
+import sys,commands
 
 class Fitter(object):
     def __init__(self,poi = ['x']):
-        self.cache=ROOT.TFile("cache%i.root"%(random.randint(0, 1e+6)),"RECREATE")
+        self.cache=ROOT.TFile("/tmp/%s/cache%i.root"%(commands.getoutput("whoami"),random.randint(0, 1e+6)),"RECREATE")
         self.cache.cd()
 
         self.w=ROOT.RooWorkspace("w","w")
@@ -477,19 +478,21 @@ class Fitter(object):
 
 
 
-    def signalResonance(self,name = 'model',poi="MVV",singleSided=False):
+    def signalResonance(self,name = 'model',poi="MVV",mass=0,singleSided=False):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
         self.w.factory("MH[1000]")
-        self.w.factory("MEAN[400,13000]")
-        self.w.factory("SIGMA[1,5000]")
-        self.w.factory("ALPHA1[1,0.5,3]")
-        self.w.factory("N1[5]")
+        #self.w.factory("MEAN[400,13000]")
+        self.w.factory("MEAN[%.1f,%.1f,%.1f]"%(mass,0.8*mass,1.2*mass))
+        #self.w.factory("SIGMA[1,5000]")
+        self.w.factory("SIGMA[%.1f,%.1f,%.1f]"%(mass*0.05,mass*0.02,mass*0.10))
+        self.w.factory("ALPHA1[1.2,0.0,1.8]")
+        self.w.factory("N1[5,0,10]")
         if singleSided:
             self.w.factory("ALPHA2[1000000.0]")
             self.w.factory("N2[0]")
         else:
-            self.w.factory("ALPHA2[1,0.5,3]")
-            self.w.factory("N2[5]")
+            self.w.factory("ALPHA2[1.2,0.0,1.8]")
+            self.w.factory("N2[5,0,10]")
         peak_vv = ROOT.RooDoubleCB(name,'modelS',self.w.var(poi),self.w.var('MEAN'),self.w.function('SIGMA'),self.w.var('ALPHA1'),self.w.var('N1'),self.w.var('ALPHA2'),self.w.var('N2'))
         getattr(self.w,'import')(peak_vv,ROOT.RooFit.Rename(name))
 
@@ -499,14 +502,14 @@ class Fitter(object):
         self.w.factory("MH[1000]")
         self.w.factory("MEAN[%.1f,%.1f,%.1f]"%(mass,0.8*mass,1.2*mass))
 	self.w.factory("SIGMA[%.1f,%.1f,%.1f]"%(mass*0.05,mass*0.02,mass*0.10))
-	self.w.factory("SCALESIGMA[2.0,1.2,3.]")
+	self.w.factory("SCALESIGMA[2.0,1.2,3.6]")
 	gsigma = ROOT.RooFormulaVar("gsigma","gsigma","@0*@1", ROOT.RooArgList(self.w.var('SIGMA'),self.w.var('SCALESIGMA')))
 	getattr(self.w,'import')(gsigma,ROOT.RooFit.Rename('gsigma'))
         self.w.factory("ALPHA[0.85,0.60,1.20]")
         self.w.factory("N[6,0.1,150]") #From @dani: N=126 from thea 126.9
 	self.w.factory("Gaussian::signalResonanceGaus(%s,MEAN,gsigma)"%poi)
 	self.w.factory("CBShape::signalResonanceCB(%s,MEAN,SIGMA,ALPHA,N)"%poi)
-	self.w.factory('SUM::'+name+'(f[0.00,0.00,0.85]*signalResonanceGaus,signalResonanceCB)')
+	self.w.factory('SUM::'+name+'(f[0.0,0.0,0.850]*signalResonanceGaus,signalResonanceCB)')
     
     def signal2D(self,name,poi):
         ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit")
@@ -1007,14 +1010,14 @@ class Fitter(object):
 	    
         self.frame=self.w.var(poi).frame()
 	
-	print "Prining workspace: "
-	self.w.Print()
+        print "Prining workspace: "
+        self.w.Print()
 	
-	try:
+        try:
                 f = ROOT.TFile.Open("fitresults.root",'READ')
                 fr = f.Get('fitresult_model_data')
                 
-	except:
+        except:
                 fr = 0
                 print "No fit result found (fitresults.root), plotting model only"
 	
@@ -1028,45 +1031,43 @@ class Fitter(object):
          else: self.w.pdf(model).plotOn(self.frame)#,ROOT.Normalization(ROOT.RooAbsReal.RelativeExpected,1.0))# ROOT.RooFit.Normalization(integral, ROOT.RooAbsReal.NumEvent))
 
         self.legend = self.getLegend()
-	self.legend.AddEntry( self.w.pdf(model)," Full PDF","l")
-	
-	self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "signalResonanceGaus" ),ROOT.RooFit.Components("signalResonanceGaus"),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kRed))#  ,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
-	if self.frame.findObject( "signalResonanceGaus"):self.legend.AddEntry( self.frame.findObject( "signalResonanceGaus" ),"Gaussian","l")
-	else: print "No model Gaussian in WS"
-	
-	self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "signalResonanceCB" ),ROOT.RooFit.Components("signalResonanceCB"  ),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kGreen))#,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
-	if self.frame.findObject( "signalResonanceCB"):self.legend.AddEntry( self.frame.findObject( "signalResonanceCB" ),"CB comp.","l")
-	else: print "No model CB in WS"
-	
-	self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "modelS" ),ROOT.RooFit.Components("modelS"  ),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kRed))#,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
-	if self.frame.findObject( "modelS"):self.legend.AddEntry( self.frame.findObject( "modelS" ),"Signal comp.","l")
-	else: print "No modelS in WS"
-	
-	self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "modelB" ),ROOT.RooFit.Components("modelB"),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kGreen))#,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
-	if self.frame.findObject( "modelB"):self.legend.AddEntry( self.frame.findObject( "modelB" ),"BG comp.","l")
-	else: print "No modelB in WS"
-	
-	self.w.pdf(model).plotOn(self.frame)
+        self.legend.AddEntry( self.w.pdf(model)," Full PDF","l")
+        
+        self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "signalResonanceGaus" ),ROOT.RooFit.Components("signalResonanceGaus"),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kRed))#  ,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
+        if self.frame.findObject( "signalResonanceGaus"):self.legend.AddEntry( self.frame.findObject( "signalResonanceGaus" ),"Gaussian","l")
+        else: print "No model Gaussian in WS"
+        
+        self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "signalResonanceCB" ),ROOT.RooFit.Components("signalResonanceCB"  ),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kGreen))#,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
+        if self.frame.findObject( "signalResonanceCB"):self.legend.AddEntry( self.frame.findObject( "signalResonanceCB" ),"CB comp.","l")
+        else: print "No model CB in WS"
+        
+        self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "modelS" ),ROOT.RooFit.Components("modelS"  ),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kRed))#,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
+        if self.frame.findObject( "modelS"):self.legend.AddEntry( self.frame.findObject( "modelS" ),"Signal comp.","l")
+        else: print "No modelS in WS"
+        
+        self.w.pdf(model).plotOn(self.frame,ROOT.RooFit.Name( "modelB" ),ROOT.RooFit.Components("modelB"),ROOT.RooFit.LineStyle(1),ROOT.RooFit.LineColor(ROOT.kGreen))#,ROOT.RooFit.Normalization( integral, ROOT.RooAbsReal.NumEvent))
+        if self.frame.findObject( "modelB"):self.legend.AddEntry( self.frame.findObject( "modelB" ),"BG comp.","l")
+        else: print "No modelB in WS"
+        
+        self.w.pdf(model).plotOn(self.frame)
         self.c=ROOT.TCanvas("c","c")
-	if logy:
-	 self.frame.SetMinimum(0.00001)
-	 self.frame.SetMaximum(1.0)
-	 self.c.SetLogy()
+        if logy:
+          self.frame.SetMinimum(0.00001)
+          self.frame.SetMaximum(1.0)
+          self.c.SetLogy()
         self.c.cd()
         self.frame.Draw()
         self.frame.GetYaxis().SetTitle('')
         self.frame.GetXaxis().SetTitle(xtitle)
         self.frame.SetTitle('')
         self.c.Draw()
-                        
-        
-       
+
         self.legend.Draw("same")	    
         self.c.SaveAs(filename)
         pullDist = self.frame.pullHist()
         return self.frame.chiSquare()
-
-
+        
+        
     def projectionCond(self,model = "model",data="data",poi="y",otherpoi="x",filename="fit.root"):
         
         self.frame=self.w.var(poi).frame()
@@ -1079,7 +1080,7 @@ class Fitter(object):
         return self.frame.chiSquare()
     
     
-    def drawVjets(self,outname,histos,scales,model="model",data="data",poi="x"):
+    def drawVjets(self,outname,histos,histos_nonRes,scales,scales_nonRes,model="model",data="data",poi="x"):
         self.frame=self.w.var(poi).frame(ROOT.RooFit.Range(55,215))
         self.frame.SetTitle("")
         self.frame.SetXTitle("m_{jet} (GeV)")
@@ -1087,36 +1088,32 @@ class Fitter(object):
         self.frame.SetTitleOffset(1.1,"Y")
         self.frame.SetTitleSize(0.045,"X")
         self.frame.SetTitleSize(0.045,"Y")
-        histos[0].Scale(1/histos[0].Integral() )
-        histos[1].Scale(1/histos[1].Integral() )
-        histos[2].Scale(1/histos[2].Integral() )
-        
-        histos[0].Scale(scales[0])
-        histos[1].Scale(scales[1])
-        histos[2].Scale(scales[2])
-        
-        histos[0].SetFillColor(ROOT.kRed)
-        histos[1].SetFillColor(ROOT.kGreen)
-        histos[2].SetFillColor(ROOT.kBlue)
-        
-        histos[0].SetLineColor(ROOT.kRed)
-        histos[1].SetLineColor(ROOT.kGreen)
-        histos[2].SetLineColor(ROOT.kBlue)
-        
-        histos[0].Add(histos[1])
-        histos[0].Add(histos[2])
-        
-        histos[1].Add(histos[2])
-        
-        self.importBinnedData(histos[0],['x'],'data0')
-        self.importBinnedData(histos[1],['x'],'data1')
-        self.importBinnedData(histos[2],['x'],'data2')
-        
-        #self.w.data("data0").add(self.w.data("data1"))
-        #self.w.data("data0").add(self.w.data("data2"))
+        color={'Wjets':ROOT.kRed,'Zjets':ROOT.kGreen,'TTBar':ROOT.kBlue}
+        for key in histos.iteritems():
+            histos[key].Scale(scales[key]/histos[key].Integral())
+            histos_nonRes[key].Scale(scales_nonRes[key]/histos_nonRes[key].Integral())
+            histos[key].SetFillColor(color[key])
+            histos_nonRes[key].SetFillColor(color[key])
+            histos[key].SetLineColor(color[key])
+            histos_nonRes[key].SetLineColor(color[key])
         
         
-        #self.w.data("data1").add(self.w.data("data2"))
+        if 'Zjets' in histos.keys():
+            histos['Wjets'].Add(histos['Zjets')
+            histos_nonRes['Wjets'].Add(histos_nonRes['Zjets')
+        if 'TTbar' in histos.keys():
+            histos['Wjets'].Add(histos['TTbar')
+            histos_nonRes['Wjets'].Add(histos_nonRes['TTbar')
+        self.importBinnedData(histos['Wjets'],['x'],'data0')
+        self.importBinnedData(histos['Wjets'],['x'],'data1')
+                                                     
+        if 'TTbar' in histos.keys() and 'Zjets' in histos.keys(): 
+            histos['Zjets'].Add(histos['TTbar')
+            histos_nonRes['Zjets'].Add(histos_nonRes['TTbar')
+                                                     
+            #self.importBinnedData(histos['Zjets'],['x'],'data1')
+            #self.importBinnedData(histos['ttbar'],['x'],'data2')
+        
         
         self.w.data("data0").plotOn(self.frame,ROOT.RooFit.FillColor(13),ROOT.RooFit.FillStyle(3144),ROOT.RooFit.DrawOption( "5" ),ROOT.RooFit.Name("errorbars"))
         self.w.pdf(model).plotOn(self.frame, ROOT.RooFit.LineColor(ROOT.kBlack),ROOT.RooFit.Name("fit"))
@@ -1134,9 +1131,6 @@ class Fitter(object):
         self.c.SetTopMargin( 0.1 )
         self.c.SetBottomMargin( 0.12 )
    
-      
-
-
 
         l = ROOT.TLegend(0.5607383,0.6063123,0.9,0.8089701)
         l.SetLineWidth(2)
@@ -1147,19 +1141,60 @@ class Fitter(object):
         l.SetTextAlign(12)
         l.AddEntry(self.frame.findObject("fit"),'double CB','L')
         l.AddEntry(self.frame.findObject("errorbars"),'MC uncertainty','F')
-        l.AddEntry(histos[0],'W+jets','F')
-        l.AddEntry(histos[1],'Z+jets','F')
-        l.AddEntry(histos[2],'t#bar{t}','F')
+        l.AddEntry(histos['Wjets'],'W+jets','F')
+        if 'Zjets' in histos.keys(): l.AddEntry(histos['Zjets'],'Z+jets','F')
+        if 'TTbar' in histos.keys(): l.AddEntry(histos['TTbar'],'t#bar{t}','F')
         self.frame.Draw()
         l.Draw()
-        histos[0].Draw("histFsame")
-        histos[1].Draw("histFsame")
-        histos[2].Draw("histFsame")
+        histos['Wjets'].Draw("histFsame")
+        if 'Zjets' in histos.keys(): histos['Zjets'].Draw("histFsame")
+        if 'TTbar' in histos.keys(): histos['TTbar'].Draw("histFsame")
         self.frame.Draw("same")
         l.Draw()
         text = ROOT.TLatex()
         text.DrawLatexNDC(0.13,0.92,"#font[62]{CMS} #font[52]{Simulation}")
         self.c.SaveAs(outname)
+        
+        
+        # draw non res contribution: 
+        
+        self.w.data("data1").plotOn(self.frame,ROOT.RooFit.FillColor(13),ROOT.RooFit.FillStyle(3144),ROOT.RooFit.DrawOption( "5" ),ROOT.RooFit.Name("errorbars"))
+        
+        
+        self.c=ROOT.TCanvas("c_nonRes","c_nonRes")       
+        self.c.cd() 
+        self.c.SetFillColor(0)
+        self.c.SetBorderMode(0)
+        self.c.SetFrameFillStyle(0)
+        self.c.SetFrameBorderMode(0)
+        self.c.SetLeftMargin(0.13)
+        self.c.SetRightMargin(0.08)
+        self.c.SetTopMargin( 0.1 )
+        self.c.SetBottomMargin( 0.12 )
+   
+
+        l = ROOT.TLegend(0.5607383,0.6063123,0.9,0.8089701)
+        l.SetLineWidth(2)
+        l.SetBorderSize(0)
+        l.SetFillColor(0)
+        l.SetTextFont(42)
+        l.SetTextSize(0.04)
+        l.SetTextAlign(12)
+        #l.AddEntry(self.frame.findObject("fit"),'double CB','L')
+        l.AddEntry(self.frame.findObject("errorbars"),'MC uncertainty','F')
+        l.AddEntry(histos_nonRes['Wjets'],'W+jets','F')
+        if 'Zjets' in histos_nonRes.keys(): l.AddEntry(histos_nonRes['Zjets'],'Z+jets','F')
+        if 'TTbar' in histos_nonRes.keys(): l.AddEntry(histos_nonRes['TTbar'],'t#bar{t}','F')
+        self.frame.Draw()
+        l.Draw()
+        histos_nonRes['Wjets'].Draw("histFsame")
+        if 'Zjets' in histos_nonRes.keys(): histos_nonRes['Zjets'].Draw("histFsame")
+        if 'TTbar' in histos_nonRes.keys(): histos_nonRes['TTbar'].Draw("histFsame")
+        self.frame.Draw("same")
+        l.Draw()
+        text = ROOT.TLatex()
+        text.DrawLatexNDC(0.13,0.92,"#font[62]{CMS} #font[52]{Simulation}")
+        self.c.SaveAs(outname.replace(".pdf","_nonRes.pdf"))
         
         
     def getFrame(self,model = "model",data="data",poi="x",xtitle='x',mass=1000):

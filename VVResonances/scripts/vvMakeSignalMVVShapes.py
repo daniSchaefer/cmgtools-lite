@@ -54,7 +54,7 @@ parser.add_option("-t","--triggerweight",dest="triggerW",action="store_true",hel
 #define output dictionary
 
 samples={}
-graphs={'MEAN':ROOT.TGraphErrors(),'SIGMA':ROOT.TGraphErrors(),'ALPHA':ROOT.TGraphErrors(),'N':ROOT.TGraphErrors(),'SCALESIGMA':ROOT.TGraphErrors(),'f':ROOT.TGraphErrors()}
+graphs={'MEAN':ROOT.TGraphErrors(),'SIGMA':ROOT.TGraphErrors(),'ALPHA1':ROOT.TGraphErrors(),'N1':ROOT.TGraphErrors(),'ALPHA2':ROOT.TGraphErrors(),'N2':ROOT.TGraphErrors()}
 
 for filename in os.listdir(args[0]):
     if not (filename.find(options.sample)!=-1):
@@ -86,20 +86,23 @@ N=0
 
 Fhists=ROOT.TFile("massHISTOS_"+options.output,"RECREATE")
 
+
 for mass in sorted(samples.keys()):
 
     print 'fitting',str(mass) 
     plotter=TreePlotter(args[0]+'/'+samples[mass]+'.root','tree')
-    plotter.addCorrectionFactor('genWeight','tree')
+    plotter.addCorrectionFactor('genWeight_LO','tree')
     plotter.addCorrectionFactor('puWeight','tree')
-    if options.triggerW: plotter.addCorrectionFactor('triggerWeight','tree')	
+    if options.triggerW:
+        plotter.addCorrectionFactor('jj_triggerWeight','tree')	
+        print "Using triggerweight"
     if options.scaleFactors!='':
         for s in scaleFactors:
             plotter.addCorrectionFactor(s,'tree')
        
     fitter=Fitter(['MVV'])
-    fitter.signalResonanceCBGaus('model','MVV',mass)
-    #if options.fixPars!="":
+    # fitter.signalResonanceCBGaus('model','MVV',mass)
+    fitter.signalResonance('model',"MVV",mass,False)
     if options.fixPars!="1":
         fixedPars =options.fixPars.split(',')
         print fixedPars
@@ -110,8 +113,8 @@ for mass in sorted(samples.keys()):
              fitter.w.var(parVal[0]).setConstant(1)
     fitter.w.var("MH").setVal(mass)
 
-    binning= truncate(getBinning(options.binsMVV,options.min,options.max,1000),0.75*mass,1.25*mass)    
-    histo = plotter.drawTH1Binned(options.mvv,options.cut+"*(jj_LV_mass>%f&&jj_LV_mass<%f)"%(0.75*mass,1.25*mass),"1",binning)
+    binning= truncate(getBinning(options.binsMVV,options.min,options.max,1000),0.80*mass,1.2*mass)    
+    histo = plotter.drawTH1Binned(options.mvv,options.cut+"*(jj_LV_mass>%f&&jj_LV_mass<%f)"%(0.80*mass,1.2*mass),"1",binning)
 
     #gauss  = ROOT.TF1("gauss" ,"gaus",0.95*mass,1.05*mass)  
     #histo.Fit(gauss,"R")
@@ -132,11 +135,11 @@ for mass in sorted(samples.keys()):
 
     Fhists.cd()
     histo.Write("%i"%mass)
-
+    
     fitter.importBinnedData(histo,['MVV'],'data')
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0)])
     fitter.fit('model','data',[ROOT.RooFit.SumW2Error(0),ROOT.RooFit.Minos(1)])
-
+    
     roobins = ROOT.RooBinning(len(binning)-1,array("d",binning))
     fitter.projection("model","data","MVV","debugVV_"+options.output+"_"+str(mass)+".png",roobins)
 

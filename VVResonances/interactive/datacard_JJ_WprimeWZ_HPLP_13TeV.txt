@@ -1,0 +1,35 @@
+imax 1
+jmax 2
+kmax *
+-------------------------
+shapes WprimeWZ JJ_HPLP_13TeV datacardInputs_JJ_WprimeWZ_HPLP_13TeV.root w:WprimeWZ_JJ_HPLP_13TeV
+shapes Vjet JJ_HPLP_13TeV datacardInputs_JJ_WprimeWZ_HPLP_13TeV.root w:Vjet_JJ_HPLP_13TeV
+shapes nonRes JJ_HPLP_13TeV datacardInputs_JJ_WprimeWZ_HPLP_13TeV.root w:nonRes_JJ_HPLP_13TeV
+shapes data_obs JJ_HPLP_13TeV datacardInputs_JJ_WprimeWZ_HPLP_13TeV.root w:data_obs
+-------------------------
+bin JJ_HPLP_13TeV
+observation  -1
+-------------------------
+bin	JJ_HPLP_13TeV	JJ_HPLP_13TeV	JJ_HPLP_13TeV	
+process	WprimeWZ	Vjet	nonRes	
+process	0	1	2	
+rate	1.0	11785.4353076	14915.4574241	
+CMS_tau21_PtDependence	param	0	0.041
+CMS_lumi	lnN	1.026	1.026	-	
+CMS_pdf	lnN	1.01	-	-	
+CMS_VV_JJ_nonRes_norm_HPLP	lnN	-	-	1.5	
+CMS_VV_JJ_Vjets_norm_HPLP	lnN	-	1.02	-	
+CMS_VV_JJ_tau21_eff	lnN	0.67	0.67	-	
+CMS_scale_j	param	0.0	0.02
+CMS_res_j	param	0.0	0.05
+CMS_scale_prunedj	param	0.0	0.009
+CMS_res_prunedj	param	0.0	0.2
+CMS_VV_JJ_Vjets_PT	param	0	0.1
+CMS_VV_JJ_Vjets_OPT	param	0	0.1
+CMS_VV_JJ_nonRes_PTXY	param	0.0	0.333
+CMS_VV_JJ_nonRes_PTZ	param	0.0	0.33
+CMS_VV_JJ_nonRes_OPTXY	param	0.0	0.333
+CMS_VV_JJ_nonRes_OPTZ	param	0.0	0.33
+CMS_VV_JJ_nonRes_TRIG	param	0.0	0.33
+CMS_VV_JJ_nonRes_altshape	param	0.0	0.33
+CMS_VV_JJ_nonRes_altshape2	param	0.0	0.33

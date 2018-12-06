@@ -1,0 +1,15 @@
+universe = docker
+docker_image = mschnepf/slc6-condocker
+executable = ./limits.sh
+output = out/$(Process).out
+error = error/$(Process).err
+log = log/$(Process).log
+should_transfer_files = YES
+transfer_input_files = limits.sh
+transfer_output_files = ""
+getenv = True
+Requirements = (TARGET.CLOUDSITE == "condocker") && ( (TARGET.ProvidesCPU) && (TARGET.ProvidesEkpResources) )
++RequestWalltime = 600
+RequestMemory = 500
+accounting_group = cms.top
+queue arguments from arguments.txt

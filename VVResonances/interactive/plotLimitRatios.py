@@ -1,0 +1,64 @@
+import ROOT
+ROOT.gROOT.SetBatch(True)
+import os, sys, re, optparse,pickle,shutil,json
+
+parser = optparse.OptionParser()
+parser.add_option("-o","--output",dest="output",help="Output ROOT File",default='')
+parser.add_option("-f","--firstfile",dest="firstfile",help="Input ROOT File",default='')
+parser.add_option("-s","--secondfile",dest="secondfile",help="Input ROOT File",default='')
+
+
+(options,args) = parser.parse_args()
+
+
+def getLimit(filename):
+    f=ROOT.TFile(filename)
+    limit=f.Get("limit")
+    data={}
+    for event in limit:
+        #if float(event.mh)<options.minX or float(event.mh)>options.maxX:
+        #    continue
+        
+        #if not (event.mh in data.keys()):
+            #data[event.mh]={}
+
+
+        #if event.quantileExpected<0:            
+        #    data[event.mh]['obs']=event.limit
+        #if event.quantileExpected>0.02 and event.quantileExpected<0.03:            
+        #    data[event.mh]['-2sigma']=event.limit
+        #if event.quantileExpected>0.15 and event.quantileExpected<0.17:            
+        #    data[event.mh]['-1sigma']=event.limit
+        if event.quantileExpected>0.49 and event.quantileExpected<0.51:            
+            data[event.mh]=event.limit*0.001
+        #if event.quantileExpected>0.83 and event.quantileExpected<0.85:            
+        #    data[event.mh]['+1sigma']=event.limit
+        #if event.quantileExpected>0.974 and event.quantileExpected<0.976:            
+        #    data[event.mh]['+2sigma']=event.limit
+    return data
+    
+
+if __name__=="__main__":
+    
+    lim1 = getLimit(options.firstfile)
+    lim2 = getLimit(options.secondfile)
+    
+    c= ROOT.TCanvas("ratio","ratio",400,400)
+    g= ROOT.TGraph(1)
+    i=0
+    for m in lim1.keys():
+        for m2 in lim2.keys():
+            if m!=m2:
+                continue
+            g.SetPoint(i,m,lim1[m]/lim2[m])
+            print "mass "+str(m)+"lim 1 "+str(lim1[m])+" lim 2 "+str(lim2[m])
+            #print str(m)+" "+str(1-lim1[m]/lim2[m])
+            i+=1
+    g.SetMarkerStyle(20)
+    g.GetXaxis().SetTitle("M_{VV}")
+    g.GetYaxis().SetTitleOffset(1.4)
+    g.GetYaxis().SetTitle(options.firstfile.replace(".root","")+"/"+options.secondfile.replace(".root",""))
+    #g.SetMarkerSize(2)
+    g.Draw("AP")
+    c.SaveAs("limit_ratio.pdf")
+    c.SaveAs("limit_ratio.png")

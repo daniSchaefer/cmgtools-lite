@@ -40,7 +40,7 @@ GaussianSumTemplateMaker::GaussianSumTemplateMaker(const RooDataSet* dataset, co
       double w = output->GetYaxis()->GetBinWidth(j);  
       double ymin=output->GetYaxis()->GetBinLowEdge(j);
       double ymax= ymin+w;
-      double interval = 20.;
+      double interval = output->GetYaxis()->GetBinWidth(1)/4.;
       for (int k=0;k<=int(w/interval);k++)
       {
         double y = ymin + k* interval;

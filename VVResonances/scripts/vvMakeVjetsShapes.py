@@ -11,7 +11,6 @@ import os, sys, re, optparse,pickle,shutil,json
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
 
-
 parser = optparse.OptionParser()
 parser.add_option("-s","--sample",dest="sample",default='',help="Type of sample")
 parser.add_option("-c","--cut",dest="cut",help="Cut to apply for shape",default='')
@@ -19,8 +18,8 @@ parser.add_option("-o","--output",dest="output",help="Output JSON",default='')
 parser.add_option("-m","--min",dest="mini",type=float,help="min MJJ",default=40)
 parser.add_option("-M","--max",dest="maxi",type=float,help="max MJJ",default=160)
 parser.add_option("--store",dest="store",type=str,help="store fitted parameters in this file",default="")
-parser.add_option("--corrFactorW",dest="corrFactorW",type=float,help="add correction factor xsec",default=1.)
-parser.add_option("--corrFactorZ",dest="corrFactorZ",type=float,help="add correction factor xsec",default=41.34/581.8)
+parser.add_option("--corrFactorW",dest="corrFactorW",type=float,help="add correction factor xsec",default=0.205066345)
+parser.add_option("--corrFactorZ",dest="corrFactorZ",type=float,help="add correction factor xsec",default=0.09811023622)
 parser.add_option("-f","--fix",dest="fixPars",help="Fixed parameters",default="1")
 parser.add_option("--minMVV","--minMVV",dest="minMVV",type=float,help="mVV variable",default=1)
 parser.add_option("--maxMVV","--maxMVV",dest="maxMVV",type=float, help="mVV variable",default=1)
@@ -42,6 +41,52 @@ def getBinning(binsMVV,minx,maxx,bins):
         for w in s:
             l.append(int(w))
     return l
+
+
+def doFits(fitter,histo,histo_nonRes,label,leg):
+  params={}
+  print "fitting "+histo.GetName()+" contribution "    
+  exp  = ROOT.TF1("gaus" ,"gaus",55,215)  
+  histo_nonRes.Fit(exp,"R")
+ 
+  gauss  = ROOT.TF1("gauss" ,"gaus",74,94)  
+  histo.Fit(gauss,"R")
+  mean = gauss.GetParameter(1)
+  sigma = gauss.GetParameter(2)
+ 
+  print "____________________________________"
+  print "mean "+str(mean)
+  print "sigma "+str(sigma)
+  print "set paramters of double CB constant aground the ones from gaussian fit"
+  fitter.w.var("mean").setVal(mean)
+  fitter.w.var("mean").setConstant(1)
+  fitter.w.var("sigma").setVal(sigma)
+  fitter.w.var("sigma").setConstant(1)
+  print "_____________________________________"
+  fitter.importBinnedData(histo,['x'],'data')
+  fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1),ROOT.RooFit.Save(1),ROOT.RooFit.Range(55,120)]) #55,140 works well with fitting only the resonant part
+ #ROOT.RooFit.Minos(ROOT.kTRUE)
+  fitter.projection("model","data","x","debugJ"+leg+"_"+label+"_Res.png")
+  c= ROOT.TCanvas("c","C",600,400)
+  histo_nonRes.SetMarkerStyle(1)
+  histo_nonRes.SetMarkerColor(ROOT.kBlack)
+  histo_nonRes.GetXaxis().SetTitle("m_{jet}")
+  histo_nonRes.GetYaxis().SetTitle("events")
+  histo_nonRes.Draw("p")
+  exp.SetLineColor(ROOT.kRed)
+  exp.Draw("same")
+  c.SaveAs("debugJ"+leg+"_"+label+"_nonRes.png")
+  
+  
+  
+  
+  params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}, "alpha":{ "val": fitter.w.var("alpha").getVal(), "err": fitter.w.var("alpha").getError()},"alpha2":{"val": fitter.w.var("alpha2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()},"n2": {"val": fitter.w.var("n2").getVal(), "err": fitter.w.var("n2").getError()}}
+  params[label+"_nonRes_"+leg]={"mean": {"val":exp.GetParameter(1),"err":exp.GetParError(1)},"sigma": {"val":exp.GetParameter(2),"err":exp.GetParError(2)}}
+  return params
+
+
+
+
     
 
 label = options.output.split(".root")[0]
@@ -75,28 +120,7 @@ for filename in os.listdir(args[0]):
 sigmas=[]
 
 params={}
-NRes = [0,0]
-NnonRes= [0,0]
 legs=["l1","l2"]
-
-
-#dataPlotters=[]
-#dataPlottersNW=[]
-#for name in samples.keys():
-   
-            #dataPlotters.append(TreePlotter(args[0]+'/'+samples[name]+'.root','tree'))
-            #dataPlotters[-1].setupFromFile(args[0]+'/'+samples[name]+'.pck')
-            #dataPlotters[-1].addCorrectionFactor('xsec','tree')
-            #dataPlotters[-1].addCorrectionFactor('genWeight','tree')
-            #dataPlotters[-1].addCorrectionFactor('puWeight','tree')
-            
-            #dataPlotters[-1].filename=fname
-            #dataPlottersNW.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
-            #dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
-            #dataPlottersNW[-1].addCorrectionFactor('genWeight','tree')
-            
-            #dataPlottersNW[-1].filename=fname
-
 
 
 plotters=[]
@@ -108,16 +132,9 @@ for name in samples.keys():
     plotters[-1].addCorrectionFactor('genWeight','tree')
     plotters[-1].addCorrectionFactor('puWeight','tree')
     if options.triggerW: plotters[-1].addCorrectionFactor('triggerWeight','tree')	
-
     corrFactor = options.corrFactorW
-    if samples[name].find('Z') != -1: 
-        corrFactor = options.corrFactorZ
-        names.append("Z+jets")
-    if samples[name].find('W') != -1: 
-        corrFactor = options.corrFactorW
-        names.append("W+jets")
-    if samples[name].find('TT') != -1: 
-        names.append("t #bar{t}")
+    if samples[name].find('Z') != -1: corrFactor = options.corrFactorZ
+    if samples[name].find('W') != -1: corrFactor = options.corrFactorW
     plotters[-1].addCorrectionFactor(corrFactor,'flat')
     
 
@@ -125,13 +142,19 @@ print samplenames
 print samples
 print samples.keys()
     
-#plotter=MergedPlotter(dataPlotters)        
-
 print 'Fitting Mjet:' 
 
 for leg in legs:
- tmp=[]
- tmp_nonres=[]
+ histos = {}
+ histos_nonRes = {}
+ scales={}
+ scales_nonRes={}
+ 
+ purity = "LPLP"
+ if options.output.find("HPHP")!=-1:purity = "HPHP"
+ if options.output.find("HPLP")!=-1:purity = "HPLP"
+ 
+ 
  fitter=Fitter(['x'])
  fitter.jetResonanceVjets('model','x')
  
@@ -140,178 +163,57 @@ for leg in legs:
      if len(fixedPars) > 0:
       print "   - Fix parameters: ", fixedPars
       for par in fixedPars:
-       if par=="c_0" or par =="c_1" or par=="c_2": continue
        parVal = par.split(':')
        fitter.w.var(parVal[0]).setVal(float(parVal[1]))
-       fitter.w.var(parVal[0]).setConstant(1)
-
- #histo = plotter.drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)","1",80,options.mini,options.maxi)
+       fitter.w.var(parVal[0]).setConstant(1) 
  
- histo = ROOT.TH1F("res","resonant backgrounds",80,55,215)
- histo_nonRes = ROOT.TH1F("res","resonant backgrounds",80,55,215)
 
- c = ROOT.TCanvas("c","c",400,400)
- stack = ROOT.THStack("stackplot","stackplot")
- stack2 = ROOT.THStack("stackplot2","stackplot2")
- legend2 = ROOT.TLegend(0.6,0.7,0.8,0.8)
+
  for p in range(0,len(plotters)):
-     tmp_nonres .append( plotters[p].drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==0)*(jj_"+leg+"_softDrop_mass>55&&jj_"+leg+"_softDrop_mass<215)","1",80,55,215)) #(jj_"+leg+"_mergedVTruth==1)*
-     tmp_nonres[-1].SetName(str(p))
-     tmp_nonres[-1].SetFillColorAlpha(ROOT.kBlue,0.6)
-     tmp_nonres[-1].SetLineColor(ROOT.kBlue)
-     text = names[p]
-     if p==0:
-         tmp_nonres[-1].SetLineColor(ROOT.kRed)
-         tmp_nonres[-1].SetFillColorAlpha(ROOT.kRed, 0.6)
-         tmp_nonres[-1].SetMaximum(0.006)
-     if p==2:
-         tmp_nonres[-1].SetLineColor(ROOT.kGreen)
-         tmp_nonres[-1].SetFillColorAlpha(ROOT.kGreen, 0.6)
-         
-     legend2.AddEntry(tmp_nonres[-1],text ,"l")
- for t in range(0,len(tmp_nonres)):
-     histo_nonRes.Add(tmp_nonres[t])
-     stack2.Add(tmp_nonres[t])
+     key ="Wjets"
+     if str(p).find("Z")!=-1: key = "Zjets"
+     if str(p.find("TT")!=-1: key = "TTbar"
+     histos_nonRes [key] = plotters[p].drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==0)*(jj_"+leg+"_softDrop_mass>55&&jj_"+leg+"_softDrop_mass<215)","1",80,55,215)
+     histos  [key] = plotters[p].drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)*(jj_"+leg+"_softDrop_mass>55&&jj_"+leg+"_softDrop_mass<215)","1",80,55,215)
      
- exp  = ROOT.TF1("gaus" ,"gaus",55,215)  
- histo_nonRes.Fit(exp,"R")
- 
- histos=[]
- scales=[]
- c.SetLeftMargin(0.15)
- legend = ROOT.TLegend(0.6,0.7,0.8,0.8)
- histo.SetLineColor(ROOT.kBlack)
- #histo.Draw("hist")
- print "number of plotter "+str(len(plotters))
- for p in range(0,len(plotters)):
-     tmp .append( plotters[p].drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)*(jj_"+leg+"_softDrop_mass>55&&jj_"+leg+"_softDrop_mass<215)","1",80,55,215)) #(jj_"+leg+"_mergedVTruth==1)*
-     tmp[-1].SetName(str(p))
-     tmp[-1].SetFillColorAlpha(ROOT.kBlue,0.6)
-     tmp[-1].SetLineColor(ROOT.kBlue)
-     text = names[p]
-     if p==0:
-         tmp[-1].SetLineColor(ROOT.kRed)
-         tmp[-1].SetFillColorAlpha(ROOT.kRed, 0.6)
-         tmp[-1].SetMaximum(0.006)
-     if p==2:
-         tmp[-1].SetLineColor(ROOT.kGreen)
-         tmp[-1].SetFillColorAlpha(ROOT.kGreen, 0.6)
-         
-     legend.AddEntry(tmp[-1],text ,"l")
-     #tmp[-1].Draw("histsame")
-     print tmp[-1].Integral()
- print tmp
- for t in range(0,len(tmp)):
-     histo.Add(tmp[t])
-     stack.Add(tmp[t])
-     histos.append(tmp[t])
-     scales.append(tmp[t].Integral())
- stack.Add(histo_nonRes)
- print histo.Integral()
- if leg.find("l1")!=-1:
-     NRes[0] += histo.Integral()
- else:
-     NRes[1] += histo.Integral()
- 
- 
- gauss  = ROOT.TF1("gauss" ,"gaus",74,94)  
- histo.Fit(gauss,"R")
- mean = gauss.GetParameter(1)
- sigma = gauss.GetParameter(2)
- 
- print "____________________________________"
- print "mean "+str(mean)
- print "sigma "+str(sigma)
- print "set paramters of double CB constant aground the ones from gaussian fit"
- fitter.w.var("mean").setVal(mean)
- fitter.w.var("mean").setConstant(1)
- fitter.w.var("sigma").setVal(sigma)
- fitter.w.var("sigma").setConstant(1)
- print "_____________________________________"
- 
- 
- fitter.importBinnedData(histo,['x'],'data')
- fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1),ROOT.RooFit.Save(1),ROOT.RooFit.Range(55,120)]) #55,140 works well with fitting only the resonant part
- #ROOT.RooFit.Minos(ROOT.kTRUE)
- func = fitter.getFunc()
- 
- purity = "LPLP"
- if options.output.find("HPHP")!=-1:
-     purity = "HPHP"
- if options.output.find("HPLP")!=-1:
-     purity = "HPLP"
- fitter.drawVjets("Vjets_mjetRes_"+leg+"_"+purity+".pdf",[histos[2],histos[1],histos[0]],[scales[2],scales[1],scales[0]])
- #histo.Draw()
- #histo.SetTitle("")
- #histo.GetXaxis().SetTitle("m_{jet}")
- #histo.GetYaxis().SetTitle("arbitrary scale")
- #histo.GetYaxis().SetTitleOffset(1.65)
- #stack.Draw("hist")
- #legend.Draw("same")
- #histo.Draw("same")
- #func = fitter.getFunc()
- #func.Draw("same")
- #histo_nonRes.Draw("same")
- #c.SaveAs("test.png")
- 
- ctest2 = ROOT.TCanvas('ctest2','nonresonant component',400,400)
- ctest2.SetLeftMargin(0.15)
- histo_nonRes.GetXaxis().SetTitle("m_{jet}")
- histo_nonRes.GetYaxis().SetTitle("arbitrary scale")
- histo_nonRes.GetYaxis().SetTitleOffset(1.3)
- histo_nonRes.Draw()
- stack2.Draw("histsame")
- histo_nonRes.Draw("same")
- ctest2.SaveAs("NonRes.png")
-
- fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_Res.png")
- params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}, "alpha":{ "val": fitter.w.var("alpha").getVal(), "err": fitter.w.var("alpha").getError()},"alpha2":{"val": fitter.w.var("alpha2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()},"n2": {"val": fitter.w.var("n2").getVal(), "err": fitter.w.var("n2").getError()}}
- 
- 
- ratio = histo.Integral()/histo_nonRes.Integral()
- params[label+"_nonRes_"+leg]= {'c0':{"val" : exp.GetParameter(1)}, 'c1': {"val": exp.GetParameter(2)}, 'cf':{"val":ratio}}
+     histos_nonRes[key].SetName(str(p)+"_nonRes")
+     histos [key].SetName(str(p))
+     scales [key] = histos[key].Integral()
+     scales_nonRes [key] = histos_nonRes[key].Integral()
      
- #params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}}
+     
+ # combine ttbar and wjets contributions:  
+ Wjets = histos["Wjets"]
+ Wjets_nonRes = histos_nonRes["Wjets"]
+ if histos.keys().find("TTbar")!=-1: Wjets.Add(histos["TTbar"]); Wjets_nonRes.Add(histos_nonRes["TTbar"])
+ Zjets = histos["Zjets"]
+ Zjets_nonRes = histos_nonRes["Zjets"]
+ 
+ Wjets_params = doFit(fitter,Wjets,Wjets_nonRes,"Wjets+TTbar",leg)
+ Zjets_params = doFit(fitter,Zjets,Zjets_nonRes,"Zjets",leg)
+  
+ 
+ fitter.drawVjets("Vjets_mjetRes_"+leg+"_"+purity+".pdf",histos,histos_nonRes,scales,scales_nonRes)
+ 
 
- #if leg.find("l1")!=-1:
-     #NnonRes[0] += histo.Integral()
- #else:
-     #NnonRes[1] += histo.Integral()
-          
-#print 'fitting MJJ: ' 
-
-#fitter=Fitter(['MVV'])
-#fitter.qcd('model','MVV',False)
-
-#if options.fixPars!="":
-    #fixedPars =options.fixPars.split(',')
-    #for par in fixedPars:
-     #if len(fixedPars) > 1:
-        #if par!="c_0" and par!="c_1" and par!="c_2": continue
-        #parVal = par.split(':')
-        #fitter.w.var(parVal[0]).setVal(float(parVal[1]))
-        #fitter.w.var(parVal[0]).setConstant(1)
-
-#binning=getBinning(options.binsMVV,options.minMVV,options.maxMVV,1000)
-#roobins = ROOT.RooBinning(len(binning)-1,array("d",binning))
-#histo = plotter.drawTH1Binned("jj_LV_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)","1",binning)
-##histo.Scale(40000.)
-#fitter.importBinnedData(histo,['MVV'],'data')
-#fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1),ROOT.RooFit.Save(1)])
-##fitter.projection("model","data",'MVV',"debugMVV_"+options.output+".png",roobins)
-#fitter.projection("model","data",'MVV',"debugMVV_log_"+options.output+".png",roobins,True)
-#print "save plot "+"debugMVV_log_"+options.output+".png"
-#params[label+"_MVV"]={"CMS_p0": {"val":fitter.w.var("c_0").getVal(), "err":fitter.w.var("c_0").getError() }, "CMS_p1":{ "val": fitter.w.var("c_1").getVal(), "err": fitter.w.var("c_1").getError()}, "CMS_p2":{ "val":  fitter.w.var("c_2").getVal(), "err": fitter.w.var("c_2").getError()}}
-    
-
+ params["ratio_Res_nonRes_"+leg]= {'ratio':{"val" : scales["Wjets"]/scales_nonRes["WJets"] }, 'ratio_Z': {"val": scales["Zjets"]/scales_nonRes["Zjets"]}'ratio_TT': {"val": scales["TTbar"]/scales_nonRes["TTbar"]}}
+     
         
 if options.store!="":
     f=open(options.store,"w")
     for par in params:
         f.write(str(par)+ " = " +str(params[par])+"\n")
 
-    #print NRes
-    #print NnonRes
-    #f.write(label+"_ratio_l1 = "+str(NRes[0]/(NRes[0]+NnonRes[0]))+"\n")
-    #f.write(label+"_ratio_l2 = "+str(NRes[1]/(NRes[1]+NnonRes[1]))+"\n")
+ 
+
+ #fitter.importBinnedData(histo,['x'],'data')
+ #fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1),ROOT.RooFit.Save(1),ROOT.RooFit.Range(55,120)])
+ #fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_Res.png")
+
+ #fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_Res.root")
+ #if options.output.find("TT")!=-1: 
+   #params[label+"_Res_"+leg]={"meanW": {"val": fitter.w.var("meanW").getVal(), "err": fitter.w.var("meanW").getError()},"meanW": {"val": fitter.w.var("meanTop").getVal(), "err": fitter.w.var("meanTop").getError()}, "sigmaW": {"val": fitter.w.var("sigmaW").getVal(), "err": fitter.w.var("sigmaW").getError()}, "sigmaTop": {"val": fitter.w.var("sigmaTop").getVal(), "err": fitter.w.var("sigmaTop").getError()}, "alphaW":{ "val": fitter.w.var("alphaW").getVal(), "err": fitter.w.var("alphaW").getError()},"alphaW2":{"val": fitter.w.var("alphaW2").getVal(), "err": fitter.w.var("alphaW2").getError()},"alphaTop":{ "val": fitter.w.var("alphaTop").getVal(), "err": fitter.w.var("alphaTop")},"alphaTop2":{"val": fitter.w.var("alphaTop2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()}}
+ #else:
+   #params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}, "alpha":{ "val": fitter.w.var("alpha").getVal(), "err": fitter.w.var("alpha")},"alpha2":{"val": fitter.w.var("alpha2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()},"n2": {"val": fitter.w.var("n2").getVal(), "err": fitter.w.var("n2").getError()}}
+   ##params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}}
 

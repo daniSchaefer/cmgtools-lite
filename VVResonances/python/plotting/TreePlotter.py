@@ -240,12 +240,9 @@ class TreePlotter(PlotterBase):
 
     def makeDataSet(self,var,cut,firstEv=0,lastEv=-1):
         variables=var.split(',')
-        
-        #cachefile = os.getcwd()+"/tmp/cache%i.root"%(random.randint(0,1e+6))
-        #self.cache=ROOT.TFile(cachefile,"RECREATE")
-        #os.system("echo 'save chache file to '")
-        #os.system("echo "+os.getcwd())
+
         self.cache=ROOT.TFile("/tmp/%s/cache%i.root"%(commands.getoutput("whoami"),random.randint(0, 1e+6)),"RECREATE")
+        # self.cache=ROOT.TFile("cache%i.root"%(random.randint(0, 1e+6)),"RECREATE")
         w=ROOT.RooWorkspace("w","w")
         argset=ROOT.RooArgSet()
         argset2=ROOT.RooArgSet()
@@ -257,10 +254,10 @@ class TreePlotter(PlotterBase):
         argset.add(w.var('weight'))
         
         data=ROOT.RooDataSet("data","data",argset,"weight")
-	if lastEv == -1: lastEv = self.tree.GetEntries()
+        if lastEv == -1: lastEv = self.tree.GetEntries()
         print lastEv,firstEv
-	reduced = self.tree.CopyTree(cut,"",lastEv,firstEv)
-	print "done reduced"
+        reduced = self.tree.CopyTree(cut,"",lastEv,firstEv)
+        print "done reduced"
         N=0
         for event in reduced:
             weight = 1.0
