@@ -7,9 +7,9 @@ ROOT.gStyle.SetLegendBorderSize(0)
 
 def plotStack(backgrounds,xrange,yrange,zrange,projection,purity):
     c = getCanvas()
-    leg = ROOT.TLegend(0.1,0.92,0.3,0.7)
+    leg = ROOT.TLegend(0.12,0.91,0.3,0.7)
     if projection == "z":
-        leg = ROOT.TLegend(0.6,0.92,0.9,0.7)
+        leg = ROOT.TLegend(0.6,0.91,0.89,0.7)
     leg.SetTextFont(42)
     
     p_bkg =[]
@@ -75,15 +75,15 @@ def plotHistos(hists,outname,label,dolog=False,data=None,scales=None):
             data[s].Scale(scales[s])
     
     c= getCanvas()
-    leg = ROOT.TLegend(0.1,0.92,0.4,0.6)
+    leg = ROOT.TLegend(0.12,0.91,0.4,0.6)
     if dolog == True:
-        leg = ROOT.TLegend(0.6,0.92,0.9,0.6)
+        leg = ROOT.TLegend(0.6,0.91,0.89,0.6)
     leg.SetTextFont(42)
     i=0
     for h in hists:
         h.SetMaximum(0.07)
         if outname.find("HPLP")!=-1:
-            h.SetMaximum(1.0)
+            h.SetMaximum(0.7)
         if dolog == True:
             h.SetMaximum(10)
         h.SetLineColor(colors[i])
@@ -196,9 +196,9 @@ if __name__=="__main__":
     
     sample.SetFillColor(0)
     
-    xrange = [["px0",0,-1],["px1",0,2],["px2",2,3],["px3",3,5]]
-    yrange = [["py0",0,-1],["py1",0,2],["py2",2,3],["py3",3,5]]
-    zrange = [["pz0",0,-1],["pz1",1000,1300],["pz2",1300,2000],["pz3",2000,5000]]
+    xrange = [["px0",0,5],["px1",0,2],["px2",2,3],["px3",3,5]]
+    yrange = [["py0",0,5],["py1",0,2],["py2",2,3],["py3",3,5]]
+    zrange = [["pz0",1000,5000],["pz1",1000,1300],["pz2",1300,2000],["pz3",2000,5000]]
     
     projections_x =[]
     data_x =[]
@@ -248,12 +248,12 @@ if __name__=="__main__":
         
         
    ############### make controlplots of QCD alternative shapes ####################
-    kernel_OPTXYup = f_kernel.Get("histo_OPT2XYUp")
+    kernel_OPTXYup = f_kernel.Get("histo_OPTXYUp")
     kernel = f_kernel.Get("histo")
-    kernel_OPTXYdown = f_kernel.Get("histo_OPT2XYDown")
+    kernel_OPTXYdown = f_kernel.Get("histo_OPTXYDown")
     
-    kernel_PTup = f_kernel.Get("histo_OPTXYUp")
-    kernel_PTdown = f_kernel.Get("histo_OPTXYDown")
+    kernel_PTup = f_kernel.Get("histo_PTXYUp")
+    kernel_PTdown = f_kernel.Get("histo_PTXYDown")
     
     kernel_PTZup   = f_kernel.Get("histo_PTZUp")
     kernel_PTZdown = f_kernel.Get("histo_PTZDown")
@@ -270,7 +270,7 @@ if __name__=="__main__":
     zrange = [["pz0",0,-1]]
     
     p_XY=[]
-    XY =[kernel,kernel_OPTXYup,kernel_OPTXYdown,kernel_PTup,kernel_PTdown,kernel_varBinUp,kernel_varBinDown]
+    XY =[kernel,kernel_OPTXYup,kernel_OPTXYdown,kernel_PTup,kernel_PTdown]
     labels_XY =[]    
     for hist in XY:
         print " make projection of histogram "+str(hist.GetName())
@@ -293,7 +293,7 @@ if __name__=="__main__":
     
     p_Z=[]
     labels_Z =[] 
-    Z =[kernel,kernel_OPTZup,kernel_OPTZdown,kernel_PTZup,kernel_PTZdown,kernel_varBinUp,kernel_varBinDown]
+    Z =[kernel,kernel_OPTZup,kernel_OPTZdown,kernel_PTZup,kernel_PTZdown]
     for hist in Z:
         hist.Scale(1/hist.Integral())
         print " make projection of histogram "+str(hist.GetName())
@@ -306,39 +306,39 @@ if __name__=="__main__":
     print kernel_varBinUp.Integral()
     ############## make stackplots of all backgrounds ####################
     
-    #f_Wjets  = ROOT.TFile("JJ_WJets_all_"+purity+".root","READ")
-    #f_Zjets  = ROOT.TFile("JJ_ZJets_all_"+purity+".root","READ")
-    #f_ttjets = ROOT.TFile("JJ_ttJets_all_"+purity+".root","READ")
+    f_Wjets  = ROOT.TFile("JJ_WJets_all_"+purity+".root","READ")
+    f_Zjets  = ROOT.TFile("JJ_ZJets_all_"+purity+".root","READ")
+    f_ttjets = ROOT.TFile("JJ_ttJets_all_"+purity+".root","READ")
     
-    #qcd = f_sample.Get("nonRes")
-    #Wjets = f_Wjets.Get("WJets_all")
-    #Zjets = f_Zjets.Get("ZJets_all")
-    #ttbar = f_ttjets.Get("ttJets_all")
-    #qcd  .SetName("nonRes")
-    #Wjets.SetName("WJets_all")
-    #Zjets.SetName("ZJets_all")
-    #ttbar.SetName("ttJets_all")
+    qcd = f_sample.Get("nonRes")
+    Wjets = f_Wjets.Get("WJets_all")
+    Zjets = f_Zjets.Get("ZJets_all")
+    ttbar = f_ttjets.Get("ttJets_all")
+    qcd  .SetName("nonRes")
+    Wjets.SetName("WJets_all")
+    Zjets.SetName("ZJets_all")
+    ttbar.SetName("ttJets_all")
     
-    #lumi = 35900.
-    #qcd  .Scale(lumi)
-    #Wjets.Scale(lumi)
-    #Zjets.Scale(lumi)
-    #ttbar.Scale(lumi)
+    lumi = 35900.
+    qcd  .Scale(lumi)
+    Wjets.Scale(lumi)
+    Zjets.Scale(lumi)
+    ttbar.Scale(lumi)
     
-    #print qcd
-    #print Wjets
-    #print Zjets
-    #print ttbar
+    print qcd
+    print Wjets
+    print Zjets
+    print ttbar
     
-    #xrange = [["px0",0,5]]
-    #yrange = [["py0",0,5]]
-    #zrange = [["pz0",1000,5000]]
+    xrange = [["px0",0,5]]
+    yrange = [["py0",0,5]]
+    zrange = [["pz0",1000,5000]]
     
-    #backgrounds = [Wjets,Zjets,ttbar,qcd]
+    backgrounds = [Wjets,Zjets,ttbar,qcd]
     
-    #plotStack(backgrounds,xrange,yrange,zrange,"x",purity)
-    #plotStack(backgrounds,xrange,yrange,zrange,"y",purity)
-    #plotStack(backgrounds,xrange,yrange,zrange,"z",purity)
+    plotStack(backgrounds,xrange,yrange,zrange,"x",purity)
+    plotStack(backgrounds,xrange,yrange,zrange,"y",purity)
+    plotStack(backgrounds,xrange,yrange,zrange,"z",purity)
 
     
     

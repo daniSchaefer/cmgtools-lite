@@ -68,7 +68,7 @@ cuts['res'] = '(jj_l1_mergedVTruth==1&&jj_l1_softDrop_mass>60&&jj_l1_softDrop_ma
 
 purities=['HPHP','HPLP','LPLP','NP']
 
-purities=["HPHP","HPLP"]
+purities=["HPLP"]
 
 
 BulkGravWWTemplate="BulkWW_"
@@ -177,11 +177,11 @@ def makeSignalShapesMJ(filename,template,leg):
 
   else:
       # doExp=1
-      fixPars= "1"#"alpha:1.125,n:2,n2:2"
+      fixPars= "n:2,alpha:1.2"#"n:2,alpha:1.2"
       if template.find("Wprime")!=-1:
           fixPars="1"#"n:2,n2:2"
       cmd='vvMakeSignalMJShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "TMath::Log(jj_{leg}_softDrop_mass * jj_{leg}_softDrop_mass/jj_{leg}_pt)" -m {minMJ} -M {maxMJ} -e {doExp} -f "{fixPars}" --minMX {minMX} --maxMX {maxMX} {addOption} samples '.format(template=template,cut=cut,rootFile=rootFile,leg=leg,minMJ=minMJ,maxMJ=maxMJ,doExp=doExp,minMX=minMX,maxMX=maxMX,fixPars=fixPars,addOption=addOption)
-      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol1,alpha:pol3,n:pol4,alpha2:pol3,n2:pol3,slope:pol0,f:pol0" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
+      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol5,alpha:pol3,n:pol4,alpha2:pol5,n2:pol5,slope:pol0,f:pol0" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
       if filename.find("H")!=-1:
           cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol3,alpha:pol3,n:pol4,meanH:pol3,sigmaH:pol3,alphaH:pol0,nH:pol3,f:pol0" -m 1000 -M 5000  {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile)
       
@@ -389,7 +389,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 #makeSignalShapesMVV("JJ_BulkGWW",BulkGravWWTemplate)
 #makeSignalShapesMJ("JJ_BulkGWW",BulkGravWWTemplate,'l1')
 #makeSignalShapesMJ("JJ_BulkGWW",BulkGravWWTemplate,'l2')
-makeSignalYields("JJ_BulkGWW",BulkGravWWTemplate,BRWW,{'HPHP':0.99*0.99,'HPLP':0.99*1.03,'LPLP':1.03*1.03})
+#makeSignalYields("JJ_BulkGWW",BulkGravWWTemplate,BRWW,{'HPHP':0.99*0.99,'HPLP':0.99*1.03,'LPLP':1.03*1.03})
 
 #makeSignalShapesMVV("JJ_ZprimeWW",ZprimeWWTemplate)
 #makeSignalShapesMJ("JJ_ZprimeWW",ZprimeWWTemplate,'l1')
@@ -423,7 +423,7 @@ makeSignalYields("JJ_BulkGWW",BulkGravWWTemplate,BRWW,{'HPHP':0.99*0.99,'HPLP':0
 	#mergeKernelJobs()
 #else:
 wait = True
-#makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'],"1D",wait)
+makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'],"1D",wait)
 #makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
 #makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
 
