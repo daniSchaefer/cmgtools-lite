@@ -13,7 +13,7 @@ class DataCardMaker:
         self.contributions=[]
         self.systematics=[]
         self.tag=self.physics+"_"+category+"_"+period
-        self.cat = cat
+	self.cat=cat
 	if self.cat!="": self.rootFile = ROOT.TFile("datacardInputs_"+cat+".root","RECREATE")
         else: self.rootFile = ROOT.TFile("datacardInputs_"+self.tag+".root","RECREATE")
         self.rootFile.cd()
@@ -75,13 +75,13 @@ class DataCardMaker:
 
         pdfName="_".join([name,self.tag])
         vvMass = ROOT.RooDoubleCB(pdfName,pdfName,self.w.var(MVV),self.w.function(SCALEVar),self.w.function(SIGMAVar),self.w.function(ALPHA1Var),self.w.function(N1Var),self.w.function(ALPHA2Var),self.w.function(N2Var))
-        getattr(self.w,'import')(vvMass,ROOT.RooFit.Rename(pdfName))
+ 	getattr(self.w,'import')(vvMass,ROOT.RooFit.Rename(pdfName))
         f.close()
 	
     def addMVVSignalParametricShape2(self,name,variable,jsonFile,scale ={},resolution={}):
 
         if self.w.var("MH") == None: self.w.factory("MH[2000]")
-        self.w.var("MH").setVal(2000.)
+	self.w.var("MH").setVal(2000.)
         self.w.var("MH").setConstant(1)
        
         scaleStr='0'
@@ -103,7 +103,7 @@ class DataCardMaker:
             resolutionSysts.append(syst)
 
         MVV=variable    
-        if self.w.var(MVV) == None: self.w.factory(MVV+"[0,13000]")
+	if self.w.var(MVV) == None: self.w.factory(MVV+"[0,13000]")
 
         f=open(jsonFile)
         info=json.load(f)
@@ -131,13 +131,13 @@ class DataCardMaker:
         self.w.factory("prod::{name}({param1},{param2})".format(name=GSIGMAVar,param1=SIGMAVar,param2=SCALESIGMAVar))        
 
         self.w.var(MVV).Print()
-        self.w.function(SCALEVar).Print()
-        self.w.function(SIGMAVar).Print()
-        self.w.function(GSIGMAVar).Print()
+	self.w.function(SCALEVar).Print()
+	self.w.function(SIGMAVar).Print()
+	self.w.function(GSIGMAVar).Print()
 
         pdfName="_".join([name,self.tag])
-        gaus = ROOT.RooGaussian(pdfName+'_Gaus',pdfName+'_Gaus',self.w.var(MVV),self.w.function(SCALEVar),self.w.function(GSIGMAVar))
-        cb = ROOT.RooCBShape(pdfName+'_CB',pdfName+'_CB',self.w.var(MVV),self.w.function(SCALEVar),self.w.function(SIGMAVar),self.w.function(ALPHAVar),self.w.function(NVar))
+	gaus = ROOT.RooGaussian(pdfName+'_Gaus',pdfName+'_Gaus',self.w.var(MVV),self.w.function(SCALEVar),self.w.function(GSIGMAVar))
+	cb = ROOT.RooCBShape(pdfName+'_CB',pdfName+'_CB',self.w.var(MVV),self.w.function(SCALEVar),self.w.function(SIGMAVar),self.w.function(ALPHAVar),self.w.function(NVar))
         vvMass = ROOT.RooAddPdf(pdfName,pdfName,gaus,cb,self.w.function(fVar))
         getattr(self.w,'import')(vvMass,ROOT.RooFit.Rename(pdfName))
         f.close()
@@ -305,7 +305,7 @@ class DataCardMaker:
     def addMJJSignalParametricShapeNOEXP(self,name,variable,jsonFile,scale ={},resolution={},varToReplace="MH"):
 
         if self.w.var("MH") == None: self.w.factory("MH[2000]")
-        self.w.var("MH").setVal(2000.)
+	self.w.var("MH").setVal(2000.)
         self.w.var("MH").setConstant(1)
        
         scaleStr='0'
@@ -365,19 +365,18 @@ class DataCardMaker:
         scaleSysts=[]
         resolutionSysts=[]
         for syst,factor in scale.iteritems():
-            if self.w.var(syst) == None:
-              self.w.factory(syst+"[0,-0.1,0.1]")
+            #if self.w.var(syst) != None: continue
+            self.w.factory(syst+"[0,-0.1,0.1]")
             scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
             scaleSysts.append(syst)
         for syst,factor in resolution.iteritems():
-            if self.w.var(syst) == None:
-              self.w.factory(syst+"[0,-0.5,0.5]")
+            #if self.w.var(syst) != None: continue
+            self.w.factory(syst+"[0,-0.5,0.5]")
             resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
             resolutionSysts.append(syst)
        
         MJJ=variable            
         if self.w.var(MJJ) == None: self.w.factory(MJJ+"[0,1000]")
-
 
         SCALEVar="_".join(["mean",name,self.tag])
         self.w.factory("expr::{name}('({param})*(1+{vv_syst})',{vv_systs})".format(name=SCALEVar,param=preconstrains['mean']['val'],vv_syst=scaleStr,vv_systs=','.join(scaleSysts)))
@@ -423,7 +422,7 @@ class DataCardMaker:
 
         #Load PDF
         histo=FR.Get(histoname)
-        print histo.GetName()
+	print histo.GetName()
 
 
         if len(systematics)>0:
@@ -434,8 +433,8 @@ class DataCardMaker:
             pdfName="_".join([name,self.tag])
 
         roohist = ROOT.RooDataHist(histName,histName,varlist,histo)      
-        varset.Print()
-        varlist.Print()
+	varset.Print()
+	varlist.Print()
         pdf=ROOT.RooHistPdf(pdfName,pdfName,varset,roohist,order)
         if self.w.data(histName) == None: getattr(self.w,'import')(roohist,ROOT.RooFit.Rename(histName))
         if self.w.pdf(pdfName) == None: getattr(self.w,'import')(pdf,ROOT.RooFit.Rename(pdfName))
@@ -470,9 +469,9 @@ class DataCardMaker:
             elif len(observables)==2:
                 total=ROOT.FastVerticalInterpHistPdf2D(pdfName,pdfName,self.w.var(observables[0]),self.w.var(observables[1]),conditional,pdfList,coeffList,1,-1)
             elif len(observables)==3:
-              total=ROOT.FastVerticalInterpHistPdf3D(pdfName,pdfName,self.w.var(observables[0]),self.w.var(observables[1]),self.w.var(observables[2]),conditional,pdfList,coeffList,1,-1)
+		total=ROOT.FastVerticalInterpHistPdf3D(pdfName,pdfName,self.w.var(observables[0]),self.w.var(observables[1]),self.w.var(observables[2]),conditional,pdfList,coeffList,1,-1)
 	    
-        if self.w.pdf(pdfName) == None: getattr(self.w,'import')(total,ROOT.RooFit.Rename(pdfName))
+	    if self.w.pdf(pdfName) == None: getattr(self.w,'import')(total,ROOT.RooFit.Rename(pdfName))
 
 
     def addShapes(self,name,observables,filename,histoname,systematics=[],conditional = False,order=0,newTag="",filename2="",systematics2=[]):     
@@ -722,10 +721,10 @@ class DataCardMaker:
             tag=name+"_"+self.tag
 
         p0="_".join(["CMS_VV_JJ_p0",tag])
-        self.w.factory("{name}[{val},10,60]".format(name=p0,val=preconstrains['CMS_p0']['val']))
+	self.w.factory("{name}[{val},10,60]".format(name=p0,val=preconstrains['CMS_p0']['val']))
        
         p1="_".join(["CMS_VV_JJ_p1",tag])
-        self.w.factory("{name}[{val},0,5]".format(name=p1,val=preconstrains['CMS_p1']['val']))
+	self.w.factory("{name}[{val},0,5]".format(name=p1,val=preconstrains['CMS_p1']['val']))
 
         p2="_".join(["CMS_VV_JJ_p2",tag])
         
@@ -788,11 +787,13 @@ class DataCardMaker:
         scaleSysts=[]
         resolutionSysts=[]
         for syst,factor in scale.iteritems():
-            if self.w.var(syst) == None: self.w.factory(syst+"[0,-0.1,0.1]")
+            #if self.w.var(syst) == None:
+	    self.w.factory(syst+"[0,-0.1,0.1]")
             scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
             scaleSysts.append(syst)
         for syst,factor in resolution.iteritems():
-            if self.w.var(syst) == None: self.w.factory(syst+"[0,-0.5,0.5]")
+            #if self.w.var(syst) == None:
+	    self.w.factory(syst+"[0,-0.5,0.5]")
             resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
             resolutionSysts.append(syst)
 
@@ -856,8 +857,8 @@ class DataCardMaker:
         else:
             val = 15.0
             print "attention set value to default in addMjetBackgroundShapeVJets"
-        self.w.factory("{name}[{val},-{err},{err}]".format(name=alpha,val=val,err=err))
 
+        self.w.factory("{name}[{val},-{err},{err}]".format(name=alpha,val=val,err=err))
         self.w.var(alpha).setConstant(1)
         
         n="_".join(["n",tag])
@@ -869,7 +870,7 @@ class DataCardMaker:
             val = 15.0
             print "attention set value to default in addMjetBackgroundShapeVJets"
         self.w.factory("{name}[{val},-{err},{err}]".format(name=n,val=val,err=err))
-        self.w.var(n).setConstant(1)
+	self.w.var(n).setConstant(1)
 
         alpha2="_".join(["alpha2",tag])
         if "alpha2" in preconstrains.keys():
@@ -879,7 +880,7 @@ class DataCardMaker:
             val = 15.0
             print "attention set value to default in addMjetBackgroundShapeVJets"
         self.w.factory("{name}[{val},-{err},{err}]".format(name=alpha2,val=val,err=err))
-        self.w.var(alpha2).setConstant(1)
+	self.w.var(alpha2).setConstant(1)
 
         n2="_".join(["n2",tag])
         if "n2" in preconstrains.keys():
@@ -889,7 +890,7 @@ class DataCardMaker:
             val = 15.0
             print "attention set value to default in addMjetBackgroundShapeVJets"
         self.w.factory("{name}[{val},-{err},{err}]".format(name=n2,val=val,err=err))
-        self.w.var(n2).setConstant(1)
+	self.w.var(n2).setConstant(1)
 
         pdfName="_".join([name,self.tag])
         if len(resolutionSysts)>=1:
@@ -1227,7 +1228,7 @@ class DataCardMaker:
         self.w.factory("SUM::{name}({f}*{name1},{name2})".format(name=pdfName,name1=pdfName1,f=sumVar,name2=pdfName2))
 
 
-    def conditionalProduct(self,name,pdf1,varName,pdf2,tag1="",tag2=""):
+    def conditionalProduct(self,name,pdf1,varName,pdf2,pdf3,tag1="",tag2="",tag3=""):
         pdfName="_".join([name,self.tag])
 
         if tag1=="":
@@ -1238,8 +1239,12 @@ class DataCardMaker:
             pdfName2="_".join([pdf2,self.tag])
         else:
             pdfName2="_".join([pdf2,tag2])
-
-        self.w.factory("PROD::{name}({name1}|{x},{name2})".format(name=pdfName,name1=pdfName1,x=varName,name2=pdfName2))
+        if tag3=="":    
+            pdfName3="_".join([pdf3,self.tag])
+        else:
+            pdfName3="_".join([pdf3,tag3])
+	    
+        self.w.factory("PROD::{name}({name1}|{x},{name2}|{x},{name3})".format(name=pdfName,name1=pdfName1,x=varName,name2=pdfName2,name3=pdfName3))
 
     def product(self,name,pdf1,pdf2):
         pdfName="_".join([name,self.tag])
@@ -1450,9 +1455,23 @@ class DataCardMaker:
         events=histogram.Integral()*self.luminosity*constant
         self.contributions.append({'name':name,'pdf':pdfName,'ID':ID,'yield':events})
 
-
-    
+    def addYieldWithRateParameter(self,name,ID,paramName,formula,values):#jen        
+        pdfName="_".join([name,self.tag])
+        self.contributions.append({'name':name,'pdf':pdfName,'ID':ID,'yield':1.0})            
+        kind = 'rateParam\t%s\t%s\t%s'%(self.tag,name,formula)
+        self.systematics.append({'name':paramName,'kind':kind,'values':values })
         
+    def addYieldWithRateParameterFromFile(self,name,ID,paramName,filename,histoName,values=[]):#jen        
+        pdfName="_".join([name,self.tag])
+        self.contributions.append({'name':name,'pdf':pdfName,'ID':ID,'yield':1.0})    
+
+        f=ROOT.TFile(filename)
+        histogram=f.Get(histoName)
+        events=histogram.Integral()*self.luminosity
+        
+        kind = 'rateParam\t%s\t%s\t%f'%(self.tag,name,events)
+        self.systematics.append({'name':paramName,'kind':kind,'values':values })
+                
 
     def makeCard(self):
 
@@ -1504,10 +1523,18 @@ class DataCardMaker:
             if syst['kind'] == 'param':
                 f.write(syst['name']+'\t'+'param\t' +str(syst['values'][0])+'\t'+str(syst['values'][1])+'\n')
 
+            elif 'rateParam' in syst['kind']:
+                line = syst['name']+'\t'+str(syst['kind'])+"\t"
+                for v in syst['values']:
+                 line+=str(v)+","
+                line=line[:-1]
+                line+='\n' 
+                f.write(line)
+                
             elif syst['kind'] == 'discrete':
                 f.write(syst['name']+'\t'+'discrete\n')
 
-            elif syst['kind'] == 'lnN': 
+            elif syst['kind'] == 'lnN' :
                 f.write(syst['name']+'\t'+ 'lnN\t' )
                 for shape in shapes:
                     has=False
@@ -1546,7 +1573,8 @@ class DataCardMaker:
     def importBinnedData(self,filename,histoname,poi,name = "data_obs",scale=1):
         f=ROOT.TFile(filename)
         histogram=f.Get(histoname)
-        histogram.Scale(scale)	
+        #histogram.Scale(scale*self.luminosity)	#jen
+        histogram.Scale(scale)	#jen
         cList = ROOT.RooArgList()
         for i,p in enumerate(poi):
             cList.add(self.w.var(p))
