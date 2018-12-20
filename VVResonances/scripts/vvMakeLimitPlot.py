@@ -260,6 +260,8 @@ frame.GetXaxis().SetTitleSize(0.05)
 frame.GetYaxis().SetTitle(ytitle)
 frame.GetYaxis().SetTitleSize(0.05)
 frame.GetYaxis().SetTitleOffset(1.15)
+frame.SetMinimum(1e-6)
+
 
 frame.Draw()
 band95.Draw("3same")

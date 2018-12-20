@@ -302,16 +302,17 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     leg.AddEntry(errors[0],"#pm 1#sigma unc.","f")
 
     if hsig:
-     hsig.Scale(1/hsig.Integral())
+     if hsig.Integral()!=0.:   
+        hsig.Scale(1/hsig.Integral())
      hsig.Scale(histos[2].Integral()*0.4)
      hsig.SetFillColor(ROOT.kGreen-6)
      hsig.SetLineColor(ROOT.kBlack)
-     # hsig.SetLineStyle(5)
+     hsig.SetLineStyle(5)
      hsig.Draw("HISTsame")
      #leg.AddEntry(hsig,"Signal pdf","F")
      leg.AddEntry(hsig,"G_{bulk} (%.1f TeV) #rightarrow WW"%(options.signalMass/1000.),"F")
     
-    errors[0].Draw("E2same")
+    errors[0].Draw("E5same")
     histos[0].Draw("samehist")
     if options.addTop: histos[3].Draw("histsame") 
     histos[1].Draw("histsame") 
@@ -319,6 +320,8 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     hdata.Draw("samePE0")         
     leg.SetLineColor(0)
     leg.Draw("same")
+    
+    #errors[0].Draw("E2same")
     
     chi2 = getChi2proj(histos[0],hdata)
     print hdata.GetEntries(),hdata.Integral()
@@ -390,7 +393,7 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     c.Update()
     c.cd()
     c.SetSelected(c)
-
+    #errors[0].Draw("E2same")
     #CMS_lumi.CMS_lumi(c, 0, 11)
     #c.cd()
     #c.Update()
@@ -402,7 +405,8 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     
 
 def doZprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wres,pdf1_sig,pdf2_sig,norm1_sig,norm2_sig,norm1_Zres,norm2_Zres,norm1_TThad,norm2_TThad):
-    
+    data1 = ROOT.RooDataHist("data1","data1",args_ws,data1)
+    data2 = ROOT.RooDataHist("data2","data2",args_ws,data2)
     # do some z projections
     h=[]
     lv=[]
@@ -505,7 +509,8 @@ def doZprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
     MakePlots(hfinals,dh,htot_sig,'z',zBinslowedge,errors)
         
 def doXprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wres,pdf1_sig,pdf2_sig,norm1_sig,norm2_sig,norm1_Zres,norm2_Zres,norm1_TThad,norm2_TThad):
-
+    data1 = ROOT.RooDataHist("data1","data1",args_ws,data1)
+    data2 = ROOT.RooDataHist("data2","data2",args_ws,data2)
     # do some x projections
     h=[]
     lv=[]
@@ -603,10 +608,12 @@ def doXprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
     dh.SetBinErrorOption(ROOT.TH1.kPoisson)
     errors = draw_error_band(htot,norm1_nonres[0]+norm1_Wres[0]+norm1_Zres[0]+norm1_TThad[0],math.sqrt(norm1_nonres[1]*norm1_nonres[1]+norm1_Wres[1]*norm1_Wres[1]+norm1_Zres[1]*norm1_Zres[1]+norm1_TThad[1]*norm1_TThad[1]),
                              norm2_nonres[0]+norm2_Wres[0]+norm2_Zres[0]+norm2_TThad[0],math.sqrt(norm2_nonres[1]*norm2_nonres[1]+norm2_Wres[1]*norm2_Wres[1]+norm2_Zres[1]*norm2_Zres[1]+norm2_TThad[1]*norm2_TThad[1]),
-			     pdfs[8],pdfs[9],xBinslowedge,'x')
+			     pdfs[-2],pdfs[-1],xBinslowedge,'x')
     MakePlots(hfinals,dh,htot_sig,'x',xBinslowedge,errors)
 
 def doYprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wres,pdf1_sig,pdf2_sig,norm1_sig,norm2_sig,norm1_Zres,norm2_Zres,norm1_TThad,norm2_TThad):
+    data1 = ROOT.RooDataHist("data1","data1",args_ws,data1)
+    data2 = ROOT.RooDataHist("data2","data2",args_ws,data2)
     # do some y projections
     h=[]
     lv=[]
@@ -816,7 +823,7 @@ def addRatioPlot(hdata,hpostfit,nBins,error_band):
 def draw_error_band(histo_central,norm1,err_norm1,norm2,err_norm2,rpdf1,rpdf2,x_min,proj):
     
     rand = ROOT.TRandom3(1234);
-    number_errorband = 10
+    number_errorband = 100
     syst = [0 for i in range(number_errorband)]
       
     value = [0 for x in range(len(x_min))]  
@@ -827,7 +834,7 @@ def draw_error_band(histo_central,norm1,err_norm1,norm2,err_norm2,rpdf1,rpdf2,x_
       
     for j in range(number_errorband):
     
-     print j
+     #print j
      syst[j] = ROOT.TGraph(number_point+1);
      
      #paramters value are randomized using rfres and this can be done also if they are not decorrelate
@@ -881,15 +888,17 @@ def draw_error_band(histo_central,norm1,err_norm1,norm2,err_norm2,rpdf1,rpdf2,x_
      val.sort()
 
      errorband.SetBinContent(ix+1,histo_central.GetBinContent(ix+1))
-     errup = val[int(0.84*number_errorband)]-histo_central.GetBinContent(ix+1)
-     errdn = histo_central.GetBinContent(ix+1)-val[int(0.16*number_errorband)]
+     #print "set bin content error band "+str(histo_central.GetBinContent(ix+1))+" for bin "+str(ix+1)
+     errup = (val[int(0.84*number_errorband)]-histo_central.GetBinContent(ix+1)) #ROOT.TMath.Abs
+     errdn = ( histo_central.GetBinContent(ix+1)-val[int(0.16*number_errorband)])
+     #print "error up "+str(errup)+" error down "+str(errdn)
      if errup > errdn: errorband.SetBinError(ix+1,errup)
      else: errorband.SetBinError(ix+1,errdn)
      #print ix,ix+1,histo_central.GetBinContent(ix+1),errorband.GetBinContent(ix+1)
      
     errorband.SetFillColor(ROOT.kBlack)
     errorband.SetFillStyle(3008)
-    errorband.SetLineColor(ROOT.kWhite)
+    errorband.SetLineColor(ROOT.kGreen)
     errorband.SetMarkerSize(0)
        
     return [errorband]
@@ -1265,7 +1274,7 @@ if __name__=="__main__":
      argset.add(MJJ);
      argset.add(MJ2);
      argset.add(MJ1);
-     
+     args_ws = argset
      x = getListFromRange(options.xrange)
      y = getListFromRange(options.yrange)
      z = getListFromRange(options.zrange)     

@@ -1057,7 +1057,7 @@ class Fitter(object):
           self.c.SetLogy()
         self.c.cd()
         self.frame.Draw()
-        self.frame.GetYaxis().SetTitle('')
+        self.frame.GetYaxis().SetTitle('events')
         self.frame.GetXaxis().SetTitle(xtitle)
         self.frame.SetTitle('')
         self.c.Draw()
@@ -1088,8 +1088,8 @@ class Fitter(object):
         self.frame.SetTitleOffset(1.1,"Y")
         self.frame.SetTitleSize(0.045,"X")
         self.frame.SetTitleSize(0.045,"Y")
-        color={'Wjets':ROOT.kRed,'Zjets':ROOT.kGreen,'TTBar':ROOT.kBlue}
-        for key in histos.iteritems():
+        color={'Wjets':ROOT.kRed,'Zjets':ROOT.kGreen,'TTbar':ROOT.kBlue}
+        for key in histos.keys():
             histos[key].Scale(scales[key]/histos[key].Integral())
             histos_nonRes[key].Scale(scales_nonRes[key]/histos_nonRes[key].Integral())
             histos[key].SetFillColor(color[key])
@@ -1099,26 +1099,27 @@ class Fitter(object):
         
         
         if 'Zjets' in histos.keys():
-            histos['Wjets'].Add(histos['Zjets')
-            histos_nonRes['Wjets'].Add(histos_nonRes['Zjets')
+            histos['Wjets'].Add(histos['Zjets'])
+            histos_nonRes['Wjets'].Add(histos_nonRes['Zjets'])
         if 'TTbar' in histos.keys():
-            histos['Wjets'].Add(histos['TTbar')
-            histos_nonRes['Wjets'].Add(histos_nonRes['TTbar')
-        self.importBinnedData(histos['Wjets'],['x'],'data0')
-        self.importBinnedData(histos['Wjets'],['x'],'data1')
+            histos['Wjets'].Add(histos['TTbar'])
+            histos_nonRes['Wjets'].Add(histos_nonRes['TTbar'])
                                                      
         if 'TTbar' in histos.keys() and 'Zjets' in histos.keys(): 
-            histos['Zjets'].Add(histos['TTbar')
-            histos_nonRes['Zjets'].Add(histos_nonRes['TTbar')
+            histos['Zjets'].Add(histos['TTbar'])
+            histos_nonRes['Zjets'].Add(histos_nonRes['TTbar'])
                                                      
             #self.importBinnedData(histos['Zjets'],['x'],'data1')
             #self.importBinnedData(histos['ttbar'],['x'],'data2')
         
         
+        
+        self.importBinnedData(histos['Wjets'],['x'],'data0')
+        
         self.w.data("data0").plotOn(self.frame,ROOT.RooFit.FillColor(13),ROOT.RooFit.FillStyle(3144),ROOT.RooFit.DrawOption( "5" ),ROOT.RooFit.Name("errorbars"))
-        self.w.pdf(model).plotOn(self.frame, ROOT.RooFit.LineColor(ROOT.kBlack),ROOT.RooFit.Name("fit"))
-        #self.w.data("data1").plotOn(self.frame,ROOT.RooFit.FillColor(ROOT.kGreen),ROOT.RooFit.DrawOption( "BX" ))
-        #self.w.data("data2").plotOn(self.frame,ROOT.RooFit.FillColor(ROOT.kBlue),ROOT.RooFit.DrawOption( "BX" ))
+        #self.w.pdf(model).plotOn(self.frame, ROOT.RooFit.LineColor(ROOT.kBlack),ROOT.RooFit.Name("fit"))
+        ##self.w.data("data1").plotOn(self.frame,ROOT.RooFit.FillColor(ROOT.kGreen),ROOT.RooFit.DrawOption( "BX" ))
+        ##self.w.data("data2").plotOn(self.frame,ROOT.RooFit.FillColor(ROOT.kBlue),ROOT.RooFit.DrawOption( "BX" ))
         
         self.c=ROOT.TCanvas("c","c")       
         self.c.cd() 
@@ -1157,7 +1158,14 @@ class Fitter(object):
         
         
         # draw non res contribution: 
-        
+        self.importBinnedData(histos_nonRes['Wjets'],['x'],'data1')
+        self.frame=self.w.var(poi).frame(ROOT.RooFit.Range(55,215))
+        self.frame.SetTitle("")
+        self.frame.SetXTitle("m_{jet} (GeV)")
+        self.frame.SetYTitle("Arbitrary scale")
+        self.frame.SetTitleOffset(1.1,"Y")
+        self.frame.SetTitleSize(0.045,"X")
+        self.frame.SetTitleSize(0.045,"Y")
         self.w.data("data1").plotOn(self.frame,ROOT.RooFit.FillColor(13),ROOT.RooFit.FillStyle(3144),ROOT.RooFit.DrawOption( "5" ),ROOT.RooFit.Name("errorbars"))
         
         

@@ -107,7 +107,7 @@ for mass in sorted(samples.keys()):
         graph.SetPointError(N,0.0,error)
                 
     N=N+1
-        
+    del fitter,histo
 F=ROOT.TFile(options.output,"RECREATE")
 F.cd()
 for name,graph in graphs.iteritems():

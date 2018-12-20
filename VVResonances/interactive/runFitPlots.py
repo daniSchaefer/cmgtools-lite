@@ -11,11 +11,8 @@ ROOT.gErrorIgnoreLevel = ROOT.kWarning
 
 ROOT.gStyle.SetOptStat(0)
 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.FATAL)
-colors = [ROOT.kBlack,ROOT.kPink-1,ROOT.kAzure+1,ROOT.kAzure+1,210,210,ROOT.kMagenta,ROOT.kMagenta,ROOT.kOrange,ROOT.kOrange,ROOT.kViolet,ROOT.kViolet]
+colors = [ROOT.kBlack,ROOT.kPink-1,ROOT.kAzure+1,ROOT.kGreen,210,ROOT.kMagenta,ROOT.kMagenta,ROOT.kOrange,ROOT.kOrange,ROOT.kViolet,ROOT.kViolet]
 
-
-try: os.stat(options.output)
-except: os.mkdir(options.output)
 
 def getListFromRange(xyzrange):
     r=[]
@@ -140,7 +137,7 @@ def MakePlots(histos,hdata,axis,nBins,options):
      extra1 = xrange.split(',')[0]+' < m_{jet1} < '+ xrange.split(',')[1]+' GeV'
      extra2 = zrange.split(',')[0]+' < m_{jj} < '+ zrange.split(',')[1]+' GeV'
                    
-    leg = ROOT.TLegend(0.88,0.65,0.7,0.88)
+    leg = ROOT.TLegend(0.88,0.63,0.67,0.86)
     c = ROOT.TCanvas("c","c")
     pad1 = ROOT.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
     if axis == 'z': pad1.SetLogy()
@@ -186,7 +183,10 @@ def MakePlots(histos,hdata,axis,nBins,options):
     leg.Draw("same")
     
     chi2 = getChi2proj(histos[1],hdata)
-    print "Projection %s: Chi2/ndf = %.2f/%i"%(axis,chi2[0],chi2[1]),"= %.2f"%(chi2[0]/chi2[1])," prob = ",ROOT.TMath.Prob(chi2[0],chi2[1])
+    if chi2[1]!=0:
+        print "Projection %s: Chi2/ndf = %.2f/%i"%(axis,chi2[0],chi2[1]),"= %.2f"%(chi2[0]/chi2[1])," prob = ",ROOT.TMath.Prob(chi2[0],chi2[1])
+    else:
+        print "warning ndf = "+str(chi2[1])
 
     pt = ROOT.TPaveText(0.18,0.06,0.54,0.17,"NDC")
     pt.SetTextFont(62)
@@ -195,11 +195,12 @@ def MakePlots(histos,hdata,axis,nBins,options):
     pt.SetFillColor(0)
     pt.SetBorderSize(0)
     pt.SetFillStyle(0)
-    pt.AddText("Chi2/ndf = %.2f/%i = %.2f"%(chi2[0],chi2[1],chi2[0]/chi2[1]))
-    pt.AddText("Prob = %.3f"%ROOT.TMath.Prob(chi2[0],chi2[1]))
+    if chi2[1]!=0:
+        pt.AddText("Chi2/ndf = %.2f/%i = %.2f"%(chi2[0],chi2[1],chi2[0]/chi2[1]))
+        pt.AddText("Prob = %.3f"%ROOT.TMath.Prob(chi2[0],chi2[1]))
     pt.Draw()
 
-    pt2 = ROOT.TPaveText(0.18,0.80,0.53,0.93,"NDC")
+    pt2 = ROOT.TPaveText(0.18,0.80,0.53,0.88,"NDC")
     pt2.SetTextFont(62)
     pt2.SetTextSize(0.04)
     pt2.SetTextAlign(12)
@@ -458,15 +459,18 @@ def doZprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
            if "nonRes" in str(pdfs[i].GetName()):
 	     print "nonRes: ",pdfs[i].GetName()
 	     h[i].Fill(zv,lv[i][zv]*norm_nonres)
-	   if "Vjet" in str(pdfs[i].GetName()):
+	   if "Wjet" in str(pdfs[i].GetName()):
 	     print "Res: ",pdfs[i].GetName()
-	     h[i].Fill(zv,lv[i][zv]*norm_res)
+	     h[i].Fill(zv,lv[i][zv]*norm_res[0])
+           if "Zjet" in str(pdfs[i].GetName()):
+	     print "Res: ",pdfs[i].GetName()
+	     h[i].Fill(zv,lv[i][zv]*norm_res[1])
            if "model_b" in str(pdfs[i].GetName()):
 	     print "all bkg contributions: ",pdfs[i].GetName()
-	     h[i].Fill(zv,lv[i][zv]*(norm_res+norm_nonres))
+	     h[i].Fill(zv,lv[i][zv]*(norm_res[0]+norm_res[1]+norm_nonres))
            if "model_s" in str(pdfs[i].GetName()):
 	     print "full model : ",pdfs[i].GetName()
-	     h[i].Fill(zv,lv[i][zv]*(norm_res+norm_nonres+norm_s)) 
+	     h[i].Fill(zv,lv[i][zv]*(norm_res[0]+norm_res[1]+norm_nonres+norm_s)) 
            if "Bulk" in str(pdfs[i].GetName()):
 	     print "signal : ",pdfs[i].GetName()
 	     h[i].Fill(zv,lv[i][zv]*(norm_s))
@@ -555,13 +559,15 @@ def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
                      i+=1
     for i in range(0,len(pdfs)):
         for key, value in lv[i].iteritems():
-            if "nonRes" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_nonres)
-	    if "Vjet" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_res)
-            if "model_b" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res))
-            if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res+norm_s))
+            if "nonRes" in str(pdfs[i].GetName()):
+                h[i].Fill(key,value*norm_nonres)
+	    if "Wjet" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_res[0])
+	    if "Zjet" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_res[1])
+            if "model_b" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res[0]+norm_res[1]))
+            if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res[0]+norm_res[1]+norm_s))
             if "Bulk" in str(pdfs[i].GetName()):
 	     print "signal : ",pdfs[i].GetName()
-	     h[i].Fill(zv,lv[i][zv]*(norm_s))
+	     h[i].Fill(key,value*(norm_s))
 
     #htot = ROOT.TH1F("htot","htot",len(xBinslowedge)-1,xBinslowedge)
     #htot.Add(h[1])
@@ -639,12 +645,13 @@ def doYprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
     for i in range(0,len(pdfs)):
         for key, value in lv[i].iteritems():
             if "nonRes" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_nonres)
-	    if "Vjet" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_res)
-            if "model_b" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res))
-            if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res+norm_s))
+	    if "Wjet" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_res[0])
+	    if "Zjet" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_res[1])
+            if "model_b" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res[0]+norm_res[1]))
+            if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res[0]+norm_res[1]+norm_s))
             if "Bulk" in str(pdfs[i].GetName()):
 	     print "signal : ",pdfs[i].GetName()
-	     h[i].Fill(zv,lv[i][zv]*(norm_s))
+	     h[i].Fill(key,value*(norm_s))
 
     htot = ROOT.TH1F("htot","htot",len(yBinslowedge)-1,yBinslowedge)
     #htot.Add(h[1])
@@ -706,7 +713,7 @@ def addPullPlot(hdata,hprefit,hpostfit,nBins):
     gt.GetYaxis().SetLabelOffset(0.007);
     gt.GetYaxis().SetLabelSize(0.15);
     gt.GetYaxis().SetTitleSize(0.15);
-    gt.GetYaxis().SetTitleOffset(0.4);
+    gt.GetYaxis().SetTitleOffset(0.2);
     gt.GetYaxis().SetTitleFont(42);
     gt.GetXaxis().SetNdivisions(505)
     #gpre.SetHistogram(gt);
@@ -797,6 +804,10 @@ if __name__=="__main__":
     
      
      (options,args) = parser.parse_args()
+     
+     try: os.stat(options.output)
+     except: os.mkdir(options.output)
+     
      finMC = ROOT.TFile(options.input,"READ");
      hinMC = finMC.Get("nonRes");
      purity = options.input.replace('.root','').split('_')[-1] 

@@ -42,14 +42,26 @@ def getBinning(binsMVV,minx,maxx,bins):
             l.append(int(w))
     return l
 
+def returnString(func,ftype,varname):
+    if ftype.find("pol")!=-1:
+        st='0'
+        for i in range(0,func.GetNpar()):
+            st=st+"+("+str(func.GetParameter(i))+")"+("*{varname}".format(varname=varname)*i)
+        return st    
+    else:
+        return ""
 
-def doFits(fitter,histo,histo_nonRes,label,leg):
+
+
+def doFit(fitter,histo,histo_nonRes,label,leg):
   params={}
   print "fitting "+histo.GetName()+" contribution "    
   exp  = ROOT.TF1("gaus" ,"gaus",55,215)  
   histo_nonRes.Fit(exp,"R")
  
-  gauss  = ROOT.TF1("gauss" ,"gaus",74,94)  
+  gauss  = ROOT.TF1("gauss" ,"gaus",74,94) 
+  if histo.GetName().find("Z")!=-1:
+      gauss = ROOT.TF1("gauss","gaus",80,100)
   histo.Fit(gauss,"R")
   mean = gauss.GetParameter(1)
   sigma = gauss.GetParameter(2)
@@ -60,22 +72,27 @@ def doFits(fitter,histo,histo_nonRes,label,leg):
   print "set paramters of double CB constant aground the ones from gaussian fit"
   fitter.w.var("mean").setVal(mean)
   fitter.w.var("mean").setConstant(1)
-  fitter.w.var("sigma").setVal(sigma)
-  fitter.w.var("sigma").setConstant(1)
+  #fitter.w.var("sigma").setVal(sigma)
+  #fitter.w.var("sigma").setConstant(1)
   print "_____________________________________"
   fitter.importBinnedData(histo,['x'],'data')
   fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1),ROOT.RooFit.Save(1),ROOT.RooFit.Range(55,120)]) #55,140 works well with fitting only the resonant part
  #ROOT.RooFit.Minos(ROOT.kTRUE)
-  fitter.projection("model","data","x","debugJ"+leg+"_"+label+"_Res.png")
-  c= ROOT.TCanvas("c","C",600,400)
+  fitter.projection("model","data","x","debugJ"+leg+"_"+label+"_Res.pdf",0,False,"m_{jet}")
+  
+  
+  c= getCanvas(label)
   histo_nonRes.SetMarkerStyle(1)
   histo_nonRes.SetMarkerColor(ROOT.kBlack)
   histo_nonRes.GetXaxis().SetTitle("m_{jet}")
+  histo_nonRes.GetYaxis().SetTitleOffset(1.5)
   histo_nonRes.GetYaxis().SetTitle("events")
   histo_nonRes.Draw("p")
   exp.SetLineColor(ROOT.kRed)
   exp.Draw("same")
-  c.SaveAs("debugJ"+leg+"_"+label+"_nonRes.png")
+  text = ROOT.TLatex()
+  text.DrawLatexNDC(0.13,0.92,"#font[62]{CMS} #font[52]{Simulation}")
+  c.SaveAs("debugJ"+leg+"_"+label+"_nonRes.pdf")
   
   
   
@@ -85,9 +102,18 @@ def doFits(fitter,histo,histo_nonRes,label,leg):
   return params
 
 
-
-
-    
+def getCanvas(name):
+    c=ROOT.TCanvas(name,name)       
+    c.cd() 
+    c.SetFillColor(0)
+    c.SetBorderMode(0)
+    c.SetFrameFillStyle(0)
+    c.SetFrameBorderMode(0)
+    c.SetLeftMargin(0.13)
+    c.SetRightMargin(0.08)
+    c.SetTopMargin( 0.1 )
+    c.SetBottomMargin( 0.12 )
+    return c
 
 label = options.output.split(".root")[0]
 t  = label.split("_")
@@ -136,84 +162,302 @@ for name in samples.keys():
     if samples[name].find('Z') != -1: corrFactor = options.corrFactorZ
     if samples[name].find('W') != -1: corrFactor = options.corrFactorW
     plotters[-1].addCorrectionFactor(corrFactor,'flat')
-    
+    names.append(samples[name])
 
 print samplenames
 print samples
 print samples.keys()
+
+
+
+
+
     
 print 'Fitting Mjet:' 
 
+
+histos2D_l2={}
+histos2D={}
+histos2D_nonRes={}
+histos2D_nonRes_l2={}
+
+#for p in range(0,len(plotters)):
+     #key ="Wjets"
+     #if str(names[p]).find("ZJets")!=-1: key = "Zjets"
+     #if str(names[p]).find("TT")!=-1: key = "TTbar"
+     #print "make histo for "+key
+     #histos2D_nonRes [key] = plotters[p].drawTH2("jj_l1_softDrop_mass:jj_l2_softDrop_mass",options.cut+"*(jj_l1_mergedVTruth==0)*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)","1",80,55,215,80,55,215)
+     #histos2D_nonRes [key].SetName(key+"_nonResl1")
+     
+     #histos2D [key] = plotters[p].drawTH2("jj_l1_softDrop_mass:jj_l2_softDrop_mass",options.cut+"*(jj_l1_mergedVTruth==1)*(jj_l1_softDrop_mass>55&&jj_l1_softDrop_mass<215)","1",80,55,215,80,55,215)
+     
+     #histos2D [key].SetName(key+"_Resl1")
+      
+     #histos2D_nonRes_l2 [key] = plotters[p].drawTH2("jj_l2_softDrop_mass:jj_l1_softDrop_mass",options.cut+"*(jj_l2_mergedVTruth==0)*(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1",80,55,215,80,55,215)
+     #histos2D_nonRes_l2 [key].SetName(key+"_nonResl2")
+     
+     #histos2D_l2 [key] = plotters[p].drawTH2("jj_l2_softDrop_mass:jj_l1_softDrop_mass",options.cut+"*(jj_l2_mergedVTruth==1)*(jj_l2_softDrop_mass>55&&jj_l2_softDrop_mass<215)","1",80,55,215,80,55,215)
+     
+     #histos2D_l2 [key].SetName(key+"_Resl2")
+     
+      
+     #histos2D[key].Scale(35900.)
+     #histos2D_l2[key].Scale(35900.)
+     #histos2D_nonRes[key].Scale(35900.)
+     #histos2D_nonRes_l2[key].Scale(35900.)
+ 
+#############################
+#tmpfile = ROOT.TFile("test.root","RECREATE")
+#for key in histos2D.keys():
+    
+    #histos2D_l2[key].Write()
+    #histos2D_nonRes[key].Write()
+    #histos2D_nonRes_l2[key].Write()
+    #histos2D[key].Write()
+
+
+tmpfile = ROOT.TFile("test.root","READ")
+histos2D["Wjets"] = tmpfile.Get("Wjets_Resl1")
+histos2D_nonRes["Wjets"] = tmpfile.Get("Wjets_nonResl1")
+histos2D_l2["Wjets"] = tmpfile.Get("Wjets_Resl2")
+histos2D_nonRes_l2["Wjets"] = tmpfile.Get("Wjets_nonResl2")
+
+histos2D["Zjets"] = tmpfile.Get("Zjets_Resl1")
+histos2D_nonRes["Zjets"] = tmpfile.Get("Zjets_nonResl1")
+histos2D_l2["Zjets"] = tmpfile.Get("Zjets_Resl2")
+histos2D_nonRes_l2["Zjets"] = tmpfile.Get("Zjets_nonResl2")
+
+histos2D["TTbar"] = tmpfile.Get("TTbar_Resl1")
+histos2D_nonRes["TTbar"] = tmpfile.Get("TTbar_nonResl1")
+histos2D_l2["TTbar"] = tmpfile.Get("TTbar_Resl2")
+histos2D_nonRes_l2["TTbar"] = tmpfile.Get("TTbar_nonResl2")
+
+
+###########################
+ 
+ 
 for leg in legs:
- histos = {}
- histos_nonRes = {}
- scales={}
- scales_nonRes={}
- 
- purity = "LPLP"
- if options.output.find("HPHP")!=-1:purity = "HPHP"
- if options.output.find("HPLP")!=-1:purity = "HPLP"
- 
- 
- fitter=Fitter(['x'])
- fitter.jetResonanceVjets('model','x')
- 
- if options.fixPars!="1":
-     fixedPars =options.fixPars.split(',')
-     if len(fixedPars) > 0:
-      print "   - Fix parameters: ", fixedPars
-      for par in fixedPars:
-       parVal = par.split(':')
-       fitter.w.var(parVal[0]).setVal(float(parVal[1]))
-       fitter.w.var(parVal[0]).setConstant(1) 
- 
-
-
- for p in range(0,len(plotters)):
-     key ="Wjets"
-     if str(p).find("Z")!=-1: key = "Zjets"
-     if str(p.find("TT")!=-1: key = "TTbar"
-     histos_nonRes [key] = plotters[p].drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==0)*(jj_"+leg+"_softDrop_mass>55&&jj_"+leg+"_softDrop_mass<215)","1",80,55,215)
-     histos  [key] = plotters[p].drawTH1("jj_"+leg+"_softDrop_mass",options.cut+"*(jj_"+leg+"_mergedVTruth==1)*(jj_"+leg+"_softDrop_mass>55&&jj_"+leg+"_softDrop_mass<215)","1",80,55,215)
+    histos = {}
+    histos_nonRes = {}
+    scales={}
+    scales_nonRes={}
+    
+    purity = "LPLP"
+    if options.output.find("HPHP")!=-1:purity = "HPHP"
+    if options.output.find("HPLP")!=-1:purity = "HPLP"
+    
+    
+    fitter=Fitter(['x'])
+    fitter.jetResonanceVjets('model','x')
+    
+    if options.fixPars!="1":
+        fixedPars =options.fixPars.split(',')
+        if len(fixedPars) > 0:
+            print "   - Fix parameters: ", fixedPars
+            for par in fixedPars:
+                parVal = par.split(':')
+                fitter.w.var(parVal[0]).setVal(float(parVal[1]))
+                fitter.w.var(parVal[0]).setConstant(1) 
      
-     histos_nonRes[key].SetName(str(p)+"_nonRes")
-     histos [key].SetName(str(p))
-     scales [key] = histos[key].Integral()
-     scales_nonRes [key] = histos_nonRes[key].Integral()
-     
-     
- # combine ttbar and wjets contributions:  
- Wjets = histos["Wjets"]
- Wjets_nonRes = histos_nonRes["Wjets"]
- if histos.keys().find("TTbar")!=-1: Wjets.Add(histos["TTbar"]); Wjets_nonRes.Add(histos_nonRes["TTbar"])
- Zjets = histos["Zjets"]
- Zjets_nonRes = histos_nonRes["Zjets"]
- 
- Wjets_params = doFit(fitter,Wjets,Wjets_nonRes,"Wjets+TTbar",leg)
- Zjets_params = doFit(fitter,Zjets,Zjets_nonRes,"Zjets",leg)
-  
- 
- fitter.drawVjets("Vjets_mjetRes_"+leg+"_"+purity+".pdf",histos,histos_nonRes,scales,scales_nonRes)
- 
-
- params["ratio_Res_nonRes_"+leg]= {'ratio':{"val" : scales["Wjets"]/scales_nonRes["WJets"] }, 'ratio_Z': {"val": scales["Zjets"]/scales_nonRes["Zjets"]}'ratio_TT': {"val": scales["TTbar"]/scales_nonRes["TTbar"]}}
-     
+    for key in histos2D.keys():
+        if leg=="l1":
+            histos_nonRes [key] = histos2D_nonRes[key].ProjectionY()
+            histos  [key] = histos2D[key].ProjectionY()
+        else:
+            histos_nonRes [key] = histos2D_nonRes_l2[key].ProjectionY()
+            histos  [key] = histos2D_l2[key].ProjectionY()
         
+        histos_nonRes[key].SetName(key+"_nonRes")
+        histos [key].SetName(key)
+        scales [key] = histos[key].Integral()
+        scales_nonRes [key] = histos_nonRes[key].Integral()
+   
+   
+    print histos 
+    print histos_nonRes
+    # combine ttbar and wjets contributions:  
+    Wjets = histos["Wjets"]
+    Wjets_nonRes = histos_nonRes["Wjets"]
+    if 'TTbar' in histos.keys(): Wjets.Add(histos["TTbar"]); Wjets_nonRes.Add(histos_nonRes["TTbar"])
+    
+    keys = ["Wjets"]
+    Wjets_params = doFit(fitter,Wjets,Wjets_nonRes,"Wjets_TTbar",leg)
+    
+    
+    params.update(Wjets_params)
+    params["ratio_Res_nonRes_"+leg]= {'ratio':scales["Wjets"]/scales_nonRes["Wjets"] }
+    
+    if 'Zjets' in histos.keys():
+        keys.append("Zjets")
+        fitterZ=Fitter(['x'])
+        fitterZ.jetResonanceVjets('model','x')
+        Zjets_params = doFit(fitterZ,histos["Zjets"],histos_nonRes["Zjets"],"Zjets",leg)
+        params.update(Wjets_params)
+        params.update(Zjets_params)
+        params["ratio_Res_nonRes_"+leg]= {'ratio': scales["Wjets"]/scales_nonRes["Wjets"] , 'ratio_Z': scales["Zjets"]/scales_nonRes["Zjets"]}
+    if "Zjets" in histos.keys() and "TTbar" in histos.keys():
+        params["ratio_Res_nonRes_"+leg]= {'ratio': scales["Wjets"]/scales_nonRes["Wjets"] , 'ratio_Z':  scales["Zjets"]/scales_nonRes["Zjets"],'ratio_TT':  scales["TTbar"]/scales_nonRes["TTbar"]}
+        
+    fitter.drawVjets("Vjets_mjetRes_"+leg+"_"+purity+".pdf",histos,histos_nonRes,scales,scales_nonRes)
+    del histos,histos_nonRes,fitter,fitterZ
+print params
+
+
+graphs={}
+projections=[[1,3],[4,6],[7,10],[11,15],[16,20],[21,26],[27,35],[36,50],[51,61],[62,75],[76,80]]
+for key in keys:
+    graphs[key]=ROOT.TGraphErrors()
+    n=0
+    for p in projections:
+         
+        i1 = histos2D[key].ProjectionY("tmp1",p[0],p[1]).Integral()
+        i2 = histos2D_nonRes_l2[key].ProjectionY("tmp2",p[0],p[1]).Integral()
+ 
+        i1_l2 = histos2D_l2[key].ProjectionY("tmp1",p[0],p[1]).Integral()
+        i2_l2 = histos2D_nonRes[key].ProjectionY("tmp2",p[0],p[1]).Integral()
+        
+        graphs[key].SetPoint(n,55+p[0]*2+(p[1]-p[0]),(i1/i2 +i1_l2/i2_l2)/2.)
+        
+        if (key=="Wjets") and ("TTbar" in histos2D.keys()):
+            norm = histos2D["TTbar"].Integral()/histos2D["Wjets"].Integral()
+            tt_i1 = histos2D["TTbar"].ProjectionY("tmp1",p[0],p[1]).Integral()*norm
+            tt_i2 = histos2D_nonRes_l2["TTbar"].ProjectionY("tmp2",p[0],p[1]).Integral()
+            tt_i1_l2 =   histos2D_l2["TTbar"].ProjectionY("tmp1",p[0],p[1])    .Integral()*norm
+            tt_i2_l2 =   histos2D_nonRes["TTbar"].ProjectionY("tmp2",p[0],p[1]).Integral()
+            graphs[key].SetPoint(n,55+p[0]*2+(p[1]-p[0]),(i1/i2 +i1_l2/i2_l2)/2.+(tt_i1/tt_i2 + tt_i1_l2/tt_i2_l2)/2.)
+        
+        
+        
+        print norm
+        err = ROOT.TMath.Sqrt(pow(ROOT.TMath.Sqrt(i1)/i2 + ROOT.TMath.Sqrt(i2)*i1/(i2*i2),2)+pow(ROOT.TMath.Sqrt(i1_l2)/i2_l2 + ROOT.TMath.Sqrt(i2_l2)*i1_l2/(i2_l2*i2_l2),2))
+        graphs[key].SetPointError(n,0,err)
+        
+        print "set point errors "+str(err)
+        
+        n+=1
+
+
+func=ROOT.TF1("pol","pol6",55,215)
+
+func2=ROOT.TF1("pol","pol6",55,215)
+#+[5]*x*x*x*x*x+[4]*x*x*x*x
+l="ratio"
+for key in graphs.keys():
+   if key.find("Z")!=-1:
+       l="ratio_Z"
+   if key.find("T")!=-1:
+       l="ratio_TT"
+   if key.find("W")!=-1:
+       l="ratio"
+       
+   if key.find("W")!=-1:
+       graphs[key].Fit(func)
+       st = returnString(func,"pol","MJ2")
+       params["ratio_Res_nonRes_l1"][l] = st
+       st = returnString(func,"pol","MJ1")
+       params["ratio_Res_nonRes_l2"][l] = st
+   else:
+       graphs[key].Fit(func2)
+       st = returnString(func2,"pol","MJ2")
+       params["ratio_Res_nonRes_l1"][l] = st
+       st = returnString(func2,"pol","MJ1")
+       params["ratio_Res_nonRes_l2"][l] = st
+
+   
+   graphs[key].SetMarkerColor(ROOT.kBlack)
+   graphs[key].SetMarkerStyle(1)
+   
+   graphs[key].SetMarkerColor(ROOT.kBlue)
+   graphs[key].SetMarkerStyle(2)
+   
+   graphs[key].GetXaxis().SetTitle("m_{jet1}")
+   
+   graphs[key].GetYaxis().SetTitle("res/nonRes")
+   
+   graphs[key].GetFunction("pol").SetLineColor(ROOT.kBlack)
+   graphs[key].GetXaxis().SetRangeUser(55,215)
+   graphs[key].SetMinimum(0)
+
+
+c =getCanvas("c")
+graphs["Wjets"].Draw("AP")
+graphs["Wjets"].GetFunction("pol").Draw("same")
+legend = ROOT.TLegend(0.5607383,0.2063123,0.85,0.3089701)
+legend.SetLineWidth(2)
+legend.SetBorderSize(0)
+legend.SetFillColor(0)
+legend.SetTextFont(42)
+legend.SetTextSize(0.04)
+legend.SetTextAlign(12)
+legend.AddEntry(graphs["Wjets"],"ratio W+jets + t#bar{t}","lp")
+legend.AddEntry(graphs["Wjets"].GetFunction("pol"),"fit ","lp")
+legend.Draw("same")
+text = ROOT.TLatex()
+text.DrawLatexNDC(0.13,0.92,"#font[62]{CMS} #font[52]{Simulation}")
+c.SaveAs("debug_corr_l1_l2_Wjets.pdf")
+
+if 'Zjets' in graphs.keys():
+    c = getCanvas("zjets")
+    graphs["Zjets"].Draw("AP")
+    graphs["Zjets"].GetFunction("pol").Draw("same")
+    legend = ROOT.TLegend(0.5607383,0.2063123,0.85,0.3089701)
+    legend.SetLineWidth(2)
+    legend.SetBorderSize(0)
+    legend.SetFillColor(0)
+    legend.SetTextFont(42)
+    legend.SetTextSize(0.04)
+    legend.SetTextAlign(12)
+    legend.AddEntry(graphs["Zjets"],"ratio Z+jets m_{jet1}","lp")
+    legend.AddEntry(graphs["Zjets"].GetFunction("pol"),"fit m_{jet1}","lp")
+    legend.Draw("same")
+    text.DrawLatexNDC(0.13,0.92,"#font[62]{CMS} #font[52]{Simulation}")
+    c.SaveAs("debug_corr_l1_l2_Zjets.pdf")
+
+if 'TTbar' in graphs.keys():
+    c=getCanvas("ttbar")
+    graphs["TTbar"].Draw("AP")
+    graphs["TTbar"].GetFunction("pol").Draw("same")
+    legend = ROOT.TLegend(0.5607383,0.2063123,0.85,0.3089701)
+    legend.SetLineWidth(2)
+    legend.SetBorderSize(0)
+    legend.SetFillColor(0)
+    legend.SetTextFont(42)
+    legend.SetTextSize(0.04)
+    legend.SetTextAlign(12)
+    legend.AddEntry(graphs["TTbar"],"ratio TTbar m_{jet1}","lp")
+    legend.AddEntry(graphs["TTbar"].GetFunction("pol"),"fit m_{jet1}","lp")
+    legend.Draw("same")
+    text.DrawLatexNDC(0.13,0.92,"#font[62]{CMS} #font[52]{Simulation}")
+    c.SaveAs("debug_corr_l1_l2_TTbar.pdf")
+
+
+print params
+
 if options.store!="":
+    print "write to file "+options.store
     f=open(options.store,"w")
     for par in params:
         f.write(str(par)+ " = " +str(params[par])+"\n")
 
  
+ 
+def f(MJ2):
+    res = 0+(50.3310390872)+(-1.82902889265)*MJ2+(0.030896434249)*MJ2*MJ2+(-0.000333221984602)*MJ2*MJ2*MJ2+(2.31367978112e-06)*MJ2*MJ2*MJ2*MJ2+(-8.75592900444e-09)*MJ2*MJ2*MJ2*MJ2*MJ2+(1.32617347289e-11)*MJ2*MJ2*MJ2*MJ2*MJ2*MJ2
+    return res
 
- #fitter.importBinnedData(histo,['x'],'data')
- #fitter.fit('model','data',[ROOT.RooFit.SumW2Error(1),ROOT.RooFit.Save(1),ROOT.RooFit.Range(55,120)])
- #fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_Res.png")
 
- #fitter.projection("model","data","x","debugJ"+leg+"_"+options.output+"_Res.root")
- #if options.output.find("TT")!=-1: 
-   #params[label+"_Res_"+leg]={"meanW": {"val": fitter.w.var("meanW").getVal(), "err": fitter.w.var("meanW").getError()},"meanW": {"val": fitter.w.var("meanTop").getVal(), "err": fitter.w.var("meanTop").getError()}, "sigmaW": {"val": fitter.w.var("sigmaW").getVal(), "err": fitter.w.var("sigmaW").getError()}, "sigmaTop": {"val": fitter.w.var("sigmaTop").getVal(), "err": fitter.w.var("sigmaTop").getError()}, "alphaW":{ "val": fitter.w.var("alphaW").getVal(), "err": fitter.w.var("alphaW").getError()},"alphaW2":{"val": fitter.w.var("alphaW2").getVal(), "err": fitter.w.var("alphaW2").getError()},"alphaTop":{ "val": fitter.w.var("alphaTop").getVal(), "err": fitter.w.var("alphaTop")},"alphaTop2":{"val": fitter.w.var("alphaTop2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()}}
- #else:
-   #params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}, "alpha":{ "val": fitter.w.var("alpha").getVal(), "err": fitter.w.var("alpha")},"alpha2":{"val": fitter.w.var("alpha2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()},"n2": {"val": fitter.w.var("n2").getVal(), "err": fitter.w.var("n2").getError()}}
-   ##params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}}
+print f(55)
+print f(60)
+print f(100)
+print f(150)
+print f(180)
+print f(200)
+print f(215)
+print f(1300)
+print f(0)
+
+
+
+
+
 

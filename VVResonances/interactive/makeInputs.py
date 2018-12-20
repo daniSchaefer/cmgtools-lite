@@ -2,7 +2,7 @@ import ROOT
 import os,sys
 
 
-period = 2016 #2016
+period = 2017 #2016
 
 submitToBatch = False #Set to true if you want to submit kernels + makeData to batch!
 runParallel   = False #Set to true if you want to run all kernels in parallel! This will exit this script and you will have to run mergeKernelJobs when your jobs are done! TODO! Add waitForBatchJobs also here?
@@ -10,11 +10,11 @@ dijetBinning = True
 useTriggerWeights = False
 
 
-HPSF = 0.995
-LPSF = 1.005
+HPSF = 0.937
+LPSF = 1.006
 if period == 2017:
-    HPSF = 0.941#0.948
-    LPSF = 1.004#1.057
+    HPSF = 0.955#0.948
+    LPSF = 1.003#1.057
     
 addOption = ""
 if useTriggerWeights: 
@@ -76,7 +76,7 @@ cuts['resTT'] = '(jj_l1_mergedVTruth==1&&jj_l1_softDrop_mass>140&&jj_l1_softDrop
 
 purities=['HPHP','HPLP','LPLP','NP']
 purities=['HPHP','HPLP','LPLP']
-purities=['HPHP','HPLP','LPLP']
+purities=['HPLP']
 
 BulkGravWWTemplate="BulkGravToWW"
 BulkGravZZTemplate="BulkGravToZZToZhadZhad"
@@ -95,11 +95,13 @@ nonResTemplate="QCD_Pt_" #high stat
 
 WresTemplate= "WJetsToQQ_HT800,TTHad_pow"
 ZresTemplate= "ZJetsToQQ_HT800"
-resTemplate= "ZJetsToQQ_HT800toInf,WJetsToQQ_HT800toInf,TTHad_pow"
+resTemplate= "ZJetsToQQ_HT800,WJetsToQQ_HT800,TTHad_pow"
+directory = "samplesVjets/"
 if period == 2016:
    resTemplate= "WJetsToQQ_HT600toInf,ZJetsToQQ_HT600toInf" 
    WresTemplate= "WJetsToQQ_HT600,TTHad_pow"
    ZresTemplate= "ZJetsToQQ_HT600"
+   directory = "samplesVjets2016/"
     
 minMJ=55.0
 maxMJ=215.0
@@ -148,7 +150,7 @@ def makeSignalShapesMVV(filename,template):
  cut='*'.join([cuts['common'],cuts['metfilters'],cuts['acceptanceMJ']])
  rootFile=filename+"_MVV.root"
  fixPars = "N1:1.61364,N2:4.6012"
- cmd='vvMakeSignalMVVShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "jj_LV_mass" {BinningMVV} --fix "{fixPars}"   -m {minMVV} -M {maxMVV} --minMX {minMX} --maxMX {maxMX} {addOption} samples_lo '.format(template=template,cut=cut,rootFile=rootFile,minMVV=minMVV,maxMVV=maxMVV,minMX=minMX,maxMX=maxMX,BinningMVV=HCALbinsMVVSignal,fixPars=fixPars,addOption=addOption)
+ cmd='vvMakeSignalMVVShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "jj_LV_mass" {BinningMVV} --fix "{fixPars}"   -m {minMVV} -M {maxMVV} --minMX {minMX} --maxMX {maxMX} {addOption} samples/ '.format(template=template,cut=cut,rootFile=rootFile,minMVV=minMVV,maxMVV=maxMVV,minMX=minMX,maxMX=maxMX,BinningMVV=HCALbinsMVVSignal,fixPars=fixPars,addOption=addOption)
  os.system(cmd)
  jsonFile=filename+"_MVV.json"
  print 'Making JSON'
@@ -162,22 +164,22 @@ def makeSignalShapesMJ(filename,template,leg):
   rootFile=filename+"_MJ"+leg+"_"+p+".root"
   jsonFile=filename+"_MJ"+leg+"_"+p+".json"
   doExp=0
-  fixPars="alpha:1.08,n:2,n2:2"
+  fixPars="alpha:1.08,n:6,n2:2"
   if p=='HPHP':
       if template.find("Wprime")!=-1:
           fixPars="alpha:1.505,n:2,n2:2"
       if template.find("Zprime")!=-1:
           fixPars="n:2.85,alpha:1.083,n2:2"
-      cmd='vvMakeSignalMJShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "jj_{leg}_softDrop_mass" -m {minMJ} -M {maxMJ} -e {doExp} -f "{fixPars}" --minMX {minMX} --maxMX {maxMX} {addOption} samples_lo '.format(template=template,cut=cut,rootFile=rootFile,leg=leg,minMJ=minMJ,maxMJ=maxMJ,doExp=doExp,minMX=minMX,maxMX=maxMX,fixPars=fixPars,addOption=addOption)
-      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol3,alpha:pol0,n:pol0,alpha2:pol3,n2:pol0,slope:pol0,f:pol3" -m {minMX} -M {maxMX} {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile,minMX=minMX,maxMX=maxMX)
+      cmd='vvMakeSignalMJShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "jj_{leg}_softDrop_mass" -m {minMJ} -M {maxMJ} -e {doExp} -f "{fixPars}" --minMX {minMX} --maxMX {maxMX} {addOption} samples/ '.format(template=template,cut=cut,rootFile=rootFile,leg=leg,minMJ=minMJ,maxMJ=maxMJ,doExp=doExp,minMX=minMX,maxMX=maxMX,fixPars=fixPars,addOption=addOption)
+      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol5,sigma:pol3,alpha:pol0,n:pol0,alpha2:pol3,n2:pol0,slope:pol0,f:pol3" -m {minMX} -M {maxMX} {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile,minMX=minMX,maxMX=maxMX)
 
   else:
       # doExp=1
       fixPars="alpha:1.125,n:2,n2:2"
       if template.find("Wprime")!=-1:
           fixPars="n:2,n2:2"
-      cmd='vvMakeSignalMJShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "jj_{leg}_softDrop_mass" -m {minMJ} -M {maxMJ} -e {doExp} -f "{fixPars}" --minMX {minMX} --maxMX {maxMX} {addOption} samples_lo '.format(template=template,cut=cut,rootFile=rootFile,leg=leg,minMJ=minMJ,maxMJ=maxMJ,doExp=doExp,minMX=minMX,maxMX=maxMX,fixPars=fixPars,addOption=addOption)
-      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol4,sigma:pol3,alpha:pol3,n:pol0,alpha2:pol3,n2:pol0,slope:pol0,f:pol0" -m {minMX} -M {maxMX} {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile,minMX=minMX,maxMX=maxMX)
+      cmd='vvMakeSignalMJShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "jj_{leg}_softDrop_mass" -m {minMJ} -M {maxMJ} -e {doExp} -f "{fixPars}" --minMX {minMX} --maxMX {maxMX} {addOption} samples/ '.format(template=template,cut=cut,rootFile=rootFile,leg=leg,minMJ=minMJ,maxMJ=maxMJ,doExp=doExp,minMX=minMX,maxMX=maxMX,fixPars=fixPars,addOption=addOption)
+      cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol5,sigma:pol3,alpha:pol3,n:pol0,alpha2:pol4,n2:pol0,slope:pol0,f:pol0" -m {minMX} -M {maxMX} {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile,minMX=minMX,maxMX=maxMX)
   os.system(cmd)
   os.system(cmdjson)
 
@@ -189,7 +191,7 @@ def makeSignalYields(filename,template,branchingFraction,sfP = {'HPHP':1.0,'HPLP
   #Signal yields
   yieldFile=filename+"_"+p+"_yield"
   fnc = "pol7"
-  cmd='vvMakeSignalYields.py -s {template} -c "{cut}" -o {output} -V "jj_LV_mass" -m {minMVV} -M {maxMVV} -f {fnc} -b {BR} --minMX {minMX} --maxMX {maxMX} {addOption} samples_lo '.format(template=template, cut=cut, output=yieldFile,minMVV=minMVV,maxMVV=maxMVV,fnc=fnc,BR=branchingFraction,minMX=minMX,maxMX=maxMX,addOption=addOption)
+  cmd='vvMakeSignalYields.py -s {template} -c "{cut}" -o {output} -V "jj_LV_mass" -m {minMVV} -M {maxMVV} -f {fnc} -b {BR} --minMX {minMX} --maxMX {maxMX} {addOption} samples/ '.format(template=template, cut=cut, output=yieldFile,minMVV=minMVV,maxMVV=maxMVV,fnc=fnc,BR=branchingFraction,minMX=minMX,maxMX=maxMX,addOption=addOption)
   os.system(cmd)
 
 def fitVJets(filename,template,Wxsec=1,Zxsec=1):
@@ -199,7 +201,7 @@ def fitVJets(filename,template,Wxsec=1,Zxsec=1):
 
     print cuts["acceptance"]
     fixPars="1" #"n:0.8,alpha:1.9"
-    cmd='vvMakeVjetsShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -m {minMJ} -M {maxMJ} --store "{filename}_{purity}.py" --minMVV {minMVV} --maxMVV {maxMVV} {addOption} --corrFactorW {Wxsec} --corrFactorZ {Zxsec} samples '.format(template=template,cut=cut,rootFile=rootFile,minMJ=minMJ,maxMJ=maxMJ,filename=filename,purity=p,minMVV=minMVV,maxMVV=maxMVV,addOption=addOption,Wxsec=Wxsec,Zxsec=Zxsec)
+    cmd='vvMakeVjetsShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -m {minMJ} -M {maxMJ} --store "{filename}_{purity}.py" --minMVV {minMVV} --maxMVV {maxMVV} {addOption} --corrFactorW {Wxsec} --corrFactorZ {Zxsec} {samples} '.format(template=template,cut=cut,rootFile=rootFile,minMJ=minMJ,maxMJ=maxMJ,filename=filename,purity=p,minMVV=minMVV,maxMVV=maxMVV,addOption=addOption,Wxsec=Wxsec,Zxsec=Zxsec,samples=directory)
     cmd+=HCALbinsMVV
     os.system(cmd)
     
@@ -403,10 +405,16 @@ def mergeBackgroundShapes(name,filename):
 def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",factors="1",wait=True):
   pwd = os.getcwd()
   samples = pwd +"/samples/"
-  if name.find("Jets")!= -1: samples = pwd +"/samples_jer/"
+  if name.find("Jets")!= -1: samples = pwd +"/samplesVjets/"
   print "using files in" , samples
   # if name.find("data")!= -1: samples = "/eos/user/t/thaarres/reduced/"
   for p in purities:
+   if name.find("Jets")!=-1:
+        if p == "HPLP":
+            factors=factors+",sf:"+str(LPSF)
+        else:
+            factors=factors+",sf:"+str(HPSF)
+      
    jobname = jobName+"_"+p
    rootFile=filename+"_"+name+"_"+p+".root"
    print "Saving to ",rootFile  
@@ -427,69 +435,54 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
   
   
 
-makeSignalShapesMVV("JJ_WprimeWZ",WprimeTemplate)
-makeSignalShapesMJ("JJ_WprimeWZ",WprimeTemplate,'l1')
-makeSignalShapesMJ("JJ_WprimeWZ",WprimeTemplate,'l2')
-makeSignalYields("JJ_WprimeWZ",WprimeTemplate,BRWZ,{'HPHP':HPSF*HPSF,'HPLP':HPSF*LPSF,'LPLP':LPSF*LPSF})
+#makeSignalShapesMVV("JJ_WprimeWZ_"+str(period),WprimeTemplate)
+#makeSignalShapesMJ("JJ_WprimeWZ_"+str(period),WprimeTemplate,'l1')
+#makeSignalShapesMJ("JJ_WprimeWZ_"+str(period),WprimeTemplate,'l2')
+#makeSignalYields("JJ_WprimeWZ_"+str(period),WprimeTemplate,BRWZ,{'HPHP':HPSF*HPSF,'HPLP':HPSF*LPSF,'LPLP':LPSF*LPSF})
 
-makeSignalShapesMVV("JJ_BulkGWW",BulkGravWWTemplate)
-makeSignalShapesMJ("JJ_BulkGWW",BulkGravWWTemplate,'l1')
-makeSignalShapesMJ("JJ_BulkGWW",BulkGravWWTemplate,'l2')
-makeSignalYields("JJ_BulkGWW",BulkGravWWTemplate,BRWW,{'HPHP':HPSF*HPSF,'HPLP':HPSF*LPSF,'LPLP':LPSF*LPSF})
+#makeSignalShapesMVV("JJ_BulkGWW_"+str(period),BulkGravWWTemplate)
+#makeSignalShapesMJ("JJ_BulkGWW_"+str(period),BulkGravWWTemplate,'l1')
+#makeSignalShapesMJ("JJ_BulkGWW_"+str(period),BulkGravWWTemplate,'l2')
+#makeSignalYields("JJ_BulkGWW_"+str(period),BulkGravWWTemplate,BRWW,{'HPHP':HPSF*HPSF,'HPLP':HPSF*LPSF,'LPLP':LPSF*LPSF})
 
-makeSignalShapesMVV("JJ_ZprimeWW",ZprimeWWTemplate)
-makeSignalShapesMJ("JJ_ZprimeWW",ZprimeWWTemplate,'l1')
-makeSignalShapesMJ("JJ_ZprimeWW",ZprimeWWTemplate,'l2')
-makeSignalYields("JJ_ZprimeWW",ZprimeWWTemplate,BRWW,{'HPHP':HPSF*HPSF,'HPLP':HPSF*LPSF,'LPLP':LPSF*LPSF})
+#makeSignalShapesMVV("JJ_ZprimeWW_"+str(period),ZprimeWWTemplate)
+#makeSignalShapesMJ("JJ_ZprimeWW_"+str(period),ZprimeWWTemplate,'l1')
+#makeSignalShapesMJ("JJ_ZprimeWW_"+str(period),ZprimeWWTemplate,'l2')
+#makeSignalYields("JJ_ZprimeWW_"+str(period),ZprimeWWTemplate,BRWW,{'HPHP':HPSF*HPSF,'HPLP':HPSF*LPSF,'LPLP':LPSF*LPSF})
 
-makeSignalShapesMVV("JJ_BulkGZZ",BulkGravZZTemplate)
-makeSignalShapesMJ("JJ_BulkGZZ",BulkGravZZTemplate,'l1')
-makeSignalShapesMJ("JJ_BulkGZZ",BulkGravZZTemplate,'l2')
-makeSignalYields("JJ_BulkGZZ",BulkGravZZTemplate,BRZZ,{'HPHP':HPSF*HPSF,'HPLP':HPSF*LPSF,'LPLP':LPSF*LPSF})
+#makeSignalShapesMVV("JJ_BulkGZZ_"+str(period),BulkGravZZTemplate)
+#makeSignalShapesMJ("JJ_BulkGZZ_"+str(period),BulkGravZZTemplate,'l1')
+#makeSignalShapesMJ("JJ_BulkGZZ_"+str(period),BulkGravZZTemplate,'l2')
+#makeSignalYields("JJ_BulkGZZ_"+str(period),BulkGravZZTemplate,BRZZ,{'HPHP':HPSF*HPSF,'HPLP':HPSF*LPSF,'LPLP':LPSF*LPSF})
 
-makeDetectorResponse("nonRes","JJ",nonResTemplate,cuts['nonres'])
+#makeDetectorResponse("nonRes","JJ_"+str(period),nonResTemplate,cuts['nonres'])
 
-# makeDetectorResponsePerCat("nonRes","JJ",nonResTemplate,cuts['nonres'])
-# makeDetectorResponsePerLeg("nonRes","JJ",nonResTemplate,cuts['nonres'],"DRl1","l1")
-# makeDetectorResponsePerLeg("nonRes","JJ",nonResTemplate,cuts['nonres'],"DRl2","l2")
-# ------ do not use these ------
-# makeBackgroundShapesMJKernel("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'])
-# makeBackgroundShapesMJKernel("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'])
-# makeBackgroundShapesMJSpline("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'])
-# makeBackgroundShapesMJSpline("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'])
-# ------------------------------
-
-# # Make nonres kernel
-if runParallel and submitToBatch:
-  wait = False
-  makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'],"1D",wait)
-  makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
-  makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
-  print "Exiting system! When all jobs are finished, please run mergeKernelJobs below"
-  sys.exit()
-  mergeKernelJobs()
-else:
-  wait = True
-  makeBackgroundShapesMVVKernel("nonRes","JJ",nonResTemplate,cuts['nonres'],"1D",wait)
-  makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
-  makeBackgroundShapesMVVConditional("nonRes","JJ",nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
+### # Make nonres kernel
+#if runParallel and submitToBatch:
+  #wait = False
+  #makeBackgroundShapesMVVKernel("nonRes","JJ_"+str(period),nonResTemplate,cuts['nonres'],"1D",wait)
+  #makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
+  #makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
+  #print "Exiting system! When all jobs are finished, please run mergeKernelJobs below"
+  #sys.exit()
+  #mergeKernelJobs()
+#else:
+  #wait = True
+  #makeBackgroundShapesMVVKernel("nonRes","JJ_"+str(period),nonResTemplate,cuts['nonres'],"1D",wait)
+  #makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
+  #makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
 
 
 
 # Do Vjets
-#submitToBatch = False #Do not need batch for the following
+submitToBatch = False #Do not need batch for the following
 #makeNormalizations("WJets","JJ",WresTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:0.205066345")
 #makeNormalizations("ZJets","JJ",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:0.09811023622")
+#makeNormalizations("VJets","JJ",resTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:1,ZJetsToQQ_HT800toInf:1")
 
-#if period == 2016:
-    #fitVJets("JJ_VJets",resTemplate,1,41.34/581.8)
-    #makeBackgroundShapesMVVKernel("WJets","JJ",WresTemplate,cuts['nonres'],"1D",0)
-    #makeBackgroundShapesMVVKernel("ZJets","JJ",ZresTemplate,cuts['nonres'],"1D",0)
-
-#else:    
-    #fitVJets("JJ_WJets",resTemplate,1,1)
-    #makeBackgroundShapesMVVKernel("WJets","JJ",WresTemplate,cuts['nonres'],"1D",0)
-    #makeBackgroundShapesMVVKernel("ZJets","JJ",ZresTemplate,cuts['nonres'],"1D",0)
+fitVJets("JJ_WJets",resTemplate,1,1)#0.3425,0.3425)
+#makeBackgroundShapesMVVKernel("WJets","JJ",WresTemplate,cuts['nonres'],"1D",0)
+#makeBackgroundShapesMVVKernel("ZJets","JJ",ZresTemplate,cuts['nonres'],"1D",0)
 
 
 
