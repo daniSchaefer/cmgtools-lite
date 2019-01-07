@@ -353,15 +353,15 @@ for key in graphs.keys():
    if key.find("W")!=-1:
        graphs[key].Fit(func)
        st = returnString(func,"pol","MJ2")
-       params["ratio_Res_nonRes_l1"][l] = st
+       #params["ratio_Res_nonRes_l1"][l] = st
        st = returnString(func,"pol","MJ1")
-       params["ratio_Res_nonRes_l2"][l] = st
+       #params["ratio_Res_nonRes_l2"][l] = st
    else:
        graphs[key].Fit(func2)
        st = returnString(func2,"pol","MJ2")
-       params["ratio_Res_nonRes_l1"][l] = st
+       #params["ratio_Res_nonRes_l1"][l] = st
        st = returnString(func2,"pol","MJ1")
-       params["ratio_Res_nonRes_l2"][l] = st
+       #params["ratio_Res_nonRes_l2"][l] = st
 
    
    graphs[key].SetMarkerColor(ROOT.kBlack)

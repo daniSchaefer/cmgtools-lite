@@ -102,7 +102,8 @@ def reduceBinsToRange(Bins,r):
     return result
 
 
-def MakePlots(histos,hdata,axis,nBins,options):
+def MakePlots(histos,hdata,hsig,axis,nBins,errors):
+   
     extra1 = ''
     extra2 = ''
     htitle = ''
@@ -114,59 +115,68 @@ def MakePlots(histos,hdata,axis,nBins,options):
     zrange = options.zrange
     if options.xrange == '0,-1': xrange = '55,215'
     if options.yrange == '0,-1': yrange = '55,215'
-    if options.zrange == '0,-1': zrange = '838,5000'
+    if options.zrange == '0,-1': zrange = '1126,5500'
     if axis=='z':
      htitle = "Z-Proj. x : "+options.xrange+" y : "+options.yrange
      xtitle = "m_{jj} [GeV]"
-     ymin = 0.02
+     ymin = 0.2
      ymax = hdata.GetMaximum()*10
      extra1 = xrange.split(',')[0]+' < m_{jet1} < '+ xrange.split(',')[1]+' GeV'
      extra2 = yrange.split(',')[0]+' < m_{jet2} < '+ yrange.split(',')[1]+' GeV'
     elif axis=='x':
      htitle = "X-Proj. y : "+options.yrange+" z : "+options.zrange
-     xtitle = "m_{jet1} [GeV]"
-     ymin = 0.001
+     xtitle = "Softdrop m_{jet1} [GeV]"
+     ymin = 0.02
      ymax = hdata.GetMaximum()*1.3
      extra1 = yrange.split(',')[0]+' < m_{jet2} < '+ yrange.split(',')[1]+' GeV'
      extra2 = zrange.split(',')[0]+' < m_{jj} < '+ zrange.split(',')[1]+' GeV'
     elif axis=='y':
      htitle = "Y-Proj. x : "+options.xrange+" z : "+options.zrange
-     xtitle = "m_{jet2} [GeV]"
-     ymin = 0.001
+     xtitle = "Softdrop m_{jet2} [GeV]"
+     ymin = 0.02
      ymax = hdata.GetMaximum()*1.3
      extra1 = xrange.split(',')[0]+' < m_{jet1} < '+ xrange.split(',')[1]+' GeV'
      extra2 = zrange.split(',')[0]+' < m_{jj} < '+ zrange.split(',')[1]+' GeV'
                    
-    leg = ROOT.TLegend(0.88,0.63,0.67,0.86)
-    c = ROOT.TCanvas("c","c")
-    pad1 = ROOT.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
+    leg = ROOT.TLegend(0.5436242,0.5531968,0.7231544,0.8553946)
+    leg.SetTextSize(0.04995005)
+    c = ROOT.TCanvas('c')
+    pad1 = get_pad("pad1") #ROOT.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
     if axis == 'z': pad1.SetLogy()
     pad1.SetBottomMargin(0.01)    
+    pad1.SetTopMargin(0.1) 
     pad1.Draw()
     pad1.cd()	 
+ 
     histos[0].SetMinimum(ymin)
     histos[0].SetMaximum(ymax) 
-    histos[0].SetLineColor(colors[0])
-    histos[0].SetLineStyle(2)
-    histos[0].SetLineWidth(2)
     histos[0].SetTitle(htitle)
+    histos[0].SetLineColor(colors[0])
+    histos[0].SetLineWidth(2)
     histos[0].GetXaxis().SetTitle(xtitle)
     histos[0].GetYaxis().SetTitleOffset(1.3)
-    histos[0].GetYaxis().SetTitle("events")
+    histos[0].GetYaxis().SetTitle("Events")
     histos[0].GetYaxis().SetTitleOffset(1.3)
-    histos[0].GetYaxis().SetTitle("events")
+    histos[0].GetYaxis().SetTitle("Events")
     histos[0].GetYaxis().SetTitleSize(0.06)
     histos[0].GetYaxis().SetLabelSize(0.06)
-    histos[0].GetYaxis().SetNdivisions(5)
-    histos[0].Draw("hist")
-    leg.AddEntry(histos[0],"Pre fit pdf","l")
-    
+    histos[0].Draw('HIST')
+    leg.AddEntry(histos[0],"Total background","l")
+ 
     histos[1].SetLineColor(colors[1])
     histos[1].SetLineWidth(2)
-    histos[1].Draw('HISTsame')
-    leg.AddEntry(histos[1],"Post fit pdf","l")
+    leg.AddEntry(histos[1],"W(qq)+jets","l")
     
-    for i in range(2,len(histos)):
+    histos[2].SetLineColor(colors[2])
+    histos[2].SetLineWidth(2)
+    leg.AddEntry(histos[2],"Z(qq)+jets","l")
+    
+    if options.addTop:
+      histos[3].SetLineColor(colors[3])
+      histos[3].SetLineWidth(2)
+      leg.AddEntry(histos[3],"t","l")
+	   
+    for i in range(4,len(histos)):
         histos[i].SetLineColor(colors[i])
         histos[i].Draw("histsame")
         name = histos[i].GetName().split("_")
@@ -176,17 +186,41 @@ def MakePlots(histos,hdata,axis,nBins,options):
     hdata.SetMarkerColor(ROOT.kBlack)
     hdata.SetLineColor(ROOT.kBlack)
     hdata.SetMarkerSize(0.7)
-    hdata.Draw("samePE")
-    leg.AddEntry(hdata,"data","lp")
-        
+    
+    errors[0].SetFillColor(colors[0])
+    errors[0].SetFillStyle(3001)
+    errors[0].SetLineColor(colors[0])
+    errors[0].SetLineWidth(0)
+    errors[0].SetMarkerSize(0)
+    
+    leg.AddEntry(hdata,"Data","lp")
+    leg.AddEntry(errors[0],"#pm 1#sigma unc.","f")
+
+    if hsig:
+     if hsig.Integral()!=0.:   
+        hsig.Scale(1/hsig.Integral())
+     hsig.Scale(histos[2].Integral()*0.4)
+     hsig.SetFillColor(ROOT.kGreen-6)
+     hsig.SetLineColor(ROOT.kBlack)
+     hsig.SetLineStyle(5)
+     hsig.Draw("HISTsame")
+     #leg.AddEntry(hsig,"Signal pdf","F")
+     leg.AddEntry(hsig,"G_{bulk} (%.1f TeV) #rightarrow WW"%(options.signalMass/1000.),"F")
+    
+    errors[0].Draw("E5same")
+    histos[0].Draw("samehist")
+    if options.addTop: histos[3].Draw("histsame") 
+    histos[1].Draw("histsame") 
+    histos[2].Draw("histsame")
+    hdata.Draw("samePE0")         
     leg.SetLineColor(0)
     leg.Draw("same")
     
-    chi2 = getChi2proj(histos[1],hdata)
-    if chi2[1]!=0:
-        print "Projection %s: Chi2/ndf = %.2f/%i"%(axis,chi2[0],chi2[1]),"= %.2f"%(chi2[0]/chi2[1])," prob = ",ROOT.TMath.Prob(chi2[0],chi2[1])
-    else:
-        print "warning ndf = "+str(chi2[1])
+    #errors[0].Draw("E2same")
+    
+    chi2 = getChi2proj(histos[0],hdata)
+    print hdata.GetEntries(),hdata.Integral()
+    print "Projection %s: Chi2/ndf = %.2f/%i"%(axis,chi2[0],chi2[1]),"= %.2f"%(chi2[0]/chi2[1])," prob = ",ROOT.TMath.Prob(chi2[0],chi2[1])
 
     pt = ROOT.TPaveText(0.18,0.06,0.54,0.17,"NDC")
     pt.SetTextFont(62)
@@ -195,13 +229,12 @@ def MakePlots(histos,hdata,axis,nBins,options):
     pt.SetFillColor(0)
     pt.SetBorderSize(0)
     pt.SetFillStyle(0)
-    if chi2[1]!=0:
-        pt.AddText("Chi2/ndf = %.2f/%i = %.2f"%(chi2[0],chi2[1],chi2[0]/chi2[1]))
-        pt.AddText("Prob = %.3f"%ROOT.TMath.Prob(chi2[0],chi2[1]))
-    pt.Draw()
+    pt.AddText("Chi2/ndf = %.2f/%i = %.2f"%(chi2[0],chi2[1],chi2[0]/chi2[1]))
+    pt.AddText("Prob = %.3f"%ROOT.TMath.Prob(chi2[0],chi2[1]))
+    #pt.Draw()
 
-    pt2 = ROOT.TPaveText(0.18,0.80,0.53,0.88,"NDC")
-    pt2.SetTextFont(62)
+    pt2 = ROOT.TPaveText(0.18,0.75,0.53,0.88,"NDC")
+    pt2.SetTextFont(72)
     pt2.SetTextSize(0.04)
     pt2.SetTextAlign(12)
     pt2.SetFillColor(0)
@@ -210,23 +243,137 @@ def MakePlots(histos,hdata,axis,nBins,options):
     pt2.AddText(extra1)
     pt2.AddText(extra2)
     pt2.Draw()
+
+    pt3 = ROOT.TPaveText(0.65,0.39,0.99,0.52,"NDC")
+    pt3.SetTextFont(72)
+    pt3.SetTextSize(0.04)
+    pt3.SetTextAlign(12)
+    pt3.SetFillColor(0)
+    pt3.SetBorderSize(0)
+    pt3.SetFillStyle(0)
+    pt3.AddText("%s category"%purity)
+    pt3.Draw()
+
+    CMS_lumi.CMS_lumi(pad1, 4, 0)
+        
+    pad1.Modified()
+    pad1.Update()
     
+    c.Update()
     c.cd()
     pad2 = ROOT.TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
-    pad2.SetTopMargin(0.1)
+    pad2.SetTopMargin(0.01)
     pad2.SetBottomMargin(0.4)
     pad2.SetGridy()
     pad2.Draw()
     pad2.cd()
-    graphs = addPullPlot(hdata,histos[0],histos[1],nBins)
-    #graphs[0].Draw("AP")
-    graphs[1].Draw("AB")
-    print "save output as "+options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_')+".pdf"
-    c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_')+".png")
-    c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_')+".pdf")
-    c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_')+".root")
+    
+    #for ratio
+    #graphs = addRatioPlot(hdata,histos[0],nBins,errors[0])
+    #graphs[1].Draw("AP")
+    #graphs[0].Draw("E3same")
+    #graphs[1].Draw("Psame")
+    
+    #for pulls
+    graphs = addPullPlot(hdata,histos[0],nBins,errors[0])
+    # graphs = addRatioPlot(hdata,histos[0],nBins,errors[0])
+    graphs[0].Draw("HIST")
+
+    pad2.Modified()
+    pad2.Update()
+    
+    c.cd()
+    c.Update()
+    c.Modified()
+    c.Update()
+    c.cd()
+    c.SetSelected(c)
+    #errors[0].Draw("E2same")
+    #CMS_lumi.CMS_lumi(c, 0, 11)
+    #c.cd()
+    #c.Update()
+    #c.RedrawAxis()
+    #frame = c.GetFrame()
+    #frame.Draw()
+
+    c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".png")
+    c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".pdf")
+    
 
 
+
+def draw_error_band(histo_central,norm1,err_norm1,pdfs1,x_min,proj):
+    
+    rand = ROOT.TRandom3(1234);
+    number_errorband = 100
+    syst = [0 for i in range(number_errorband)]
+      
+    value = [0 for x in range(len(x_min))]  
+    number_point = len(value)
+    
+    par_pdf1 = rpdf1.getParameters(argset)  
+      
+    for j in range(number_errorband):
+    
+     #print j
+     syst[j] = ROOT.TGraph(number_point+1);
+     
+     #paramters value are randomized using rfres and this can be done also if they are not decorrelate
+     par_tmp = ROOT.RooArgList(fitresult.randomizePars())
+     iter = par_pdf1.createIterator()
+     var = iter.Next()
+     while var:
+      index = par_tmp.index(var.GetName())
+      if index != -1:
+       #print "pdf1",var.GetName(), var.getVal()
+       var.setVal(par_tmp.at(index).getVal())     
+       #print " ---> new value: ",var.getVal()
+      var = iter.Next()
+      
+     par_tmp = ROOT.RooArgList(fitresult.randomizePars())
+           
+     norm1_tmp = rand.Gaus(norm1,err_norm1); #new poisson random number of events
+     value = [0 for i in range(number_point)]
+     for xk, xv in xBins_redux.iteritems():
+       MJ1.setVal(xv)
+       for yk, yv in yBins_redux.iteritems():
+        MJ2.setVal(yv)
+	for zk,zv in zBins_redux.iteritems():
+         MJJ.setVal(zv)
+	 binV = zBinsWidth[zk]*xBinsWidth[xk]*yBinsWidth[yk]
+	 if proj == 'z': value[zk-1] += (norm1_tmp*rpdf1.getVal(argset)*binV)
+	 elif proj == 'y': value[yk-1] += (norm1_tmp*rpdf1.getVal(argset)*binV)
+	 elif proj == 'x': value[xk-1] += (norm1_tmp*rpdf1.getVal(argset)*binV)
+
+     for ix,x in enumerate(x_min): 
+      syst[j].SetPoint(ix, x, value[ix])
+
+    #Try to build and find max and minimum for each point --> not the curve but the value to do a real envelope -> take one 2sigma interval        
+    errorband = ROOT.TH1F("errorband","errorband",len(x_min)-1,x_min)
+
+    val = [0 for i in range(number_errorband)]
+    for ix,x in enumerate(x_min):
+    
+     for j in range(number_errorband):
+      val[j]=(syst[j]).GetY()[ix]
+     val.sort()
+
+     errorband.SetBinContent(ix+1,histo_central.GetBinContent(ix+1))
+     #print "set bin content error band "+str(histo_central.GetBinContent(ix+1))+" for bin "+str(ix+1)
+     errup = (val[int(0.84*number_errorband)]-histo_central.GetBinContent(ix+1)) #ROOT.TMath.Abs
+     errdn = ( histo_central.GetBinContent(ix+1)-val[int(0.16*number_errorband)])
+     #print "error up "+str(errup)+" error down "+str(errdn)
+     if errup > errdn: errorband.SetBinError(ix+1,errup)
+     else: errorband.SetBinError(ix+1,errdn)
+     #print ix,ix+1,histo_central.GetBinContent(ix+1),errorband.GetBinContent(ix+1)
+     
+    errorband.SetFillColor(ROOT.kBlack)
+    errorband.SetFillStyle(3008)
+    errorband.SetLineColor(ROOT.kGreen)
+    errorband.SetMarkerSize(0)
+       
+    return [errorband]
+	
 
 
 def getMV(binnumber):
@@ -454,6 +601,7 @@ def doZprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
                     lv[i][zv] += p.getVal(argset)*binV
                     i+=1
     #print 'z projection '
+    pdf8 = None
     for i in range(0,len(pdfs)):
         for zk,zv in zBins_redux.iteritems():
            if "nonRes" in str(pdfs[i].GetName()):
@@ -470,6 +618,7 @@ def doZprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
 	     h[i].Fill(zv,lv[i][zv]*(norm_res[0]+norm_res[1]+norm_nonres))
            if "model_s" in str(pdfs[i].GetName()):
 	     print "full model : ",pdfs[i].GetName()
+	     pdf8 = pdfs[i]
 	     h[i].Fill(zv,lv[i][zv]*(norm_res[0]+norm_res[1]+norm_nonres+norm_s)) 
            if "Bulk" in str(pdfs[i].GetName()):
 	     print "signal : ",pdfs[i].GetName()
@@ -485,7 +634,8 @@ def doZprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
     #for i in range(3,len(h)): hfinals.append(h[i])
     for b,v in neventsPerBin.iteritems(): dh.SetBinContent(b,v)
     dh.SetBinErrorOption(ROOT.TH1.kPoisson)
-    MakePlots(h,dh,'z',zBinslowedge,options)
+    errors = draw_error_band(htot,norm_nonres+norm_res[0]+norm_res[1],math.sqrt(norm_nonres*norm_nonres+norm_res[0]*norm_res[1]+norm_res[0]*norm_res[1]),1,1,pdfs8,None,zBinslowedge,'z')
+    MakePlots(hfinals,dh,htot_sig,'z',zBinslowedge,errors)
 
 
 def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,binWidths,workspace,options):
@@ -557,6 +707,7 @@ def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
                      #i+=1
                      lv[i][xv] += p.getVal(argset)*binV
                      i+=1
+    pdfs8 =None
     for i in range(0,len(pdfs)):
         for key, value in lv[i].iteritems():
             if "nonRes" in str(pdfs[i].GetName()):
@@ -564,7 +715,7 @@ def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
 	    if "Wjet" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_res[0])
 	    if "Zjet" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_res[1])
             if "model_b" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res[0]+norm_res[1]))
-            if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res[0]+norm_res[1]+norm_s))
+            if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res[0]+norm_res[1]+norm_s)); pdfs8=pdfs[i]
             if "Bulk" in str(pdfs[i].GetName()):
 	     print "signal : ",pdfs[i].GetName()
 	     h[i].Fill(key,value*(norm_s))
@@ -577,8 +728,9 @@ def doXprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
     #hfinals.append(htot)
     #for i in range(3,len(h)): hfinals.append(h[i])
     for b,v in neventsPerBin.iteritems(): proj.SetBinContent(b,v)
-    proj.SetBinErrorOption(ROOT.TH1.kPoisson)    
-    MakePlots(h,proj,'x',xBinslowedge,options)    
+    proj.SetBinErrorOption(ROOT.TH1.kPoisson)
+    errors = draw_error_band(htot,norm_nonres+norm_res[0]+norm_res[1],math.sqrt(norm_nonres*norm_nonres+norm_res[0]*norm_res[1]+norm_res[0]*norm_res[1]),1,1,pdfs8,None,zBinslowedge,'x')
+    MakePlots(hfinals,dh,htot_sig,'x',zBinslowedge,errors)    
     
 
 
@@ -642,13 +794,14 @@ def doYprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
 
                     lv[i][yv] += p.getVal(argset)*binV
                     i+=1
+    pdfs8=None
     for i in range(0,len(pdfs)):
         for key, value in lv[i].iteritems():
             if "nonRes" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_nonres)
 	    if "Wjet" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_res[0])
 	    if "Zjet" in str(pdfs[i].GetName()): h[i].Fill(key,value*norm_res[1])
             if "model_b" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res[0]+norm_res[1]))
-            if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res[0]+norm_res[1]+norm_s))
+            if "model_s" in str(pdfs[i].GetName()): h[i].Fill(key,value*(norm_nonres+norm_res[0]+norm_res[1]+norm_s)); pdfs8= pdfs[i]
             if "Bulk" in str(pdfs[i].GetName()):
 	     print "signal : ",pdfs[i].GetName()
 	     h[i].Fill(key,value*(norm_s))
@@ -661,8 +814,9 @@ def doYprojection(pdfs,data,norm_nonres,norm_res,norm_s,Binslowedge,Bins_redux,b
     #hfinals.append(htot)
     #for i in range(3,len(h)): hfinals.append(h[i])
     for b,e in neventsPerBin.iteritems(): proj.SetBinContent(b,e)
-    proj.SetBinErrorOption(ROOT.TH1.kPoisson)    
-    MakePlots(h,proj,'y',yBinslowedge,options)  
+    proj.SetBinErrorOption(ROOT.TH1.kPoisson)   
+    errors = draw_error_band(htot,norm_nonres+norm_res[0]+norm_res[1],math.sqrt(norm_nonres*norm_nonres+norm_res[0]*norm_res[1]+norm_res[0]*norm_res[1]),1,1,pdfs8,None,zBinslowedge,'y')
+    MakePlots(hfinals,dh,htot_sig,'y',zBinslowedge,errors)  
 
 
 def addPullPlot(hdata,hprefit,hpostfit,nBins):

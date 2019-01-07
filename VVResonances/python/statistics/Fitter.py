@@ -1083,7 +1083,8 @@ class Fitter(object):
     def drawVjets(self,outname,histos,histos_nonRes,scales,scales_nonRes,model="model",data="data",poi="x"):
         self.frame=self.w.var(poi).frame(ROOT.RooFit.Range(55,215))
         self.frame.SetTitle("")
-        self.frame.SetXTitle("m_{jet} (GeV)")
+        self.frame.SetXTitle("m_{jet1} (GeV)")
+        if outname.find("l2")!=-1: self.frame.SetXTitle("m_{jet2} (GeV)")
         self.frame.SetYTitle("Arbitrary scale")
         self.frame.SetTitleOffset(1.1,"Y")
         self.frame.SetTitleSize(0.045,"X")
@@ -1140,7 +1141,7 @@ class Fitter(object):
         l.SetTextFont(42)
         l.SetTextSize(0.04)
         l.SetTextAlign(12)
-        l.AddEntry(self.frame.findObject("fit"),'double CB','L')
+        #l.AddEntry(self.frame.findObject("fit"),'double CB','L')
         l.AddEntry(self.frame.findObject("errorbars"),'MC uncertainty','F')
         l.AddEntry(histos['Wjets'],'W+jets','F')
         if 'Zjets' in histos.keys(): l.AddEntry(histos['Zjets'],'Z+jets','F')

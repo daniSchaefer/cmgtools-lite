@@ -402,6 +402,9 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     #frame.Draw()
 
     c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".png")
+    c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".pdf")
+    c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".C")
+    c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".root")
     
 
 def doZprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wres,pdf1_sig,pdf2_sig,norm1_sig,norm2_sig,norm1_Zres,norm2_Zres,norm1_TThad,norm2_TThad):
@@ -415,8 +418,12 @@ def doZprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
     lv2_sig=[]
     h2_sig = 0 
     dh = ROOT.TH1F("dh","dh",len(zBinslowedge)-1,zBinslowedge)
-    neventsPerBin_1 = [0 for zv in range(len(zBins_redux))]
-    neventsPerBin_2 = [0 for zv in range(len(zBins_redux))]
+    neventsPerBin_1 = {}
+    for zk,zv in zBins_redux.iteritems():
+        neventsPerBin_1[zk]=0 
+    neventsPerBin_2 = {}
+    for zk,zv in zBins_redux.iteritems():
+        neventsPerBin_2[zk]=0 
     
     for p in pdfs:
         h.append( ROOT.TH1F("h_"+p.GetName(),"h_"+p.GetName(),len(zBinslowedge)-1,zBinslowedge))
@@ -440,8 +447,8 @@ def doZprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
              for zk,zv in zBins_redux.iteritems():
                  MJJ.setVal(zv)
                  #dh.Fill(zv,data.weight(argset))
-		 neventsPerBin_1[zk-1] += data1.weight(argset)
-		 neventsPerBin_2[zk-1] += data2.weight(argset)
+		 neventsPerBin_1[zk] += data1.weight(argset)
+		 neventsPerBin_2[zk] += data2.weight(argset)
                  i=0
                  binV = zBinsWidth[zk]*xBinsWidth[xk]*yBinsWidth[yk]
                  for p in pdfs:
@@ -501,7 +508,7 @@ def doZprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
     hfinals.append(htot_Zres)
     if options.addTop: hfinals.append(htot_TThad)
     for i in range(10,len(h)): hfinals.append(h[i])    
-    for b in range(len(neventsPerBin_2)): dh.SetBinContent(b+1,neventsPerBin_1[b]+neventsPerBin_2[b])
+    for b,v in neventsPerBin_1.iteritems(): dh.SetBinContent(b,neventsPerBin_1[b]+neventsPerBin_2[b])
     dh.SetBinErrorOption(ROOT.TH1.kPoisson)
     errors = draw_error_band(htot,norm1_nonres[0]+norm1_Wres[0]+norm1_Zres[0]+norm1_TThad[0],math.sqrt(norm1_nonres[1]*norm1_nonres[1]+norm1_Wres[1]*norm1_Wres[1]+norm1_Zres[1]*norm1_Zres[1]+norm1_TThad[1]*norm1_TThad[1]),
                              norm2_nonres[0]+norm2_Wres[0]+norm2_Zres[0]+norm2_TThad[0],math.sqrt(norm2_nonres[1]*norm2_nonres[1]+norm2_Wres[1]*norm2_Wres[1]+norm2_Zres[1]*norm2_Zres[1]+norm2_TThad[1]*norm2_TThad[1]),
@@ -519,8 +526,12 @@ def doXprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
     h2_sig = 0    
     lv2_sig=[]
     dh = ROOT.TH1F("dh","dh",len(xBinslowedge)-1,xBinslowedge)
-    neventsPerBin_1 = [0 for xv in range(len(xBins_redux))]
-    neventsPerBin_2 = [0 for xv in range(len(xBins_redux))]
+    neventsPerBin_1 = {}
+    for xk,xv in xBins_redux.iteritems():
+        neventsPerBin_1[xk]=0 
+    neventsPerBin_2 = {}
+    for xk,xv in xBins_redux.iteritems():
+        neventsPerBin_2[xk]=0 
     
     for p in pdfs:
         h.append( ROOT.TH1F("h_"+p.GetName(),"h_"+p.GetName(),len(xBinslowedge)-1,xBinslowedge))
@@ -544,8 +555,8 @@ def doXprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
              for zk,zv in zBins_redux.iteritems():
                  MJJ.setVal(zv)
                  #dh.Fill(zv,data.weight(argset))
-		 neventsPerBin_1[xk-1] += data1.weight(argset)
-		 neventsPerBin_2[xk-1] += data2.weight(argset)
+		 neventsPerBin_1[xk] += data1.weight(argset)
+		 neventsPerBin_2[xk] += data2.weight(argset)
                  i=0
                  binV = zBinsWidth[zk]*xBinsWidth[xk]*yBinsWidth[yk]
                  for p in pdfs:
@@ -604,7 +615,7 @@ def doXprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
     hfinals.append(htot_Zres)
     if options.addTop: hfinals.append(htot_TThad)
     for i in range(10,len(h)): hfinals.append(h[i])    
-    for b in range(len(neventsPerBin_2)): dh.SetBinContent(b+1,neventsPerBin_1[b]+neventsPerBin_2[b])
+    for b,v in neventsPerBin_1.iteritems(): dh.SetBinContent(b,neventsPerBin_1[b]+neventsPerBin_2[b])
     dh.SetBinErrorOption(ROOT.TH1.kPoisson)
     errors = draw_error_band(htot,norm1_nonres[0]+norm1_Wres[0]+norm1_Zres[0]+norm1_TThad[0],math.sqrt(norm1_nonres[1]*norm1_nonres[1]+norm1_Wres[1]*norm1_Wres[1]+norm1_Zres[1]*norm1_Zres[1]+norm1_TThad[1]*norm1_TThad[1]),
                              norm2_nonres[0]+norm2_Wres[0]+norm2_Zres[0]+norm2_TThad[0],math.sqrt(norm2_nonres[1]*norm2_nonres[1]+norm2_Wres[1]*norm2_Wres[1]+norm2_Zres[1]*norm2_Zres[1]+norm2_TThad[1]*norm2_TThad[1]),
@@ -622,8 +633,12 @@ def doYprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
     lv2_sig=[]
     h2_sig = 0   
     dh = ROOT.TH1F("dh","dh",len(yBinslowedge)-1,yBinslowedge)
-    neventsPerBin_1 = [0 for yv in range(len(yBins_redux))]
-    neventsPerBin_2 = [0 for yv in range(len(yBins_redux))]
+    neventsPerBin_1 = {}
+    for yk,yv in yBins_redux.iteritems():
+        neventsPerBin_1[yk]=0 
+    neventsPerBin_2 = {}
+    for yk,yv in yBins_redux.iteritems():
+        neventsPerBin_2[yk]=0 
     
     for p in pdfs:
         h.append( ROOT.TH1F("h_"+p.GetName(),"h_"+p.GetName(),len(yBinslowedge)-1,yBinslowedge))
@@ -647,8 +662,8 @@ def doYprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
              for zk,zv in zBins_redux.iteritems():
                  MJJ.setVal(zv)
                  #dh.Fill(zv,data.weight(argset))
-		 neventsPerBin_1[yk-1] += data1.weight(argset)
-		 neventsPerBin_2[yk-1] += data2.weight(argset)
+		 neventsPerBin_1[yk] += data1.weight(argset)
+		 neventsPerBin_2[yk] += data2.weight(argset)
                  i=0
                  binV = zBinsWidth[zk]*xBinsWidth[xk]*yBinsWidth[yk]
                  for p in pdfs:
@@ -707,7 +722,7 @@ def doYprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
     hfinals.append(htot_Zres)
     if options.addTop:hfinals.append(htot_TThad)
     for i in range(10,len(h)): hfinals.append(h[i])    
-    for b in range(len(neventsPerBin_2)): dh.SetBinContent(b+1,neventsPerBin_1[b]+neventsPerBin_2[b])
+    for b,v in neventsPerBin_1.iteritems(): dh.SetBinContent(b,neventsPerBin_1[b]+neventsPerBin_2[b])
     dh.SetBinErrorOption(ROOT.TH1.kPoisson)
     errors = draw_error_band(htot,norm1_nonres[0]+norm1_Wres[0]+norm1_Zres[0]+norm1_TThad[0],math.sqrt(norm1_nonres[1]*norm1_nonres[1]+norm1_Wres[1]*norm1_Wres[1]+norm1_Zres[1]*norm1_Zres[1]+norm1_TThad[1]*norm1_TThad[1]),
                              norm2_nonres[0]+norm2_Wres[0]+norm2_Zres[0]+norm2_TThad[0],math.sqrt(norm2_nonres[1]*norm2_nonres[1]+norm2_Wres[1]*norm2_Wres[1]+norm2_Zres[1]*norm2_Zres[1]+norm2_TThad[1]*norm2_TThad[1]),

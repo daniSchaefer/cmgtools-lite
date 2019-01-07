@@ -1267,18 +1267,25 @@ class DataCardMaker:
         pdfName1="_".join([pdf1,self.tag])
         pdfName2="_".join([pdf2,self.tag])
         
-        MJ = "MJ1"
-        if num.find("MJ2")!=-1:
-            MJ="MJ2"
-        print "==============================="
-        print self.tag 
-        print MJ
-        print num
-        print "============================== "
+        #MJ = "MJ1"
+        #if num.find("MJ2")!=-1:
+            #MJ="MJ2"
+        #print "==============================="
+        #print self.tag 
+        #print MJ
+        #print num
+        #print "============================== "
+        #if name.find("1")!=-1:
+            #self.w.factory("SUM::{name}(expr::{name2}_ratio1('({f}*{num})',{f},{MJ})*{name1},expr::{name2}_ratio('(1-{f})',{f})*{name2})".format(name=pdfName,name1=pdfName1,f=variable,name2=pdfName2,num=num,MJ=MJ))
+        #if name.find("2")!=-1:
+            #self.w.factory("SUM::{name}(expr::{name2}_ratio1('((1-{f})*{num})',{f},{MJ})*{name1},expr::{name2}_ratio('{f}',{f})*{name2})".format(name=pdfName,name1=pdfName1,f=variable,name2=pdfName2,num=num,MJ=MJ))
+       
+       
+       # put out the second dependence on the other jet mass :
         if name.find("1")!=-1:
-            self.w.factory("SUM::{name}(expr::{name2}_ratio1('({f}*{num})',{f},{MJ})*{name1},expr::{name2}_ratio('(1-{f})',{f})*{name2})".format(name=pdfName,name1=pdfName1,f=variable,name2=pdfName2,num=num,MJ=MJ))
+            self.w.factory("SUM::{name}(expr::{name2}_ratio1('({f}*{num})',{f})*{name1},expr::{name2}_ratio('(1-{f})',{f})*{name2})".format(name=pdfName,name1=pdfName1,f=variable,name2=pdfName2,num=num))
         if name.find("2")!=-1:
-            self.w.factory("SUM::{name}(expr::{name2}_ratio1('((1-{f})*{num})',{f},{MJ})*{name1},expr::{name2}_ratio('{f}',{f})*{name2})".format(name=pdfName,name1=pdfName1,f=variable,name2=pdfName2,num=num,MJ=MJ))
+            self.w.factory("SUM::{name}(expr::{name2}_ratio1('((1-{f})*{num})',{f},{MJ})*{name1},expr::{name2}_ratio('{f}',{f})*{name2})".format(name=pdfName,name1=pdfName1,f=variable,name2=pdfName2,num=num))
 
 
     def conditionalProduct(self,name,pdf1,varName,pdf2,pdf3,tag1="",tag2="",tag3=""):

@@ -92,6 +92,8 @@ nonResTemplate="QCD_Pt_" #high stat
 
 # nonResTemplate="QCD_Pt-" #low stat --> use this for tests
 #nonResTemplate="Dijet" #to compare shapes
+WTemplate= "WJetsToQQ_HT800"
+TTemplate= "TTHad"
 
 WresTemplate= "WJetsToQQ_HT800,TTHad_pow"
 ZresTemplate= "ZJetsToQQ_HT800"
@@ -299,15 +301,15 @@ def makeBackgroundShapesMVVKernel(name,filename,template,addCut="1",jobName="1DM
   jobname = jobName+"_"+p
   print " Working on purity: ", p
   resFile  = pwd + "/"+ filename+"_"+name+"_detectorResponse.root"
-  if name.find("VJets")!=-1:
+  if name.find("Jets")!=-1:
       resFile="JJ_nonRes_detectorResponse.root"
 
   rootFile = filename+"_"+name+"_MVV_"+p+".root"
   print "Reading " ,resFile
   print "Saving to ",rootFile
-  cut='*'.join([cuts['common'],cuts['metfilters'],cuts[p],addCut])#,cuts['acceptanceGEN'],cuts['acceptanceMJ']])
+  cut='*'.join([cuts['common'],cuts['metfilters'],cuts[p],addCut,cuts['acceptanceGEN'],cuts['looseacceptanceMJ']])
   samples = pwd +"/samples"
-  if name.find("Jets")!= -1: samples = pwd +"/samples_jer/"
+  if name.find("Jets")!= -1: samples = pwd +"/samplesVjets/"
 
   if submitToBatch:
     if name.find("Jets")== -1: template += ",QCD_Pt-,QCD_HT"
@@ -316,7 +318,7 @@ def makeBackgroundShapesMVVKernel(name,filename,template,addCut="1",jobName="1DM
     if wait: merge1DMVVTemplate(jobList,files,jobname,p,binsMVV,binsMJ,minMVV,maxMVV,minMJ,maxMJ,HCALbinsMVV)
   else:
     if name.find("Jets")== -1: template += ",QCD_Pt-,QCD_HT"  
-    cmd='vvMake1DMVVTemplateWithKernels.py -H "x" -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "jj_gen_partialMass" -b {binsMVV}  -x {minMVV} -X {maxMVV} -r {res} {addOption} samples --corrFactorW {corrFactorW} --corrFactorZ {corrFactorZ} '.format(rootFile=rootFile,samples=template,cut=cut,res=resFile,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,addOption=addOption,corrFactorW=corrFactorW,corrFactorZ=corrFactorZ)
+    cmd='vvMake1DMVVTemplateWithKernels.py -H "x" -o "{rootFile}" -s "{samples}" -c "{cut}"  -v "jj_gen_partialMass" -b {binsMVV}  -x {minMVV} -X {maxMVV} -r {res} {addOption} {directory} --corrFactorW {corrFactorW} --corrFactorZ {corrFactorZ} '.format(rootFile=rootFile,samples=template,cut=cut,res=resFile,binsMVV=binsMVV,minMVV=minMVV,maxMVV=maxMVV,addOption=addOption,corrFactorW=corrFactorW,corrFactorZ=corrFactorZ,directory=samples)
     cmd = cmd+HCALbinsMVV
     os.system(cmd)    
 
@@ -405,7 +407,7 @@ def mergeBackgroundShapes(name,filename):
 def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",factors="1",wait=True):
   pwd = os.getcwd()
   samples = pwd +"/samples/"
-  if name.find("Jets")!= -1: samples = pwd +"/samplesVjets/"
+  if name.find("Jets")!= -1 or name.find("tt")!=-1: samples = pwd +"/samplesVjets/"
   print "using files in" , samples
   # if name.find("data")!= -1: samples = "/eos/user/t/thaarres/reduced/"
   for p in purities:
@@ -430,6 +432,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
         print "using cut: " ,cut
         cmd='vvMakeData.py -s "{template}" -d {data} -c "{cut}"  -o "{rootFile}" -v "jj_l1_softDrop_mass,jj_l2_softDrop_mass,jj_LV_mass" -b "{bins},{bins},{BINS}" -m "{mini},{mini},{MINI}" -M "{maxi},{maxi},{MAXI}" -f {factors} -n "{name}" {addOption} {samples}'.format(template=template,cut=cut,rootFile=rootFile,BINS=binsMVV,bins=binsMJ,MINI=minMVV,MAXI=maxMVV,mini=minMJ,maxi=maxMJ,factors=factors,name=name,data=data,addOption=addOption,samples=samples)
         cmd=cmd+HCALbinsMVV
+        print cmd
         os.system(cmd)
    
   
@@ -478,11 +481,18 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 submitToBatch = False #Do not need batch for the following
 #makeNormalizations("WJets","JJ",WresTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:0.205066345")
 #makeNormalizations("ZJets","JJ",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:0.09811023622")
+
 #makeNormalizations("VJets","JJ",resTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:1,ZJetsToQQ_HT800toInf:1")
 
-fitVJets("JJ_WJets",resTemplate,1,1)#0.3425,0.3425)
-#makeBackgroundShapesMVVKernel("WJets","JJ",WresTemplate,cuts['nonres'],"1D",0)
-#makeBackgroundShapesMVVKernel("ZJets","JJ",ZresTemplate,cuts['nonres'],"1D",0)
+#makeNormalizations("WJets_all","JJ",WTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:1")
+#makeNormalizations("ZJets_all","JJ",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:1")
+#makeNormalizations("TTJets_all","JJ",TTemplate,0,cuts['nonres'],"nRes","")
+
+
+
+#fitVJets("JJ_WJets",resTemplate,1,1)#0.3425,0.3425)
+makeBackgroundShapesMVVKernel("WJets","JJ",WresTemplate,cuts['nonres'],"1D",0)
+makeBackgroundShapesMVVKernel("ZJets","JJ",ZresTemplate,cuts['nonres'],"1D",0)
 
 
 

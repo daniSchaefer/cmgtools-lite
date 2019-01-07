@@ -111,8 +111,9 @@ for sig in signals:
       card.addFixedYieldFromFile("nonRes",ncontrib,dataset+"/JJ_nonRes_"+p+".root","nonRes",0.8)
 
       #DATA
-      card.importBinnedData(dataset+"/JJ_"+p+".root","data",["MJ1","MJ2","MJJ"]) 
-
+      #card.importBinnedData(dataset+"/JJ_"+p+".root","data",["MJ1","MJ2","MJJ"]) JJ_herwig_HPLP_2016.root
+      pseudodata = "herwig"
+      card.importBinnedData("JJ_"+pseudodata+"_"+p+"_"+dataset+".root","data_obs",["MJ1","MJ2","MJJ"])
       #SYSTEMATICS
       #luminosity
       card.addSystematic("CMS_lumi","lnN",{'%s'%sig:lumi_unc[dataset],"Wjet":lumi_unc[dataset],"Zjet":lumi_unc[dataset]})
@@ -178,10 +179,15 @@ for sig in signals:
   print cmd
 
   
+  #cmd = 'combineCards.py  JJ_HPHP_13TeV_2016=datacard_JJ_BulkGWW_HPHP_13TeV_2016.txt JJ_HPLP_13TeV_2016=datacard_JJ_BulkGWW_HPLP_13TeV_2016.txt JJ_HPHP_13TeV_2017=datacard_JJ_BulkGWW_HPHP_13TeV_2017.txt  JJ_HPLP_13TeV_2017=datacard_JJ_BulkGWW_HPLP_13TeV_2017.txt  >> datacard_JJ_BulkGWW_13TeV.txt   && text2workspace.py datacard_JJ_BulkGWW_13TeV.txt -o workspace_combo_BulkGWW.root'
+  #os.system(cmd)
+  
   os.system(cmd)
   t2wcmd = "text2workspace.py %s -o %s"%(combo_card,combo_workspace)
   print t2wcmd
   os.system(t2wcmd)
+  
+  
   
   
   

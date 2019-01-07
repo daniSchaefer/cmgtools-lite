@@ -31,7 +31,7 @@ parser.add_option("-E","--lastEv",dest="lastEv",type=int,help="last event",defau
 parser.add_option("--binsMVV",dest="binsMVV",help="use special binning",default="")
 parser.add_option("-t","--triggerweight",dest="triggerW",action="store_true",help="Use trigger weights",default=False)
 parser.add_option("--corrFactorW",dest="corrFactorW",type=float,help="add correction factor xsec",default=1.)
-parser.add_option("--corrFactorZ",dest="corrFactorZ",type=float,help="add correction factor xsec",default=41.34/581.8)
+parser.add_option("--corrFactorZ",dest="corrFactorZ",type=float,help="add correction factor xsec",default=1.)
 
 
 (options,args) = parser.parse_args()
@@ -82,11 +82,11 @@ def smoothTail1D(proj):
     proj.Scale(1.0/scale)
     
     
-    beginFitX = 2500#1500
-    endX = 3500
-    if period == "2016":
-        beginFitX=1400
-        endX = 2100
+    beginFitX = 2100#1500
+    endX = 2800
+    if period == "2016" or options.output.find("HPHP")!=-1:
+        beginFitX=1100
+        endX = 1500
     expo=ROOT.TF1("expo","[0]*(1-x/13000.)^[1]/(x/13000)^[2]",2000,8000)
     expo.SetParameters(0,16.,2.)
     expo.SetParLimits(2,1.,20.)
@@ -130,6 +130,7 @@ dataPlottersNW=[]
 for filename in os.listdir(args[0]):
     for sampleType in sampleTypes:
         if filename.find(sampleType)!=-1:
+            print filename
             fnameParts=filename.split('.')
             fname=fnameParts[0]
             ext=fnameParts[1]
@@ -294,7 +295,7 @@ print " ********** ALL DONE, now save in output file ", options.output
 f=ROOT.TFile(options.output,"RECREATE")
 f.cd()
 finalHistograms={}
-if (options.output).find("VJets")!=-1:
+if (options.output).find("Jets")!=-1:
     histograms[0].Add(histograms[1])
     histograms[0].Add(histograms[2])
     
@@ -306,7 +307,7 @@ scale2 = histograms[3].Integral()
 for hist in histograms:
     finalHistograms[hist.GetName()]=hist
 
-if (options.output).find("VJets")!=-1:
+if (options.output).find("Jets")!=-1:
     if "histo_altshapeUp" in finalHistograms.keys():    
         finalHistograms["histo_nominal"].Add(finalHistograms["histo_altshapeUp"])
     if "histo_altshape2" in finalHistograms.keys():    
@@ -319,14 +320,14 @@ if (options.output).find("VJets")!=-1:
     print "add the histograms for W+jets, Z+jets and ttbar before smoothing the tails"
 for hist in finalHistograms.itervalues():
  # hist.Write(hist.GetName()+"_raw")
- if (options.output).find("VJets")!=-1 and hist.GetName()=="histo_nominal":
-     print "smooth tails of 1D histogram for vjets background"
+ if (options.output).find("Jets")!=-1 and hist.GetName()=="histo_nominal":
+     print "smooth tails of 1D histogram for vjets background of histo "+hist.GetName()
      if hist.Integral() > 0:
         smoothTail1D(hist)
         if hist.GetName().find("histogram_nominal")!=-1:
             hist.Scale(scale)
-        if hist.GetName().find("mvv_nominal")!=-1:
-            hist.Scale(scale2)
+        #if hist.GetName().find("mvv_nominal")!=-1:
+        #    hist.Scale(scale2)
 
  hist.Write(hist.GetName())
  finalHistograms[hist.GetName()]=hist
@@ -365,9 +366,11 @@ histogram_opt2_up.Write()
 #################################
 c = ROOT.TCanvas("c","C",600,400)
 c.SetRightMargin(0.11)
+c.SetLeftMargin(0.11)
 c.SetTopMargin(0.11)
 finalHistograms["histo_nominal"].SetLineColor(ROOT.kBlue)
 finalHistograms["histo_nominal"].GetYaxis().SetTitle("arbitrary scale")
+finalHistograms["histo_nominal"].GetYaxis().SetTitleOffset(1.5)
 finalHistograms["histo_nominal"].GetXaxis().SetTitle("dijet mass")
 sf = finalHistograms["histo_nominal"].Integral()
 histogram_pt_up     .Scale(sf/histogram_pt_up.Integral())
@@ -389,7 +392,7 @@ histogram_opt_down.SetLineColor(ROOT.kGreen)
 histogram_opt_down.SetLineWidth(2)
 histogram_opt_down.Draw("histsame")
 text = ROOT.TLatex()
-text.DrawLatex(1200,0.1,"#font[62]{CMS} #font[52]{Simulation}")
+text.DrawLatexNDC(0.13,0.92,"#font[62]{CMS} #font[52]{Simulation}")
 data = finalHistograms["mvv_nominal"]
 data.Scale(sf/data.Integral())
 data.SetMarkerColor(ROOT.kBlack)
@@ -405,10 +408,12 @@ l.AddEntry(histogram_pt_up,"#propto m_{jj}","l")
 l.AddEntry(histogram_opt_up,"#propto 1/m_{jj}","l")
 l.Draw("same")
 
-tmplabel="HPHP"
+tmplabel="Jets_HPHP"
 if options.output.find('HPLP')!=-1:
-    tmplabel="HPLP"
-c.SaveAs("debug_Vjets_mVV_kernels"+tmplabel+".pdf")
+    tmplabel="Jets_HPLP"
+if options.output.find("W")!=-1: tmplabel="W"+tmplabel
+else: tmplabel= "Z"+tmplabel
+c.SaveAs("debug_mVV_kernels_"+tmplabel+".pdf")
 print "for debugging save   debug_Vjets_mVV_kernels.png "
 
 ########################################################
