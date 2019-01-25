@@ -10,8 +10,8 @@ parser.add_option("-s","--signal",dest="sig",type=str,help="Signal sample",defau
 parser.add_option("--sigscale",dest="sigscale",type=float,help="maximum y",default=0.001)
 parser.add_option("-x","--minX",dest="minX",type=float,help="minimum x",default=1000.0)
 parser.add_option("-X","--maxX",dest="maxX",type=float,help="maximum x",default=5000.0)
-parser.add_option("-y","--minY",dest="minY",type=float,help="minimum y",default=0.0001)
-parser.add_option("-Y","--maxY",dest="maxY",type=float,help="maximum y",default=10)
+parser.add_option("-y","--minY",dest="minY",type=float,help="minimum y",default=0.00001)
+parser.add_option("-Y","--maxY",dest="maxY",type=float,help="maximum y",default=1)
 parser.add_option("-b","--blind",dest="blind",type=int,help="Not do observed ",default=1)
 parser.add_option("-l","--log",dest="log",type=int,help="Log plot",default=1)
 
@@ -50,11 +50,9 @@ for event in limit:
     if not (event.mh in data.keys()):
         data[event.mh]={}
 
-
     lim = event.limit*options.sigscale
-    if options.blind==0:
-        if event.quantileExpected<0:            
-            data[event.mh]['obs']=lim
+    if event.quantileExpected<0:            
+        data[event.mh]['obs']=lim
     if event.quantileExpected>0.02 and event.quantileExpected<0.03:            
         data[event.mh]['-2sigma']=lim
     if event.quantileExpected>0.15 and event.quantileExpected<0.17:            
@@ -94,16 +92,13 @@ N=0
 for mass,info in data.iteritems():
     print 'Setting mass',mass,info
 
-
-    if not ('exp' in info.keys() and '+1sigma' in info.keys() and '+2sigma' in info.keys() and '-1sigma' in info.keys() and '-2sigma' in info.keys() ):
-
+    if not ('exp' in info.keys() and '+1sigma' in info.keys() and '+2sigma' in info.keys() and '-1sigma' in info.keys() and '-2sigma' in info.keys()):
         print 'Incomplete file'
         continue
     if options.blind==0 and not ('obs' in info.keys()):
         print 'Incomplete file'
         continue    
     
-
     mean.SetPoint(N,mass,info['exp'])    
     band68.SetPoint(N,mass,info['exp'])
     band95.SetPoint(N,mass,info['exp'])
@@ -112,10 +107,7 @@ for mass,info in data.iteritems():
     line_minus1.SetPoint(N,mass,info['-1sigma'])
     line_minus2.SetPoint(N,mass,info['-2sigma'])
 
-    print str(mass ) + " mean  "+str(info['exp']) + "  1 sigma  "+str(info['+1sigma'])+"  2 sigma "+str(info['+2sigma'])
-
     if options.blind==0: bandObs.SetPoint(N,mass,info['obs'])
-
     band68.SetPointError(N,0.0,0.0,info['exp']-info['-1sigma'],info['+1sigma']-info['exp'])
     band95.SetPointError(N,0.0,0.0,info['exp']-info['-2sigma'],info['+2sigma']-info['exp'])
     N=N+1
@@ -125,7 +117,6 @@ mean.Sort()
 band68.Sort()
 band95.Sort()
 if options.blind==0: bandObs.Sort()
-
 line_plus1.Sort()    
 line_plus2.Sort()    
 line_minus1.Sort()    
@@ -141,13 +132,12 @@ band68.SetLineStyle(0)
 band68.SetMarkerStyle(0)
 
 band95.SetFillColor(ROOT.kYellow)
-
-if options.blind==0:
-    bandObs.SetLineWidth(3)
-    bandObs.SetLineColor(ROOT.kBlack)
-    bandObs.SetMarkerStyle(20)
 band95.SetLineColor(ROOT.kWhite)
 
+
+bandObs.SetLineWidth(3)
+bandObs.SetLineColor(ROOT.kBlack)
+bandObs.SetMarkerStyle(20)
 
 mean.SetLineWidth(2)
 mean.SetLineColor(ROOT.kBlack)
@@ -165,45 +155,44 @@ line_minus1.SetLineColor(ROOT.kGreen+1)
 line_minus2.SetLineWidth(1)
 line_minus2.SetLineColor(ROOT.kOrange-2)
 
+gtheory = ROOT.TGraphErrors(1)
+gtheory.SetLineColor(ROOT.kRed)
+gtheory.SetLineWidth(3)
+gtheoryUP = ROOT.TGraphErrors(1)
+gtheoryUP.SetLineColor(ROOT.kRed-2)
+gtheoryUP.SetLineWidth(3)
+gtheoryDOWN = ROOT.TGraphErrors(1)
+gtheoryDOWN.SetLineColor(ROOT.kRed-2)
+gtheoryDOWN.SetLineWidth(3)
+gtheorySHADE = ROOT.TGraphErrors(1)
+gtheorySHADE.SetLineColor(ROOT.kRed-2)
+gtheorySHADE.SetLineWidth(3)
 
-#gtheory = ROOT.TGraphErrors(1)
-#gtheory.SetLineColor(ROOT.kRed)
-#gtheory.SetLineWidth(3)
-#gtheoryUP = ROOT.TGraphErrors(1)
-#gtheoryUP.SetLineColor(ROOT.kRed-2)
-#gtheoryUP.SetLineWidth(3)
-#gtheoryDOWN = ROOT.TGraphErrors(1)
-#gtheoryDOWN.SetLineColor(ROOT.kRed-2)
-#gtheoryDOWN.SetLineWidth(3)
-#gtheorySHADE = ROOT.TGraphErrors(1)
-#gtheorySHADE.SetLineColor(ROOT.kRed-2)
-#gtheorySHADE.SetLineWidth(3)
 
-
-Filenameth = "$CMSSW_BASE/src/CMGTools/VVResonances/scripts/theoryXsec/%s.root"%options.sig
-#thFile       = ROOT.TFile.Open(filenameTH,'READ')   
-#print "Opening file " ,thFile.GetName()
-#gtheory      = thFile.Get("gtheory")
-#gtheoryUP    = thFile.Get("gtheoryUP")
-#gtheoryDOWN  = thFile.Get("gtheoryDOWN")
-#gtheorySHADE = thFile.Get("grshade")
-#rescaleaxis(gtheory     )
-#rescaleaxis(gtheoryUP   )
-#rescaleaxis(gtheoryDOWN )
-#rescaleaxis(gtheorySHADE)
-
+filenameTH = "$CMSSW_BASE/src/CMGTools/VVResonances/scripts/theoryXsec/%s.root"%options.sig
+thFile       = ROOT.TFile.Open(filenameTH,'READ')   
+print "Opening file " ,thFile.GetName()
+gtheory      = thFile.Get("gtheory")
+gtheoryUP    = thFile.Get("gtheoryUP")
+gtheoryDOWN  = thFile.Get("gtheoryDOWN")
+gtheorySHADE = thFile.Get("grshade")
+rescaleaxis(gtheory     )
+rescaleaxis(gtheoryUP   )
+rescaleaxis(gtheoryDOWN )
+rescaleaxis(gtheorySHADE)
 
 
 
-#gtheory     .SetName("%s_gtheory"    %options.sig)
-#gtheoryUP   .SetName("%s_gtheoryUP"  %options.sig)
-#gtheoryDOWN .SetName("%s_gtheoryDOWN"%options.sig)
-#gtheorySHADE.SetName("%s_grshade"    %options.sig)
-#gtheorySHADE.SetLineColor(0)
-#gtheoryUP.SetLineColor(ROOT.kRed)
-#gtheoryDOWN.SetLineColor(ROOT.kRed)
-#gtheoryUP.SetLineWidth(1)
-#gtheoryDOWN.SetLineWidth(1)
+
+gtheory     .SetName("%s_gtheory"    %options.sig)
+gtheoryUP   .SetName("%s_gtheoryUP"  %options.sig)
+gtheoryDOWN .SetName("%s_gtheoryDOWN"%options.sig)
+gtheorySHADE.SetName("%s_grshade"    %options.sig)
+gtheorySHADE.SetLineColor(0)
+gtheoryUP.SetLineColor(ROOT.kRed)
+gtheoryDOWN.SetLineColor(ROOT.kRed)
+gtheoryUP.SetLineWidth(1)
+gtheoryDOWN.SetLineWidth(1)
 # thFile.Close()
 
 #plotting information
@@ -260,8 +249,6 @@ frame.GetXaxis().SetTitleSize(0.05)
 frame.GetYaxis().SetTitle(ytitle)
 frame.GetYaxis().SetTitleSize(0.05)
 frame.GetYaxis().SetTitleOffset(1.15)
-frame.SetMinimum(1e-6)
-
 
 frame.Draw()
 band95.Draw("3same")
@@ -272,11 +259,10 @@ line_plus2.Draw("Lsame")
 line_minus1.Draw("Lsame")
 line_minus2.Draw("Lsame")
 mean.Draw("Lsame")
-#gtheory.Draw("Lsame")
-#gtheorySHADE.Draw("Fsame")
+gtheory.Draw("Lsame")
+gtheorySHADE.Draw("Fsame")
 
 c.SetLogy(options.log)
-c.SetGrid()
 c.Draw()
 
 
@@ -304,12 +290,12 @@ leg.SetBorderSize(1)
 if options.blind==0: leg.AddEntry(bandObs, "Observed", "Lp")
 leg.AddEntry(band68, "Expected #pm 1 std. deviation", "f")
 leg.AddEntry(band95 , "Expected #pm 2 std. deviation", "f")
-#leg.AddEntry(gtheory, ltheory, "L")
+leg.AddEntry(gtheory, ltheory, "L")
 
 if not options.blind: leg2.AddEntry(bandObs, " ", "")
 leg2.AddEntry(mean, " ", "L")
 leg2.AddEntry(mean, " ", "L")
-#leg2.AddEntry(gtheory, " ", "")      
+leg2.AddEntry(gtheory, " ", "")      
       
 
 

@@ -76,7 +76,7 @@ cuts['resTT'] = '(jj_l1_mergedVTruth==1&&jj_l1_softDrop_mass>140&&jj_l1_softDrop
 
 purities=['HPHP','HPLP','LPLP','NP']
 purities=['HPHP','HPLP','LPLP']
-purities=['HPLP']
+purities=['HPHP']
 
 BulkGravWWTemplate="BulkGravToWW"
 BulkGravZZTemplate="BulkGravToZZToZhadZhad"
@@ -131,7 +131,7 @@ if useTriggerWeights:
         binsMVV = 39
         
 else:
-    minMVV=1000.0
+    minMVV=1126.0
     maxMVV=5500.0
     minMX=1000.0
     maxMX=6000.0
@@ -379,13 +379,13 @@ def mergeKernelJobs():
 
 def mergeBackgroundShapes(name,filename):
  for p in purities:
-  # inputx=filename+"_"+name+"_COND2D_"+p+"_l1.root"
-  # inputy=filename+"_"+name+"_COND2D_"+p+"_l2.root"
-  # inputz=filename+"_"+name+"_MVV_"+p+".root"
+  inputx=filename+"_"+name+"_COND2D_"+p+"_l1.root"
+  inputy=filename+"_"+name+"_COND2D_"+p+"_l2.root"
+  inputz=filename+"_"+name+"_MVV_"+p+".root"
 
-  inputz="save_new_shapes_pythia_"+p+"_1D.root"
-  inputx="save_new_shapes_pythia_"+p+"_COND2D_l1.root"
-  inputy="save_new_shapes_pythia_"+p+"_COND2D_l2.root"
+  #inputz="save_new_shapes_pythia_"+p+"_1D.root"
+  #inputx="save_new_shapes_pythia_"+p+"_COND2D_l1.root"
+  #inputy="save_new_shapes_pythia_"+p+"_COND2D_l2.root"
  #  #
   # inputz="save_new_shapes_looseDDT_"+p+"_1D.root"
   # inputx="save_new_shapes_looseDDT_"+p+"_COND2D_l1.root"
@@ -476,11 +476,11 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
   #makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
 
 
-
+#mergeBackgroundShapes("nonRes","JJ")
 # Do Vjets
 submitToBatch = False #Do not need batch for the following
-#makeNormalizations("WJets","JJ",WresTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:0.205066345")
-#makeNormalizations("ZJets","JJ",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:0.09811023622")
+#makeNormalizations("WJets","JJ",WresTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:1.")
+#makeNormalizations("ZJets","JJ",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:1.")
 
 #makeNormalizations("VJets","JJ",resTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:1,ZJetsToQQ_HT800toInf:1")
 
@@ -490,7 +490,7 @@ submitToBatch = False #Do not need batch for the following
 
 
 
-#fitVJets("JJ_WJets",resTemplate,1,1)#0.3425,0.3425)
+#fitVJets("JJ_WJets",resTemplate,1.,1.)#0.3425,0.3425)
 makeBackgroundShapesMVVKernel("WJets","JJ",WresTemplate,cuts['nonres'],"1D",0)
 makeBackgroundShapesMVVKernel("ZJets","JJ",ZresTemplate,cuts['nonres'],"1D",0)
 

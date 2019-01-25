@@ -85,8 +85,8 @@ def smoothTail1D(proj):
     beginFitX = 2100#1500
     endX = 2800
     if period == "2016" or options.output.find("HPHP")!=-1:
-        beginFitX=1100
-        endX = 1500
+        beginFitX=1150
+        endX = 1200
     expo=ROOT.TF1("expo","[0]*(1-x/13000.)^[1]/(x/13000)^[2]",2000,8000)
     expo.SetParameters(0,16.,2.)
     expo.SetParLimits(2,1.,20.)

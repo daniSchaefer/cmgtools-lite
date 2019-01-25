@@ -206,7 +206,7 @@ histos2D_nonRes_l2={}
      #histos2D_nonRes[key].Scale(35900.)
      #histos2D_nonRes_l2[key].Scale(35900.)
  
-#############################
+##############################
 #tmpfile = ROOT.TFile("test.root","RECREATE")
 #for key in histos2D.keys():
     
@@ -300,46 +300,78 @@ for leg in legs:
         
     fitter.drawVjets("Vjets_mjetRes_"+leg+"_"+purity+".pdf",histos,histos_nonRes,scales,scales_nonRes)
     del histos,histos_nonRes,fitter,fitterZ
-print params
+#print params
 
 
 graphs={}
-projections=[[1,3],[4,6],[7,10],[11,15],[16,20],[21,26],[27,35],[36,50],[51,61],[62,75],[76,80]]
+#projections=[[1,2],[2,3],[4,6],[7,10],[11,15],[16,20],[21,26],[27,35],[36,50],[51,61],[62,70],[71,75],[76,80]]
+
+#projections=[[1,2],[2,4],[4,5],[5,8],[8,14],[14,22],[22,28],[28,32],[32,40],[40,50],[50,60],[60,65],[65,70],[70,80]]
+#for key in keys:
+    #graphs[key]=ROOT.TGraphErrors()
+    #graphs[key+"_inv"]=ROOT.TGraphErrors()
+    #n=0
+    #ratio = 1.# (histos2D[key].ProjectionY("tmp1").Integral()/histos2D_nonRes_l2[key].ProjectionY("tmp2").Integral() + histos2D_l2[key].ProjectionY().Integral()/histos2D_nonRes[key].ProjectionY("tmp2").Integral())/2.*100.
+    
+    #ratio_ttbar = 1. # (histos2D["TTbar"].ProjectionY("tmp1").Integral()/histos2D_nonRes_l2["TTbar"].ProjectionY("tmp2").Integral() + histos2D_l2["TTbar"].ProjectionY().Integral()/histos2D_nonRes["TTbar"].ProjectionY("tmp2").Integral())/2.*100.
+    #print "ratio = "+str(ratio)
+    #for p in projections:
+         
+        #i1 = histos2D[key].ProjectionY("tmp1",p[0],p[1]).Integral()
+        #i2 = histos2D_nonRes_l2[key].ProjectionY("tmp2",p[0],p[1]).Integral()
+ 
+        #i1_l2 = histos2D_l2[key].ProjectionY("tmp1",p[0],p[1]).Integral()
+        #i2_l2 = histos2D_nonRes[key].ProjectionY("tmp2",p[0],p[1]).Integral()
+        
+        ##graphs[key].SetPoint(n,55+p[0]*2+(p[1]-p[0]),(i1/i2 +i1_l2/i2_l2)/(2.*ratio))
+        #graphs[key].SetPoint(n,55+p[0]*2+(p[1]-p[0]),(i1+i1_l2)/histos2D[key].Integral() )
+        
+        #if (key=="Wjets") and ("TTbar" in histos2D.keys()):
+            #norm = histos2D["TTbar"].Integral()/histos2D["Wjets"].Integral()
+            #tt_i1 = histos2D["TTbar"].ProjectionY("tmp1",p[0],p[1]).Integral()*norm
+            #tt_i2 = histos2D_nonRes_l2["TTbar"].ProjectionY("tmp2",p[0],p[1]).Integral()
+            #tt_i1_l2 =   histos2D_l2["TTbar"].ProjectionY("tmp1",p[0],p[1])    .Integral()*norm
+            #tt_i2_l2 =   histos2D_nonRes["TTbar"].ProjectionY("tmp2",p[0],p[1]).Integral()
+            
+            
+            ##graphs[key].SetPoint(n,55+p[0]*2+(p[1]-p[0]),(i1/i2 )+(tt_i1/tt_i2 ))
+            
+            ##graphs[key+"_inv"].SetPoint(n,55+p[0]*2+(p[1]-p[0]),(i2_l2/i1_l2)+(tt_i2_l2/tt_i1_l2))
+            #graphs[key].SetPoint(n,55+p[0]*2+(p[1]-p[0]),(i1+i1_l2 + tt_i1 + tt_i1_l2)/(histos2D[key].Integral()+histos2D["TTbar"].Integral()))
+            
+            #graphs[key+"_inv"].SetPoint(n,55+p[0]*2+(p[1]-p[0]),(i2+i2_l2 + tt_i2 + tt_i2_l2)/(histos2D[key].Integral()+histos2D["TTbar"].Integral()))
+            #print i1+i1_l2 + tt_i1 + tt_i1_l2
+        
+        ##print norm
+        ###err = ROOT.TMath.Sqrt(pow(ROOT.TMath.Sqrt(i1)/i2 + ROOT.TMath.Sqrt(i2)*i1/(i2*i2),2)+pow(ROOT.TMath.Sqrt(i1_l2)/i2_l2 + ROOT.TMath.Sqrt(i2_l2)*i1_l2/(i2_l2*i2_l2),2))/ratio
+        ###graphs[key].SetPointError(n,0,err)
+        ##err = ROOT.TMath.Sqrt(i1)/i2
+        ##err2 = ROOT.TMath.Sqrt(i2_l2)/i1_l2
+        
+        #err = pow(ROOT.TMath.Sqrt(i1+i1_l2)/histos2D[key].Integral(),2)
+        #err2 =ROOT.TMath.Sqrt( pow(ROOT.TMath.Sqrt(i2_l2+i2)/histos2D[key].Integral(),2) + pow((i2_l2+i2)/(ROOT.TMath.Sqrt(histos2D[key].Integral())*histos2D[key].Integral()),2))
+        
+        #graphs[key].SetPointError(n,(p[1]-p[0]),err)
+        #graphs[key+"_inv"].SetPointError(n,(p[1]-p[0]),err2)
+        ###print "set point errors "+str(err)
+        
+        #n+=1
+
 for key in keys:
     graphs[key]=ROOT.TGraphErrors()
-    n=0
-    for p in projections:
-         
-        i1 = histos2D[key].ProjectionY("tmp1",p[0],p[1]).Integral()
-        i2 = histos2D_nonRes_l2[key].ProjectionY("tmp2",p[0],p[1]).Integral()
- 
-        i1_l2 = histos2D_l2[key].ProjectionY("tmp1",p[0],p[1]).Integral()
-        i2_l2 = histos2D_nonRes[key].ProjectionY("tmp2",p[0],p[1]).Integral()
+    graphs[key+"_inv"]=ROOT.TGraphErrors()
+    projection =  histos2D[key].ProjectionX("tmp1")
+    projection2 =  histos2D_nonRes[key].ProjectionY("tmp2")
+    projection.Scale(1/projection.Integral())
+    projection2.Scale(1/projection2.Integral())
+    for b in range(1,projection.GetNbinsX()):
+        graphs[key].SetPoint(b-1,projection.GetBinLowEdge(b)+projection.GetBinWidth(b)/2., projection.GetBinContent(b))
         
-        graphs[key].SetPoint(n,55+p[0]*2+(p[1]-p[0]),(i1/i2 +i1_l2/i2_l2)/2.)
-        
-        if (key=="Wjets") and ("TTbar" in histos2D.keys()):
-            norm = histos2D["TTbar"].Integral()/histos2D["Wjets"].Integral()
-            tt_i1 = histos2D["TTbar"].ProjectionY("tmp1",p[0],p[1]).Integral()*norm
-            tt_i2 = histos2D_nonRes_l2["TTbar"].ProjectionY("tmp2",p[0],p[1]).Integral()
-            tt_i1_l2 =   histos2D_l2["TTbar"].ProjectionY("tmp1",p[0],p[1])    .Integral()*norm
-            tt_i2_l2 =   histos2D_nonRes["TTbar"].ProjectionY("tmp2",p[0],p[1]).Integral()
-            graphs[key].SetPoint(n,55+p[0]*2+(p[1]-p[0]),(i1/i2 +i1_l2/i2_l2)/2.+(tt_i1/tt_i2 + tt_i1_l2/tt_i2_l2)/2.)
-        
-        
-        
-        print norm
-        err = ROOT.TMath.Sqrt(pow(ROOT.TMath.Sqrt(i1)/i2 + ROOT.TMath.Sqrt(i2)*i1/(i2*i2),2)+pow(ROOT.TMath.Sqrt(i1_l2)/i2_l2 + ROOT.TMath.Sqrt(i2_l2)*i1_l2/(i2_l2*i2_l2),2))
-        graphs[key].SetPointError(n,0,err)
-        
-        print "set point errors "+str(err)
-        
-        n+=1
+        graphs[key+"_inv"].SetPoint(b-1,projection2.GetBinLowEdge(b)+projection2.GetBinWidth(b)/2., projection2.GetBinContent(b))
 
+func=ROOT.TF1("pol","pol3",55,215)
 
-func=ROOT.TF1("pol","pol6",55,215)
-
-func2=ROOT.TF1("pol","pol6",55,215)
+func2=ROOT.TF1("pol","pol3",55,215)
 #+[5]*x*x*x*x*x+[4]*x*x*x*x
 l="ratio"
 for key in graphs.keys():
@@ -352,16 +384,31 @@ for key in graphs.keys():
        
    if key.find("W")!=-1:
        graphs[key].Fit(func)
+       
+       norm = func.Integral(55,215)
+       print key+str( norm)
+       
+       
        st = returnString(func,"pol","MJ2")
-       #params["ratio_Res_nonRes_l1"][l] = st
+       params["ratio_Res_nonRes_l1"][l] = st
+       print st
+       
+       if key.find("inv")!=-1:
+         graphs[key].Fit(func2)
+         #st = returnString(func2,"pol","MJ1")
+         #params["ratio_Res_nonRes_l2"][l] = st
+         #print "inv"
+         #print st
+       #graphs[key+"_inv"].Fit(func)
        st = returnString(func,"pol","MJ1")
-       #params["ratio_Res_nonRes_l2"][l] = st
+       params["ratio_Res_nonRes_l2"][l] = st
+       #print "string = "+ st
    else:
        graphs[key].Fit(func2)
        st = returnString(func2,"pol","MJ2")
-       #params["ratio_Res_nonRes_l1"][l] = st
+       params["ratio_Res_nonRes_l1"][l] = st
        st = returnString(func2,"pol","MJ1")
-       #params["ratio_Res_nonRes_l2"][l] = st
+       params["ratio_Res_nonRes_l2"][l] = st
 
    
    graphs[key].SetMarkerColor(ROOT.kBlack)
@@ -380,9 +427,10 @@ for key in graphs.keys():
 
 
 c =getCanvas("c")
-graphs["Wjets"].Draw("AP")
+graphs["Wjets_inv"].Draw("AP")
+graphs["Wjets"].Draw("Psame")
 graphs["Wjets"].GetFunction("pol").Draw("same")
-legend = ROOT.TLegend(0.5607383,0.2063123,0.85,0.3089701)
+legend = ROOT.TLegend(0.5607383,0.4063123,0.85,0.3089701)
 legend.SetLineWidth(2)
 legend.SetBorderSize(0)
 legend.SetFillColor(0)
@@ -431,7 +479,9 @@ if 'TTbar' in graphs.keys():
     c.SaveAs("debug_corr_l1_l2_TTbar.pdf")
 
 
-print params
+#print params
+
+
 
 if options.store!="":
     print "write to file "+options.store
@@ -439,22 +489,7 @@ if options.store!="":
     for par in params:
         f.write(str(par)+ " = " +str(params[par])+"\n")
 
- 
- 
-def f(MJ2):
-    res = 0+(50.3310390872)+(-1.82902889265)*MJ2+(0.030896434249)*MJ2*MJ2+(-0.000333221984602)*MJ2*MJ2*MJ2+(2.31367978112e-06)*MJ2*MJ2*MJ2*MJ2+(-8.75592900444e-09)*MJ2*MJ2*MJ2*MJ2*MJ2+(1.32617347289e-11)*MJ2*MJ2*MJ2*MJ2*MJ2*MJ2
-    return res
 
-
-print f(55)
-print f(60)
-print f(100)
-print f(150)
-print f(180)
-print f(200)
-print f(215)
-print f(1300)
-print f(0)
 
 
 

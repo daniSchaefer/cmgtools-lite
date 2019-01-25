@@ -302,9 +302,9 @@ for hist in histograms:
  finalHistograms[hist.GetName()]=expanded
 
 # ##Mirror Herwig shape
-#histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
-#conditional(histogram_altshapeDown)
-#histogram_altshapeDown.Write()
+histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
+conditional(histogram_altshapeDown)
+histogram_altshapeDown.Write()
 
 alpha=1.5/215.
 histogram_pt_down,histogram_pt_up=unequalScale(finalHistograms['histo_nominal'],"histo_nominal_PT",alpha)

@@ -11,7 +11,7 @@ ROOT.gROOT.ProcessLine(".x tdrstyle.cc");
 #ROOT.gSystem.Load("Util_cxx.so")
 #from ROOT import draw_error_band
 
-#python runFitPlots_vjets_signal_bigcombo_splitRes.py -n workspace_combo_BulkGWW.root  -l comboHPHP -i /afs/cern.ch/user/j/jngadiub/public/2016/JJ_nonRes_HPHP.root -M 1200
+#python runFitPlots_vjets_signal_bigcombo_splitRes.py -n workspace_combo_BulkGWW.root  -l comboHPHP -i /afs/cern.ch/user/j/jngadiub/public/2016/JJ_nonRes_HPHP.root -M 1200 -s
 #python runFitPlots_vjets_signal_bigcombo_splitRes.py -n workspace_combo_BulkGWW.root  -l comboHPLP -i /afs/cern.ch/user/j/jngadiub/public/2016/JJ_nonRes_HPLP.root -M 1200
 
 addTT = False 
@@ -312,7 +312,11 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
      #leg.AddEntry(hsig,"Signal pdf","F")
      leg.AddEntry(hsig,"G_{bulk} (%.1f TeV) #rightarrow WW"%(options.signalMass/1000.),"F")
     
-    errors[0].Draw("E5same")
+    #errors[0].Draw("E5same")
+    if axis=="z":
+        errors[0].Draw("2same")
+    else:
+        errors[0].Draw("3same")
     histos[0].Draw("samehist")
     if options.addTop: histos[3].Draw("histsame") 
     histos[1].Draw("histsame") 
@@ -486,6 +490,8 @@ def doZprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
     htot_Wres = ROOT.TH1F("htot_Wres","htot_Wres",len(zBinslowedge)-1,zBinslowedge)
     htot_Wres.Add(h[2])
     htot_Wres.Add(h[3])
+    #htot_Wres.Add(h[4])
+    #htot_Wres.Add(h[5])
     
     htot_Zres = ROOT.TH1F("htot_Zres","htot_Zres",len(zBinslowedge)-1,zBinslowedge)
     htot_Zres.Add(h[4])
@@ -593,6 +599,8 @@ def doXprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
     htot_Wres = ROOT.TH1F("htot_Wres","htot_Wres",len(xBinslowedge)-1,xBinslowedge)
     htot_Wres.Add(h[2])
     htot_Wres.Add(h[3])
+    #htot_Wres.Add(h[4])
+    #htot_Wres.Add(h[5])
     
     htot_Zres = ROOT.TH1F("htot_Zres","htot_Zres",len(xBinslowedge)-1,xBinslowedge)
     htot_Zres.Add(h[4])
@@ -700,6 +708,8 @@ def doYprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wr
     htot_Wres = ROOT.TH1F("htot_Wres","htot_Wres",len(yBinslowedge)-1,yBinslowedge)
     htot_Wres.Add(h[2])
     htot_Wres.Add(h[3])
+    #htot_Wres.Add(h[4])
+    #htot_Wres.Add(h[5])
     
     htot_Zres = ROOT.TH1F("htot_Wres","htot_Wres",len(yBinslowedge)-1,yBinslowedge)
     htot_Zres.Add(h[4])
@@ -740,7 +750,8 @@ def addPullPlot(hdata,hpostfit,nBins,error_band):
         ypostfit = (hdata.GetBinContent(i) - hpostfit.GetBinContent(i))/hdata.GetBinErrorUp(i)
         gpost.SetPoint(i-1,m,ypostfit)
         gt.SetBinContent(i,ypostfit)
-	print "bin",i,"x",m,"data",hdata.GetBinContent(i),"post fit",hpostfit.GetBinContent(i),"err data",hdata.GetBinErrorUp(i),"err fit",error_band.GetBinError(i),"pull postfit",ypostfit
+	#print "bin",i,"x",m,"data",hdata.GetBinContent(i),"post fit",hpostfit.GetBinContent(i),"err data",hdata.GetBinErrorUp(i),"err fit",error_band.GetBinError(i),"pull postfit",ypostfit
+	print "bin",i,"x",m,"data",hdata.GetBinContent(i),"post fit",hpostfit.GetBinContent(i),"err data",hdata.GetBinErrorUp(i),"err fit",error_band.GetErrorYhigh(i-1),"pull postfit",ypostfit
 		
     gpost.SetLineColor(colors[1])
     gpost.SetMarkerColor(colors[1])
@@ -845,7 +856,10 @@ def draw_error_band(histo_central,norm1,err_norm1,norm2,err_norm2,rpdf1,rpdf2,x_
     number_point = len(value)
     
     par_pdf1 = rpdf1.getParameters(argset)  
-    par_pdf2 = rpdf2.getParameters(argset)  
+    par_pdf2 = rpdf2.getParameters(argset)
+    
+   # par_pdf1.Print()
+   # par_pdf2.Print()
       
     for j in range(number_errorband):
     
@@ -893,7 +907,7 @@ def draw_error_band(histo_central,norm1,err_norm1,norm2,err_norm2,rpdf1,rpdf2,x_
       syst[j].SetPoint(ix, x, value[ix])
 
     #Try to build and find max and minimum for each point --> not the curve but the value to do a real envelope -> take one 2sigma interval        
-    errorband = ROOT.TH1F("errorband","errorband",len(x_min)-1,x_min)
+    errorband = ROOT.TGraphAsymmErrors()#ROOT.TH1F("errorband","errorband",len(x_min)-1,x_min)
 
     val = [0 for i in range(number_errorband)]
     for ix,x in enumerate(x_min):
@@ -901,16 +915,16 @@ def draw_error_band(histo_central,norm1,err_norm1,norm2,err_norm2,rpdf1,rpdf2,x_
      for j in range(number_errorband):
       val[j]=(syst[j]).GetY()[ix]
      val.sort()
-
-     errorband.SetBinContent(ix+1,histo_central.GetBinContent(ix+1))
+     errorband.SetPoint(ix,x_min[ix]+histo_central.GetBinWidth(ix+1)/2.,histo_central.GetBinContent(ix+1))
+     #errorband.SetBinContent(ix+1,histo_central.GetBinContent(ix+1))
      #print "set bin content error band "+str(histo_central.GetBinContent(ix+1))+" for bin "+str(ix+1)
      errup = (val[int(0.84*number_errorband)]-histo_central.GetBinContent(ix+1)) #ROOT.TMath.Abs
      errdn = ( histo_central.GetBinContent(ix+1)-val[int(0.16*number_errorband)])
-     #print "error up "+str(errup)+" error down "+str(errdn)
-     if errup > errdn: errorband.SetBinError(ix+1,errup)
-     else: errorband.SetBinError(ix+1,errdn)
+     print "error up "+str(errup)+" error down "+str(errdn)
+     #if errup > errdn: errorband.SetBinError(ix+1,errup)
+     #else: errorband.SetBinError(ix+1,errdn)
      #print ix,ix+1,histo_central.GetBinContent(ix+1),errorband.GetBinContent(ix+1)
-     
+     errorband.SetPointError(ix,histo_central.GetBinWidth(ix+1)/2.,histo_central.GetBinWidth(ix+1)/2.,ROOT.TMath.Abs(errdn),ROOT.TMath.Abs(errup))
     errorband.SetFillColor(ROOT.kBlack)
     errorband.SetFillStyle(3008)
     errorband.SetLineColor(ROOT.kGreen)
@@ -1031,8 +1045,8 @@ if __name__=="__main__":
       pdf1Name = "pdf_binJJ_"+purity+"_13TeV_2016"
       pdf2Name = "pdf_binJJ_"+purity+"_13TeV_2017"
      print "Expected number of QCD events:",(args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_nonRes"].getVal(),"(2016)",(args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_nonRes"].getVal(),"(2017)"
-     print "Expected number of W+jets events:",(args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Wjet"].getVal(),"(2016)",(args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Wjet"].getVal(),"(2017)"
-     print "Expected number of Z+jets events:",(args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Zjet"].getVal(),"(2016)",(args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Zjet"].getVal(),"(2017)"
+     print "Expected number of W+jets events:",(args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Wjets"].getVal(),"(2016)",(args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Wjets"].getVal(),"(2017)"
+     print "Expected number of Z+jets events:",(args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Zjets"].getVal(),"(2016)",(args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Zjets"].getVal(),"(2017)"
      if options.addTop:
        print "Expected number of tt events:",(args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_TThad"].getVal(),"(2016)",(args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_TThad"].getVal(),"(2017)"
      if options.fitSignal:
@@ -1094,18 +1108,18 @@ if __name__=="__main__":
      pdf2_nonres_shape_postfit.coefList().Print()
      
      print "2016 Postfit W+jets res pdf:"
-     pdf1_Wres_shape_postfit  = args["shapeBkg_Wjet_JJ_"+purity+"_13TeV_2016"]
+     pdf1_Wres_shape_postfit  = args["shapeBkg_Wjets_JJ_"+purity+"_13TeV_2016"]
      pdf1_Wres_shape_postfit.Print()
      print "2017 Postfit W+jets res pdf:"
-     pdf2_Wres_shape_postfit  = args["shapeBkg_Wjet_JJ_"+purity+"_13TeV_2017"]
+     pdf2_Wres_shape_postfit  = args["shapeBkg_Wjets_JJ_"+purity+"_13TeV_2017"]
      pdf2_Wres_shape_postfit.Print()
      print
      
      print "2016 Postfit Z+jets res pdf:"
-     pdf1_Zres_shape_postfit  = args["shapeBkg_Zjet_JJ_"+purity+"_13TeV_2016"]
+     pdf1_Zres_shape_postfit  = args["shapeBkg_Zjets_JJ_"+purity+"_13TeV_2016"]
      pdf1_Zres_shape_postfit.Print()
      print "2017 Postfit Z+jets res pdf:"
-     pdf2_Zres_shape_postfit  = args["shapeBkg_Zjet_JJ_"+purity+"_13TeV_2017"]
+     pdf2_Zres_shape_postfit  = args["shapeBkg_Zjets_JJ_"+purity+"_13TeV_2017"]
      pdf2_Zres_shape_postfit.Print()
      print
      
@@ -1216,26 +1230,26 @@ if __name__=="__main__":
      norm2_nonres[1] = (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_nonRes"].getPropagatedError(fitresult)
                 
      print
-     (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Wjet"].dump()
+     (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Wjets"].dump()
      norm1_Wres = [0,0]
-     norm1_Wres[0] = (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Wjet"].getVal()
-     norm1_Wres[1] = (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Wjet"].getPropagatedError(fitresult)
+     norm1_Wres[0] = (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Wjets"].getVal()
+     norm1_Wres[1] = (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Wjets"].getPropagatedError(fitresult)
      print
-     (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Wjet"].dump()
+     (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Wjets"].dump()
      norm2_Wres = [0,0]
-     norm2_Wres[0] = (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Wjet"].getVal()
-     norm2_Wres[1] = (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Wjet"].getPropagatedError(fitresult)
+     norm2_Wres[0] = (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Wjets"].getVal()
+     norm2_Wres[1] = (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Wjets"].getPropagatedError(fitresult)
      
      print
-     (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Zjet"].dump()
+     (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Zjets"].dump()
      norm1_Zres = [0,0]
-     norm1_Zres[0] = (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Zjet"].getVal()
-     norm1_Zres[1] = (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Zjet"].getPropagatedError(fitresult)
+     norm1_Zres[0] = (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Zjets"].getVal()
+     norm1_Zres[1] = (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Zjets"].getPropagatedError(fitresult)
      print
-     (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Zjet"].dump()
+     (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Zjets"].dump()
      norm2_Zres = [0,0]
-     norm2_Zres[0] = (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Zjet"].getVal()
-     norm2_Zres[1] = (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Zjet"].getPropagatedError(fitresult)
+     norm2_Zres[0] = (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Zjets"].getVal()
+     norm2_Zres[1] = (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Zjets"].getPropagatedError(fitresult)
      
      if options.addTop:
       print
