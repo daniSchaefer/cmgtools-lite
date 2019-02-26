@@ -267,7 +267,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
   print "Preparing alternative shapes for sampletype " ,sampleTypes[2]
   print "filename: ", plotter.filename, " preparing alternate shape histo"
 
-  histI2D=plotter.drawTH2("jj_LV_mass:jj_%s_softDrop_mass"%(leg),options.cut,"1",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy),"M_{qV} mass","GeV","Softdrop mass","GeV","COLZ" )
+  histI2D=plotter.drawTH2Binned("jj_LV_mass:jj_%s_softDrop_mass"%(leg),options.cut,"1",array('f',binsx),array('f',binsy),"M_{qV} mass","GeV","Softdrop mass","GeV","COLZ" )
   histTMP=ROOT.TH2F("histoTMP","histo",len(binsx)-1,array('f',binsx),len(binsy)-1,array('f',binsy))
 
   print " - Creating dataset - "
@@ -305,6 +305,12 @@ for hist in histograms:
 histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
 conditional(histogram_altshapeDown)
 histogram_altshapeDown.Write()
+
+# ##Mirror Madgraph shape
+histogram_altshape2Down=mirror(finalHistograms['histo_altshape2'],finalHistograms['histo_nominal'],"histo_altshape2Down")
+conditional(histogram_altshape2Down)
+histogram_altshape2Down.Write()
+
 
 alpha=1.5/215.
 histogram_pt_down,histogram_pt_up=unequalScale(finalHistograms['histo_nominal'],"histo_nominal_PT",alpha)

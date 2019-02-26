@@ -91,7 +91,7 @@ for mass in sorted(samples.keys()):
 
     print 'fitting',str(mass) 
     plotter=TreePlotter(args[0]+'/'+samples[mass]+'.root','tree')
-    plotter.addCorrectionFactor('genWeight_LO','tree')
+    #plotter.addCorrectionFactor('genWeight_LO','tree')
     plotter.addCorrectionFactor('puWeight','tree')
     if options.triggerW:
         plotter.addCorrectionFactor('jj_triggerWeight','tree')	
@@ -113,9 +113,12 @@ for mass in sorted(samples.keys()):
              fitter.w.var(parVal[0]).setConstant(1)
     fitter.w.var("MH").setVal(mass)
 
-    binning= truncate(getBinning(options.binsMVV,options.min,options.max,1000),0.80*mass,1.3*mass)    
+    binning= truncate(getBinning(options.binsMVV,options.min,options.max,1000),0.8*mass,1.3*mass)    
     histo = plotter.drawTH1Binned(options.mvv,options.cut+"*(jj_LV_mass>%f&&jj_LV_mass<%f)"%(0.80*mass,1.3*mass),"1",binning)
 
+    print histo.GetMean()
+    print histo.GetRMS()
+#+"*(jj_LV_mass>%f&&jj_LV_mass<%f)"%(0.80*mass,1.3*mass)
     #gauss  = ROOT.TF1("gauss" ,"gaus",0.95*mass,1.05*mass)  
     #histo.Fit(gauss,"R")
     #mean = gauss.GetParameter(1)

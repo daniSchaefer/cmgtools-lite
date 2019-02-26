@@ -269,4 +269,23 @@ if output.histo_madgraph:
  histo_madgraph_up,histo_madgraph_down = add_sigmoid_shape(output.histo_madgraph)
  histo_madgraph_up.Write()
  histo_madgraph_down.Write()
+
+
 output.Close()
+
+
+
+# #  add altshape3: y madgraph and x,y pythia for LPLP category:
+
+# forx = ROOT.TFile("","READ")
+# fory = ROOT.TFile("","READ")
+# forz = ROOT.TFile("","READ")
+
+# histx = forx.Get("histo_nominal")
+# histy = fory.Get("histo_nominal")
+# histz = forz.Get("histo_nominal_altshapeUp")
+# histzd= forz.Get("histo_nominal_altshapeDown")
+
+# outfile = ROOT.TFile("testMadgraphShapes.root","RECREATE")
+# makeHisto("histo_altshape3Up",forx,"histo_nominal",fory,"histo_nominal",forz,"histo_altshapeUp",outfile)
+# makeHisto("histo_altshape3Down",forx,"histo_nominal",fory,"histo_nominal",forz,"histo_altshapeDown",outfile)

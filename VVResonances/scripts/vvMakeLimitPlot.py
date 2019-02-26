@@ -245,6 +245,9 @@ frame=c.DrawFrame(options.minX,options.minY,options.maxX,options.maxY)
 frame.GetXaxis().SetTitle(xtitle)
 frame.GetXaxis().SetTitleOffset(0.9)
 frame.GetXaxis().SetTitleSize(0.05)
+frame.SetMinimum(5e-5)
+frame.SetMaximum(0.1)
+
 
 frame.GetYaxis().SetTitle(ytitle)
 frame.GetYaxis().SetTitleSize(0.05)
@@ -312,8 +315,10 @@ c.RedrawAxis()
 
 if options.blind==0:
     bandObs.Draw("PLsame")
-c.SaveAs(options.output+options.sig+".png")    
-c.SaveAs(options.output+options.sig+".pdf")    
+c.SaveAs("limits_"+options.sig+"_combo_2016_2017.png")    
+c.SaveAs("limits_"+options.sig+"_combo_2016_2017.pdf") 
+c.SaveAs("limits_"+options.sig+"_combo_2016_2017.C")
+c.SaveAs("limits_"+options.sig+"_combo_2016_2017.root")
 
 fout=ROOT.TFile(options.output+options.sig+".root","RECREATE")
 fout.cd()

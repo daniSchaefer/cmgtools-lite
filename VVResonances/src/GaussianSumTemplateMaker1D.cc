@@ -7,7 +7,7 @@ GaussianSumTemplateMaker1D::~GaussianSumTemplateMaker1D() {}
 
 GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D(const RooDataSet* dataset, const char* varx,const char* varpt,TH1* hscalex,TH1* hresx,TH1* output,const char* varw,TH1* weightH) {
 
-  double genx,x,scalex,resx,genpt,reweight,genw;
+  double genx,x,scalex,resx,genpt,reweight,genw,genw2;
   genx=0.0;
   scalex=0.0;
   x=0.0;
@@ -19,6 +19,7 @@ GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D(const RooDataSet* dataset
 
 
   int binw=0;
+  int binw2=0;
   unsigned int nevents = dataset->numEntries();
   for (unsigned int entry=0;entry<nevents;++entry) {
 
@@ -30,9 +31,11 @@ GaussianSumTemplateMaker1D::GaussianSumTemplateMaker1D(const RooDataSet* dataset
     genx=line->getRealValue(varx);
     genpt=line->getRealValue(varpt);
     if (weightH!=0) {
-      genw=line->getRealValue(varw);
+      genw=line->getRealValue(varpt);
+      genw2=line->getRealValue(varw);
       binw=weightH->GetXaxis()->FindBin(genw);
-      reweight=weightH->GetBinContent(binw);
+      binw2=weightH->GetXaxis()->FindBin(genw2);
+      reweight=weightH->GetBinContent(binw)*weightH->GetBinContent(binw2);
     }
       
     scalex=hscalex->Interpolate(genpt)*genx;

@@ -270,7 +270,7 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
  
     histos[1].SetLineColor(colors[1])
     histos[1].SetLineWidth(2)
-    leg.AddEntry(histos[1],"W(qq)+jets","l")
+    leg.AddEntry(histos[1],"W(qq)+jets plus t#bar{t}","l")
     
     histos[2].SetLineColor(colors[2])
     histos[2].SetLineWidth(2)
@@ -747,7 +747,11 @@ def addPullPlot(hdata,hpostfit,nBins,error_band):
     gt = ROOT.TH1F("gt","gt",len(nBins)-1,nBins)
     for i in range(1,N+1):
         m = hdata.GetXaxis().GetBinCenter(i)
-        ypostfit = (hdata.GetBinContent(i) - hpostfit.GetBinContent(i))/hdata.GetBinErrorUp(i)
+        #ypostfit = (hdata.GetBinContent(i) - hpostfit.GetBinContent(i))/hdata.GetBinErrorUp(i)
+        if hpostfit.GetBinContent(i) <= hdata.GetBinContent(i):
+            ypostfit = (hdata.GetBinContent(i) - hpostfit.GetBinContent(i))/ ROOT.TMath.Sqrt(ROOT.TMath.Abs( pow(hdata.GetBinErrorUp(i),2) - pow(error_band.GetErrorYhigh(i-1),2) ))
+        else:
+            ypostfit = (hdata.GetBinContent(i) - hpostfit.GetBinContent(i))/ ROOT.TMath.Sqrt(ROOT.TMath.Abs( pow(hdata.GetBinErrorUp(i),2) - pow(error_band.GetErrorYlow(i-1),2) ))
         gpost.SetPoint(i-1,m,ypostfit)
         gt.SetBinContent(i,ypostfit)
 	#print "bin",i,"x",m,"data",hdata.GetBinContent(i),"post fit",hpostfit.GetBinContent(i),"err data",hdata.GetBinErrorUp(i),"err fit",error_band.GetBinError(i),"pull postfit",ypostfit

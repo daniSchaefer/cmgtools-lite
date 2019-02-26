@@ -71,7 +71,7 @@ for mass in sorted(samples.keys()):
     histo = plotter.drawTH1(options.mvv,options.cut,"1",500,options.min,options.max)
     err=ROOT.Double(0)
     integral=histo.IntegralAndError(1,histo.GetNbinsX(),err) 
-
+    print "mass "+str(mass)+" integral "+str(integral)
     yieldgraph.SetPoint(N,mass,integral*options.BR)
     yieldgraph.SetPointError(N,0.0,err*options.BR)
     N=N+1

@@ -54,6 +54,9 @@ for filename in os.listdir(args[0]):
                 dataPlotters[-1].addCorrectionFactor('xsec','tree')
                 dataPlotters[-1].addCorrectionFactor('genWeight','tree')
                 dataPlotters[-1].addCorrectionFactor('puWeight','tree')
+                if filename.find("W")!=-1 or filename.find("Z")!=-1:
+                    dataPlotters[-1].addCorrectionFactor('kfactor','tree')
+                    print "add correction factor kfactor "
                 if options.triggerW:
                     print "Using triggerweights! Are you sure?"
                     dataPlotters[-1].addCorrectionFactor('triggerWeight','tree')	

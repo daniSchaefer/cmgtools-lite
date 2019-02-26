@@ -70,27 +70,53 @@ files = ["LIMITS_DDT_latest/WW/HPLP/Limits_BulkGWW_HPLP_13TeV.root","LIMITS_DDT_
 # title = ["HPHP","B2G-17-001"]
 # files = ["LIMITS_DDT_latest/newSigFits/Limits_BulkGWW_HPHP_13TeV.root","limits_b2g17001/Limits_b2g17001_BulkGWW_13TeV.root"]
 
-titleY = "#sigma x BR(Z' #rightarrow WW) (pb)  "
-oname= "Zprime"  
-title = ["Tight (DDT<0.43)","Loose (DDT<0.49)"]
-files = ["/afs/cern.ch/user/t/thaarres/public/forJen/newDDT/limits.root","/afs/cern.ch/user/t/thaarres/public/forJen/looseDDT/limits.root"]
+titleY = "#sigma x BR(G_{bulk} #rightarrow WW) (pb)  "
+oname= "BulkGWW"  
+#title = ["3D HPHP+HPLP 2016","3D HPHP+HPLP 2017","3D '16+17' combined", "test1"]
+#files = ["/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/2016limits_BulkGWW.root","/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/2017limits_BulkGWW.root","/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/limits_BulkGWW_13TeV_CMS_jj_combAll2.root","/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/2016limits_NoDijetBinning_BulkGWW_13TeV.root"]
+#"/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/2017limits_NoDijetBinning_NOJER_BulkGWW_13TeV.root",
 
 
 
-# title = ["3D HPHP","3D HPHP DDT"]
-# files = ["Limits_BulkGWW_HPHP_13TeV.root","Limits_BulkGWW_HPHP_13TeV_ddt.root"]
-#
-# title = ["Expected 2017","B2G-17-001"]
-# files = ["HPLP_noOPTPT2/Limits2.root","limits_b2g17001/Limits_b2g17001_WZ_13TeV.root"]
-#
-# title = ["Expected 2017","B2G-17-001"]
-# files = ["HPLP_noOPTPT2/Limits2.root","limits_b2g17001/Limits_b2g17001_WZ_13TeV.root"]
-#
-# title = ["HPHP","HPLP","HPHP+HPLP"]
-#
-# files = ["LIMITS_DDT_latest/HPHP/HPHP.root","LIMITS_DDT_latest/LPLP/HPLP.root","LIMITS_DDT_latest/combined/combined.root"]
-# title = ["Nominal","p_{T}/m_{VV}>0.4"]
-# files = ["LIMITS_NOM/Limits_BulkGWW_HPHP_13TeV.root","LIMITS_VCUT/Limits_BulkGWW_HPHP_13TeV.root"]
+
+mydir = "/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/"
+
+# 2016 limit comparison 
+#title=["2016 No JER","2016 JER","B2G-17-001"]
+#files = [mydir+"2016limits_NoDijetBinningForSig_NOJER_BulkGWW.root",mydir+"2016limits_NoDijetBinningForSig_JERSmearing_BulkGWW_2.root",mydir+"b2g-17-001/limits_b2g17-001.root"]
+#outname = "compareLimits_"+oname+"_2016"
+
+
+# 2017 limit comparison 
+
+#title=["2017 signal shapes 2016","2017 No JER","2017 JER"]
+#files = [mydir+"2017limits_BulkGWW_test2016SignalShapes.root",mydir+"2017limits_NoDijetBinningForSig_NoJER_BulkGWW.root",mydir+"2017limits_NoDijetBinningForSig_JERSmearing_BulkGWW.root"]
+#outname = "compareLimits_"+oname+"_2017"
+
+
+# compare old 2016 with 3D 2016 
+
+title=["2016 full 3D","2017 full 3D","B2G-18-002","B2G-17-001"]
+files = [mydir+"2016limits_NoDijetBinningForSig_JERSmearing_BulkGWW_2.root",mydir+"2017limits_NoDijetBinningForSig_JERSmearing_BulkGWW.root", mydir+"limits_BulkGWW_13TeV_CMS_jj_combAll2.root",mydir+"b2g-17-001/limits_b2g17-001.root"]
+outname = "compareLimits_"+oname+"_3D"
+
+
+title=["new Vjets ","B2G-18-002"]
+files = [mydir+"limits_VjetsNLOrew_BulkGWW_13TeV_CMS_jj_combAll.root", mydir+"limits_BulkGWW_13TeV_CMS_jj_combAll2.root"]
+outname = "compareLimits_"+oname+"_3D"
+
+
+#titleY = "#sigma x BR(W' #rightarrow WZ) (pb)  "
+#oname = "Wprime"
+#title = ["B2G-18-001"]
+#files = ["/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/limits_WprimeWZ_13TeV_CMS_jj_combAll_JERsmearing.root"]
+
+
+
+#titleY = "#sigma x BR(Z' #rightarrow WW) (pb)  "
+#oname = "Zprime"
+#title = ["B2G-18-001"]
+#files = ["/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/limits_ZprimeWW_13TeV_CMS_jj_combAll_JERsmearing.root"]
 
 
 atlas_mps    = [1200,1500,2000,2500,3000,3500,4000,4500,5000]
@@ -126,10 +152,12 @@ for t,fname in zip(title,files):
 		
 		
 		lim = event.limit*0.001
-		if fname.find("b2g17001")!=-1: lim = event.limit*0.01
-		if fname.find("b2g17001")!=-1 and oname.find("BulkGZZ")!=-1: lim = event.limit*0.01/(0.6991*0.6991)
-		if fname.find("b2g17001")!=-1 and oname.find("Wprime")!=-1: lim = event.limit*0.01/(0.6991*0.676)
-		if event.quantileExpected>0.49 and event.quantileExpected<0.51:            
+		if fname.find("b2g17-001")!=-1: lim = event.limit*0.01
+		if fname.find("b2g17-001")!=-1 and oname.find("BulkGZZ")!=-1: lim = event.limit*0.01/(0.6991*0.6991)
+		if fname.find("b2g17-001")!=-1 and oname.find("Wprime")!=-1: lim = event.limit*0.01/(0.6991*0.676)
+		#if event.quantileExpected>0.49 and event.quantileExpected<0.51:            
+		    #data[event.mh]['exp']=lim
+                if event.quantileExpected>0.52 and event.quantileExpected<0.90:            
 		    data[event.mh]['exp']=lim
 		
 		
@@ -141,6 +169,7 @@ for t,fname in zip(title,files):
 
 	N=0
 	for mass,info in data.iteritems():
+            print "for file "+fname
 	    print 'Setting mass',mass,info
 
 	    if not ('exp' in info.keys()):
@@ -201,14 +230,17 @@ frame.GetYaxis().SetTitleOffset(1.15)
 
 c.cd()
 frame.Draw()
-cols  = [42,46,49,1]*3
-tline = [10,9,1,2]*3
+cols  = [42,46,1,49]*3
+tline = [10,9,2,1]*3
 for i,g in enumerate(tgraphs):
 	g.SetLineStyle(tline[i])
 	g.SetLineColor(cols[i])
 	g.SetLineWidth(2)
 	g.Draw("Lsame")
-# atlas_lim.Draw("P same")
+#atlas_lim.SetLineColor(ROOT.kRed)
+#atlas_lim.SetLineWidth(2)
+#leg.AddEntry(atlas_lim,"Atlas (CONF-16-018)","l")
+#atlas_lim.Draw("PL same")
 c.SetLogy(options.log)
 c.Draw()
 leg.Draw("same")
@@ -217,9 +249,9 @@ cmslabel_prelim(c,options.period,11)
 c.Update()
 c.RedrawAxis()
 
-c.SaveAs("compareLimits_"+oname+".png")
-c.SaveAs("compareLimits_"+oname+".pdf")
-c.SaveAs("compareLimits_"+oname+".root")
+c.SaveAs(outname+".png")
+c.SaveAs(outname+".pdf")
+c.SaveAs(outname+".root")
 # c.SaveAs(options.output.replace(".root","")+".pdf")
 # c.SaveAs(options.output.replace(".root","")+".C")
 sleep(100)

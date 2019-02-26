@@ -1408,9 +1408,24 @@ class DataCardMaker:
         info=json.load(f)
         pdfName="_".join([name,self.tag])
         pdfNorm="_".join([name,self.tag,"norm"])
-        self.w.factory(uncertaintyName+'[0,-1,1]')
-        self.w.factory("expr::{name}('({param})*{lumi}*({constant}+{unc}*{form})',MH,{lumi},{unc})".format(name=pdfNorm,param=info['yield'],lumi=self.physics+"_"+self.period+"_lumi",constant=constant,unc=uncertaintyName,form=uncertaintyFormula))
-        self.addSystematic(uncertaintyName,"param",[0,uncertaintyValue])
+        if uncertaintyValue!="lnN":
+            self.w.factory(uncertaintyName+'[0,-1,1]')
+            self.w.factory("expr::{name}('({param})*{lumi}*({constant}+{unc}*{form})',MH,{lumi},{unc})".format(name=pdfNorm,param=info['yield'],lumi=self.physics+"_"+self.period+"_lumi",constant=constant,unc=uncertaintyName,form=uncertaintyFormula))
+            self.addSystematic(uncertaintyName,"param",[0,uncertaintyValue])
+            
+        else:
+            #self.addSystematic(uncertaintyName,"lnN",{name:self.w.function(uncertaintyName+"_formular").getVal()})
+            #kind = 'lnN\t%s\t%s\t%s'%(self.tag,name,uncertaintyName+"_formular")
+            #self.systematics.append({'name':uncertaintyName,'kind':"@0",'values':uncertaintyName+"_formular"})
+            self.w.factory("expr::{unc}_formular('{form}',MH)".format(unc=uncertaintyName,form=uncertaintyFormula))
+            
+            #self.addSystematic(uncertaintyName,"lnN",{name:"@2 "+uncertaintyName+"_formular"})
+            self.w.factory("expr::{name}('({param})*{lumi}*({constant}+{unc})',MH,{lumi},{unc})".format(name=pdfNorm,param=info['yield'],lumi=self.physics+"_"+self.period+"_lumi",constant=constant,unc=uncertaintyName))
+            self.w.var("MH").setVal(5000)
+            self.addSystematic(uncertaintyName,"lnN",{name:self.w.function(uncertaintyName+"_formular").getVal()})
+            #self.addSystematic(uncertaintyName,"lnN",{name:"@2"})
+            
+            
         f.close()
         self.contributions.append({'name':name,'pdf':pdfName,'ID':ID,'yield':1.0})
 

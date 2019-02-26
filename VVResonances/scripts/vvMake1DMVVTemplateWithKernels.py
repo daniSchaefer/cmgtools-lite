@@ -82,7 +82,7 @@ def smoothTail1D(proj):
     proj.Scale(1.0/scale)
     
     
-    beginFitX = 2100#1500
+    beginFitX = 1500
     endX = 2800
     if period == "2016" or options.output.find("HPHP")!=-1:
         beginFitX=1150
@@ -154,11 +154,17 @@ for filename in os.listdir(args[0]):
                 corrFactor = options.corrFactorW
                 print "add correction factor for W+jets sample"
             dataPlotters[-1].addCorrectionFactor(corrFactor,'flat') 
-
+            
+            if filename.find("W")!=-1 or filename.find("Z")!=-1:
+                dataPlotters[-1].addCorrectionFactor('kfactor','tree')
+                print "add correction factor kfactor "
             dataPlotters[-1].filename=fname
             dataPlottersNW.append(TreePlotter(args[0]+'/'+fname+'.root','tree'))
             dataPlottersNW[-1].addCorrectionFactor('puWeight','tree')
             dataPlottersNW[-1].addCorrectionFactor('genWeight','tree')
+            if filename.find("W")!=-1 or filename.find("Z")!=-1:
+                dataPlottersNW[-1].addCorrectionFactor('kfactor','tree')
+                print "add correction factor kfactor "
             if options.triggerW: dataPlottersNW[-1].addCorrectionFactor('triggerWeight','tree')
             dataPlottersNW[-1].addCorrectionFactor(corrFactor,'flat')
             for w in weights_: 
@@ -217,7 +223,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
    print "filename: ", plotter.filename, " preparing central values histo"
    histI2=plotter.drawTH1Binned('jj_LV_mass',options.cut,"1",array('f',binning))
    canv = ROOT.TCanvas("c1","c1",800,600)
-   dataset=plotterNW.makeDataSet('jj_gen_partialMass,jj_l1_gen_pt,jj_l1_gen_softDrop_mass',options.cut,options.firstEv,options.lastEv)     
+   dataset=plotterNW.makeDataSet('jj_gen_partialMass,jj_l1_gen_pt,jj_l1_gen_softDrop_mass,jj_l2_gen_pt',options.cut,options.firstEv,options.lastEv)     
    
    histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,array('f',binning)) 
    if not(options.usegenmass): 
@@ -272,7 +278,7 @@ for plotter,plotterNW in zip(dataPlotters,dataPlottersNW):
    #histI=plotter.drawTH1(options.var,options.cut,"1",1,0,1000000000)
    histI2=plotter.drawTH1Binned('jj_LV_mass',options.cut,"1",array('f',binning))
 
-   dataset=plotterNW.makeDataSet('jj_gen_partialMass,jj_l1_gen_pt,jj_l1_gen_softDrop_mass',options.cut,options.firstEv,options.lastEv)     
+   dataset=plotterNW.makeDataSet('jj_gen_partialMass,jj_l1_gen_pt,jj_l1_gen_softDrop_mass,jj_l2_gen_pt',options.cut,options.firstEv,options.lastEv)     
    
    histTMP=ROOT.TH1F("histoTMP","histo",options.binsx,array('f',binning))
    if not(options.usegenmass): 
@@ -326,10 +332,9 @@ for hist in finalHistograms.itervalues():
         smoothTail1D(hist)
         if hist.GetName().find("histogram_nominal")!=-1:
             hist.Scale(scale)
-        #if hist.GetName().find("mvv_nominal")!=-1:
-        #    hist.Scale(scale2)
-
+     
  hist.Write(hist.GetName())
+ print 'write to file'+str(hist.GetName())
  finalHistograms[hist.GetName()]=hist
  # if (options.output).find("VJets")!=-1 and hist.GetName()!="mvv_nominal":
 #   c = ROOT.TCanvas("c","C",400,400)
@@ -341,7 +346,11 @@ for hist in finalHistograms.itervalues():
 #   c.SaveAs("debug_Vjets_mVV_kernels.png")
 #   print "for debugging save   debug_Vjets_mVV_kernels.png "
   ########################################################
+histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
+histogram_altshapeDown.Write()
 
+histogram_altshape2Down=mirror(finalHistograms['histo_altshape2'],finalHistograms['histo_nominal'],"histo_altshape2Down")
+histogram_altshape2Down.Write()
 
 alpha=1.5/5000
 histogram_pt_down,histogram_pt_up=unequalScale(finalHistograms["histo_nominal"],"histo_nominal_PT",alpha)
@@ -364,57 +373,57 @@ histogram_opt2_down.Write()
 histogram_opt2_up.Write() 
 
 #################################
-c = ROOT.TCanvas("c","C",600,400)
-c.SetRightMargin(0.11)
-c.SetLeftMargin(0.11)
-c.SetTopMargin(0.11)
-finalHistograms["histo_nominal"].SetLineColor(ROOT.kBlue)
-finalHistograms["histo_nominal"].GetYaxis().SetTitle("arbitrary scale")
-finalHistograms["histo_nominal"].GetYaxis().SetTitleOffset(1.5)
-finalHistograms["histo_nominal"].GetXaxis().SetTitle("dijet mass")
-sf = finalHistograms["histo_nominal"].Integral()
-histogram_pt_up     .Scale(sf/histogram_pt_up.Integral())
-histogram_pt_down   .Scale(sf/histogram_pt_down.Integral())
-histogram_opt_up    .Scale(sf/histogram_opt_up.Integral())
-histogram_opt_down  .Scale(sf/histogram_opt_down.Integral())
-finalHistograms["histo_nominal"].Draw("hist")
-#stack.Draw("histsame")
-histogram_pt_up.SetLineColor(ROOT.kRed)
-histogram_pt_up.SetLineWidth(2)
-histogram_pt_up.Draw("histsame")
-histogram_pt_down.SetLineColor(ROOT.kRed)
-histogram_pt_down.SetLineWidth(2)
-histogram_pt_down.Draw("histsame")
-histogram_opt_up.SetLineColor(ROOT.kGreen)
-histogram_opt_up.SetLineWidth(2)
-histogram_opt_up.Draw("histsame")
-histogram_opt_down.SetLineColor(ROOT.kGreen)
-histogram_opt_down.SetLineWidth(2)
-histogram_opt_down.Draw("histsame")
-text = ROOT.TLatex()
-text.DrawLatexNDC(0.13,0.92,"#font[62]{CMS} #font[52]{Simulation}")
-data = finalHistograms["mvv_nominal"]
-data.Scale(sf/data.Integral())
-data.SetMarkerColor(ROOT.kBlack)
-data.SetMarkerStyle(7)
-data.Draw("same")
-c.SetLogy()
+# c = ROOT.TCanvas("c","C",600,400)
+# c.SetRightMargin(0.11)
+# c.SetLeftMargin(0.11)
+# c.SetTopMargin(0.11)
+# finalHistograms["histo_nominal"].SetLineColor(ROOT.kBlue)
+# finalHistograms["histo_nominal"].GetYaxis().SetTitle("arbitrary scale")
+# finalHistograms["histo_nominal"].GetYaxis().SetTitleOffset(1.5)
+# finalHistograms["histo_nominal"].GetXaxis().SetTitle("dijet mass")
+# sf = finalHistograms["histo_nominal"].Integral()
+# histogram_pt_up     .Scale(sf/histogram_pt_up.Integral())
+# histogram_pt_down   .Scale(sf/histogram_pt_down.Integral())
+# histogram_opt_up    .Scale(sf/histogram_opt_up.Integral())
+# histogram_opt_down  .Scale(sf/histogram_opt_down.Integral())
+# finalHistograms["histo_nominal"].Draw("hist")
+# #stack.Draw("histsame")
+# histogram_pt_up.SetLineColor(ROOT.kRed)
+# histogram_pt_up.SetLineWidth(2)
+# histogram_pt_up.Draw("histsame")
+# histogram_pt_down.SetLineColor(ROOT.kRed)
+# histogram_pt_down.SetLineWidth(2)
+# histogram_pt_down.Draw("histsame")
+# histogram_opt_up.SetLineColor(ROOT.kGreen)
+# histogram_opt_up.SetLineWidth(2)
+# histogram_opt_up.Draw("histsame")
+# histogram_opt_down.SetLineColor(ROOT.kGreen)
+# histogram_opt_down.SetLineWidth(2)
+# histogram_opt_down.Draw("histsame")
+# text = ROOT.TLatex()
+# text.DrawLatexNDC(0.13,0.92,"#font[62]{CMS} #font[52]{Simulation}")
+# data = finalHistograms["mvv_nominal"]
+# data.Scale(sf/data.Integral())
+# data.SetMarkerColor(ROOT.kBlack)
+# data.SetMarkerStyle(7)
+# data.Draw("same")
+# c.SetLogy()
 
 
-l = ROOT.TLegend(0.17,0.2,0.6,0.33)
-l.AddEntry(data,"simulation","lp")
-l.AddEntry(finalHistograms["histo_nominal"],"template","l")
-l.AddEntry(histogram_pt_up,"#propto m_{jj}","l")
-l.AddEntry(histogram_opt_up,"#propto 1/m_{jj}","l")
-l.Draw("same")
+# l = ROOT.TLegend(0.17,0.2,0.6,0.33)
+# l.AddEntry(data,"simulation","lp")
+# l.AddEntry(finalHistograms["histo_nominal"],"template","l")
+# l.AddEntry(histogram_pt_up,"#propto m_{jj}","l")
+# l.AddEntry(histogram_opt_up,"#propto 1/m_{jj}","l")
+# l.Draw("same")
 
-tmplabel="Jets_HPHP"
-if options.output.find('HPLP')!=-1:
-    tmplabel="Jets_HPLP"
-if options.output.find("W")!=-1: tmplabel="W"+tmplabel
-else: tmplabel= "Z"+tmplabel
-c.SaveAs("debug_mVV_kernels_"+tmplabel+".pdf")
-print "for debugging save   debug_Vjets_mVV_kernels.png "
+# tmplabel="Jets_HPHP"
+# if options.output.find('HPLP')!=-1:
+#     tmplabel="Jets_HPLP"
+# if options.output.find("W")!=-1: tmplabel="W"+tmplabel
+# else: tmplabel= "Z"+tmplabel
+# c.SaveAs("debug_mVV_kernels_"+tmplabel+".pdf")
+# print "for debugging save   debug_Vjets_mVV_kernels.png "
 
 ########################################################
 
