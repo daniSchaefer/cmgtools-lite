@@ -32,6 +32,7 @@ parser.add_option("--pdfy",dest="pdfy",help="name of pdfs lie PTYUp etc",default
 parser.add_option("-s","--signal",dest="fitSignal",action="store_true",help="do S+B fit",default=False)
 parser.add_option("-t","--addTop",dest="addTop",action="store_true",help="Fit top",default=False)
 parser.add_option("-M","--mass",dest="signalMass",type=float,help="signal mass",default=1560.)
+parser.add_option("--prelim",dest="prelim",type=int,help="add preliminary label",default=0)
 
 (options,args) = parser.parse_args()
 ROOT.gStyle.SetOptStat(0)
@@ -45,9 +46,13 @@ def get_canvas(cname):
  CMS_lumi.lumi_7TeV = "4.8 fb^{-1}"
  CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
  CMS_lumi.writeExtraText = 1
- CMS_lumi.extraText = " "
+ if options.prelim==1:
+    CMS_lumi.extraText = " "
+ else:
+    CMS_lumi.extraText = "Preliminary"
  CMS_lumi.lumi_sqrtS = "77.3 fb^{-1} (13 TeV)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
 
+ #iPos = 11
  iPos = 11
  if( iPos==0 ): CMS_lumi.relPosX = 0.30
 
@@ -89,7 +94,7 @@ def get_pad(name):
  CMS_lumi.lumi_sqrtS = "13 TeV (2016+2017)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
 
  iPos = 0
- if( iPos==0 ): CMS_lumi.relPosX = 0.14
+ if( iPos==0 ): CMS_lumi.relPosX = 0.014
 
  H_ref = 600 
  W_ref = 600 
@@ -243,7 +248,7 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
      extra1 = xrange.split(',')[0]+' < m_{jet1} < '+ xrange.split(',')[1]+' GeV'
      extra2 = zrange.split(',')[0]+' < m_{jj} < '+ zrange.split(',')[1]+' GeV'
                    
-    leg = ROOT.TLegend(0.5436242,0.5531968,0.7231544,0.8553946)
+    leg = ROOT.TLegend(0.50436242,0.5531968,0.7231544,0.8553946)
     leg.SetTextSize(0.04995005)
     c = ROOT.TCanvas('c')
     pad1 = get_pad("pad1") #ROOT.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
@@ -266,7 +271,7 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     histos[0].GetYaxis().SetTitleSize(0.06)
     histos[0].GetYaxis().SetLabelSize(0.06)
     histos[0].Draw('HIST')
-    leg.AddEntry(histos[0],"Total background","l")
+    leg.AddEntry(histos[0],"Total signal+background","l")
  
     histos[1].SetLineColor(colors[1])
     histos[1].SetLineWidth(2)
@@ -303,14 +308,15 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
 
     if hsig:
      if hsig.Integral()!=0.:   
-        hsig.Scale(1/hsig.Integral())
-     hsig.Scale(histos[2].Integral()*0.4)
+        #hsig.Scale(1/hsig.Integral())
+        #hsig.Scale(histos[2].Integral()*0.4)
+        hsig.Scale(10)
      hsig.SetFillColor(ROOT.kGreen-6)
      hsig.SetLineColor(ROOT.kBlack)
      hsig.SetLineStyle(5)
      hsig.Draw("HISTsame")
      #leg.AddEntry(hsig,"Signal pdf","F")
-     leg.AddEntry(hsig,"G_{bulk} (%.1f TeV) #rightarrow WW"%(options.signalMass/1000.),"F")
+     leg.AddEntry(hsig,"G_{bulk} (%.1f TeV) #rightarrow WW #times 10"%(options.signalMass/1000.),"F")
     
     #errors[0].Draw("E5same")
     if axis=="z":
@@ -349,8 +355,8 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     pt2.SetFillColor(0)
     pt2.SetBorderSize(0)
     pt2.SetFillStyle(0)
-    pt2.AddText(extra1)
-    pt2.AddText(extra2)
+    #pt2.AddText(extra1)
+    #pt2.AddText(extra2)
     pt2.Draw()
 
     pt3 = ROOT.TPaveText(0.65,0.39,0.99,0.52,"NDC")
@@ -361,9 +367,11 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     pt3.SetBorderSize(0)
     pt3.SetFillStyle(0)
     pt3.AddText("%s category"%purity)
+    pt3.AddText(extra1)
+    pt3.AddText(extra2)
     pt3.Draw()
 
-    CMS_lumi.CMS_lumi(pad1, 4, 0)
+    CMS_lumi.CMS_lumi(pad1, 4, 10)
         
     pad1.Modified()
     pad1.Update()
@@ -404,11 +412,16 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     #c.RedrawAxis()
     #frame = c.GetFrame()
     #frame.Draw()
-
-    c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".png")
-    c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".pdf")
-    c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".C")
-    c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".root")
+    if options.prelim==0:
+        c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".png")
+        c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".pdf")
+        c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".C")
+        c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+".root")
+    else:
+        c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+"_prelim.png")
+        c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+"_prelim.pdf")
+        c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+"_prelim.C")
+        c.SaveAs(options.output+"PostFit"+options.label+"_"+htitle.replace(' ','_').replace('.','_').replace(':','_').replace(',','_')+"_prelim.root")
     
 
 def doZprojection(pdfs,data1,data2,norm1_nonres,norm2_nonres,norm1_Wres,norm2_Wres,pdf1_sig,pdf2_sig,norm1_sig,norm2_sig,norm1_Zres,norm2_Zres,norm1_TThad,norm2_TThad):
