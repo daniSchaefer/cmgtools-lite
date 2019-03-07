@@ -95,28 +95,31 @@ mydir = "/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/"
 
 
 # compare old 2016 with 3D 2016 
-
+oname="compAll_BulkGWW"
 title=["2016 full 3D","2017 full 3D","B2G-18-002","B2G-17-001"]
-files = [mydir+"2016limits_NoDijetBinningForSig_JERSmearing_BulkGWW_2.root",mydir+"2017limits_NoDijetBinningForSig_JERSmearing_BulkGWW.root", mydir+"limits_BulkGWW_13TeV_CMS_jj_combAll2.root",mydir+"b2g-17-001/limits_b2g17-001.root"]
+files = [mydir+"2016limits_NoDijetBinningForSig_JERSmearing_BulkGWW_2.root",mydir+"2017limits_NoDijetBinningForSig_JERSmearing_BulkGWW.root", mydir+"limits_BulkGWW_13TeV_CMS_jj_combAll_newTau21pT.root",mydir+"b2g-17-001/limits_b2g17-001.root"]
 outname = "compareLimits_"+oname+"_3D"
 
 
-title=["new Vjets ","B2G-18-002"]
-files = [mydir+"limits_VjetsNLOrew_BulkGWW_13TeV_CMS_jj_combAll.root", mydir+"limits_BulkGWW_13TeV_CMS_jj_combAll2.root"]
-outname = "compareLimits_"+oname+"_3D"
+#oname="compSys_BulkGWW"
+#title=["new tau21 pT ","B2G-18-002"," tau21 pt corr"]
+#files = [mydir+"limits_BulkGWW_13TeV_CMS_jj_combAll_newTau21pT.root", mydir+"limits_VjetsNLOrew_BulkGWW_13TeV_CMS_jj_combAll.root",mydir+"limits_BulkGWW_13TeV_CMS_jj_combAll_newTau21pT_corr.root"]
+#outname = "compareLimits_"+oname+"_3D"
 
 
 #titleY = "#sigma x BR(W' #rightarrow WZ) (pb)  "
 #oname = "Wprime"
 #title = ["B2G-18-001"]
-#files = ["/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/limits_WprimeWZ_13TeV_CMS_jj_combAll_JERsmearing.root"]
+#files = ["/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/limits_WprimeWZ_13TeV_CMS_jj_combAll_newTau21pT.root"]
+#outname = "compareLimits_"+oname+"_3D"
 
 
 
 #titleY = "#sigma x BR(Z' #rightarrow WW) (pb)  "
 #oname = "Zprime"
 #title = ["B2G-18-001"]
-#files = ["/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/limits_ZprimeWW_13TeV_CMS_jj_combAll_JERsmearing.root"]
+#files = ["/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/limits_ZprimeWW_13TeV_CMS_jj_combAll_newTau21pT.root"]
+#outname = "compareLimits_"+oname+"_3D"
 
 
 atlas_mps    = [1200,1500,2000,2500,3000,3500,4000,4500,5000]
@@ -131,7 +134,7 @@ vatlas_mps   = array("f",atlas_mps   )
 if   oname.find("BulkGZZ")!=-1: lims  = array("f",atlas_BulkZZ)
 elif oname.find("BulkGWW") !=-1: lims = array("f",atlas_BulkWW)
 elif oname.find("Zprime") !=-1: lims  = array("f",atlas_Zprime)
-elif oname.find("Wprime") !=-1: lims  = array("f",atlas_Wprime)
+elif oname.find("Wprime") !=-1: lims  = array("f",atlas_Wprime) ; print "atlas wprime"
 atlas_lim = ROOT.TGraph( 9 , vatlas_mps, lims)
 
 
@@ -155,9 +158,9 @@ for t,fname in zip(title,files):
 		if fname.find("b2g17-001")!=-1: lim = event.limit*0.01
 		if fname.find("b2g17-001")!=-1 and oname.find("BulkGZZ")!=-1: lim = event.limit*0.01/(0.6991*0.6991)
 		if fname.find("b2g17-001")!=-1 and oname.find("Wprime")!=-1: lim = event.limit*0.01/(0.6991*0.676)
-		#if event.quantileExpected>0.49 and event.quantileExpected<0.51:            
-		    #data[event.mh]['exp']=lim
-                if event.quantileExpected>0.52 and event.quantileExpected<0.90:            
+		if event.quantileExpected>0.49 and event.quantileExpected<0.51:            
+		    data[event.mh]['exp']=lim
+               # if event.quantileExpected>0.52 and event.quantileExpected<0.90:            
 		    data[event.mh]['exp']=lim
 		
 		
@@ -224,30 +227,32 @@ frame.GetYaxis().SetTitle(titleY)
 frame.GetYaxis().SetTitleSize(0.05)
 frame.GetYaxis().SetTitleOffset(1.15)
 
-
+frame.GetYaxis().SetRangeUser(1e-4,0.5)
 
 
 
 c.cd()
 frame.Draw()
+atlas_lim.SetLineColor(ROOT.kRed)
+atlas_lim.SetLineWidth(2)
+#leg.AddEntry(atlas_lim,"Atlas (CONF-16-018)","l")
+#atlas_lim.Draw("PL")
+
 cols  = [42,46,1,49]*3
 tline = [10,9,2,1]*3
 for i,g in enumerate(tgraphs):
 	g.SetLineStyle(tline[i])
 	g.SetLineColor(cols[i])
 	g.SetLineWidth(2)
+        g.SetMaximum(0.5)
 	g.Draw("Lsame")
-#atlas_lim.SetLineColor(ROOT.kRed)
-#atlas_lim.SetLineWidth(2)
-#leg.AddEntry(atlas_lim,"Atlas (CONF-16-018)","l")
-#atlas_lim.Draw("PL same")
+
+c.Update()
+c.RedrawAxis()
 c.SetLogy(options.log)
 c.Draw()
 leg.Draw("same")
 cmslabel_prelim(c,options.period,11)
-
-c.Update()
-c.RedrawAxis()
 
 c.SaveAs(outname+".png")
 c.SaveAs(outname+".pdf")

@@ -2,7 +2,7 @@ import ROOT
 import os,sys
 
 
-period = 2016 #2016
+period = 2017 #2016
 
 samples= "samples/"# "/ceph/dschaefer/VV3D2017/2017_JECV6_PURew_NoJER_LOWeights_CHSrescale_CHSJER/"#"/ceph/dschaefer/VV3D2017/NoJERSmearing/"#"samples/"
 if period==2016:
@@ -80,7 +80,7 @@ cuts['resTT'] = '(jj_l1_mergedVTruth==1&&jj_l1_softDrop_mass>140&&jj_l1_softDrop
 
 purities=['HPHP','HPLP','LPLP','NP']
 purities=['HPHP','HPLP','LPLP']
-purities=['LPLP']
+purities=['HPHP',"HPLP"]
 
 BulkGravWWTemplate="BulkGravToWW_narrow_"
 #BulkGravWWTemplate="BulkWW"
@@ -465,19 +465,19 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 #makeDetectorResponse("nonRes","JJ_"+str(period),nonResTemplate,cuts['nonres'])
 
 #### # Make nonres kernel
-if runParallel and submitToBatch:
-  wait = False
-  makeBackgroundShapesMVVKernel("nonRes","JJ_"+str(period),nonResTemplate,cuts['nonres'],"1D",wait)
-  makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
-  makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
-  print "Exiting system! When all jobs are finished, please run mergeKernelJobs below"
-  sys.exit()
-  mergeKernelJobs()
-else:
-  wait = True
+#if runParallel and submitToBatch:
+  #wait = False
   #makeBackgroundShapesMVVKernel("nonRes","JJ_"+str(period),nonResTemplate,cuts['nonres'],"1D",wait)
-  makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
-  makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
+  #makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
+  #makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
+  #print "Exiting system! When all jobs are finished, please run mergeKernelJobs below"
+  #sys.exit()
+  #mergeKernelJobs()
+#else:
+  #wait = True
+  ##makeBackgroundShapesMVVKernel("nonRes","JJ_"+str(period),nonResTemplate,cuts['nonres'],"1D",wait)
+  #makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l1',cuts['nonres'],"2Dl1",wait)
+  #makeBackgroundShapesMVVConditional("nonRes","JJ_"+str(period),nonResTemplate,'l2',cuts['nonres'],"2Dl2",wait)
 
 
 #mergeBackgroundShapes("nonRes","JJ_"+str(period))
@@ -488,15 +488,15 @@ submitToBatch = False #Do not need batch for the following
 
 #makeNormalizations("VJets","JJ",resTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:1,ZJetsToQQ_HT800toInf:1")
 
-#makeNormalizations("WJets_all","JJ_NLOweights",WTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:1")
-#makeNormalizations("ZJets_all","JJ_NLOweights",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:1")
-#makeNormalizations("TTJets_all","JJ",TTemplate,0,cuts['nonres'],"nRes","")
+makeNormalizations("WJets","JJ_NLOweights",WresTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:0.205066345")
+makeNormalizations("ZJets","JJ_NLOweights",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:0.09811023622")
+makeNormalizations("TTJets","JJ",TTemplate,0,cuts['nonres'],"nRes","")
 
 
 
-#fitVJets("JJ_WJets",resTemplate,1,1)#0.3425,0.3425)
-#makeBackgroundShapesMVVKernel("WJets","JJ_NLOweights_NoEWK",WresTemplate,cuts['nonres'],"1D",0)
-#makeBackgroundShapesMVVKernel("ZJets","JJ_NLOweights_NoEWK",ZresTemplate,cuts['nonres'],"1D",0)
+fitVJets("JJ_WJets",resTemplate,0.205066345,0.09811023622)#0.3425,0.3425)
+makeBackgroundShapesMVVKernel("WJets","JJ_NLOweights",WresTemplate,cuts['nonres'],"1D",0,0.205066345,0.09811023622)
+makeBackgroundShapesMVVKernel("ZJets","JJ_NLOweights",ZresTemplate,cuts['nonres'],"1D",0,0.205066345,0.09811023622)
 
 
 

@@ -346,11 +346,11 @@ for hist in finalHistograms.itervalues():
 #   c.SaveAs("debug_Vjets_mVV_kernels.png")
 #   print "for debugging save   debug_Vjets_mVV_kernels.png "
   ########################################################
-histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
-histogram_altshapeDown.Write()
+#histogram_altshapeDown=mirror(finalHistograms['histo_altshapeUp'],finalHistograms['histo_nominal'],"histo_altshapeDown")
+#histogram_altshapeDown.Write()
 
-histogram_altshape2Down=mirror(finalHistograms['histo_altshape2'],finalHistograms['histo_nominal'],"histo_altshape2Down")
-histogram_altshape2Down.Write()
+#histogram_altshape2Down=mirror(finalHistograms['histo_altshape2'],finalHistograms['histo_nominal'],"histo_altshape2Down")
+#histogram_altshape2Down.Write()
 
 alpha=1.5/5000
 histogram_pt_down,histogram_pt_up=unequalScale(finalHistograms["histo_nominal"],"histo_nominal_PT",alpha)

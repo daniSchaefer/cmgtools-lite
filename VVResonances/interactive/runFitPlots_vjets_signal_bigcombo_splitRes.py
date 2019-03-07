@@ -45,7 +45,7 @@ def get_canvas(cname):
  CMS_lumi.lumi_7TeV = "4.8 fb^{-1}"
  CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
  CMS_lumi.writeExtraText = 1
- CMS_lumi.extraText = "Preliminary"
+ CMS_lumi.extraText = " "
  CMS_lumi.lumi_sqrtS = "77.3 fb^{-1} (13 TeV)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
 
  iPos = 11
@@ -85,7 +85,7 @@ def get_pad(name):
  CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
  CMS_lumi.lumi_13TeV = "77.3 fb^{-1}"
  CMS_lumi.writeExtraText = 1
- CMS_lumi.extraText = "Preliminary"
+ CMS_lumi.extraText = " "
  CMS_lumi.lumi_sqrtS = "13 TeV (2016+2017)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
 
  iPos = 0

@@ -9,11 +9,11 @@ from  CMGTools.VVResonances.plotting.CMS_lumi import *
 
 # ROOT.gROOT.SetBatch(True)
 
-path = "/eos/user/t/thaarres/www/vvana/3D_latest/signalFits/"
+path = "/portal/ekpbms2/home/dschaefer/DiBoson3D/2017/"
 
-def getLegend(x1=0.70010112,y1=0.693362,x2=0.90202143,y2=0.829833):
+def getLegend(x1=0.70010112,y1=0.693362,x2=0.95202143,y2=0.929833):
   legend = ROOT.TLegend(x1,y1,x2,y2)
-  legend.SetTextSize(0.032)
+  legend.SetTextSize(0.05)
   legend.SetLineColor(0)
   legend.SetShadowColor(0)
   legend.SetLineStyle(1)
@@ -119,6 +119,7 @@ parser = optparse.OptionParser()
 parser.add_option("-f","--file",dest="file",default='JJ_BulkGWW_MVV.json',help="input file")
 parser.add_option("-v","--var",dest="var",help="mVV or mJ",default='mVV')
 parser.add_option("-l","--leg",dest="leg",help="mVV or mJ",default='l1')
+parser.add_option("-p","--prelim",dest="prelim",help="with label preliminary or not",default=0)
 postfix = "Jet 1 "
 (options,args) = parser.parse_args()
 if options.leg == "l2" !=-1: postfix = "Jet 2 "
@@ -150,6 +151,7 @@ def doSingle():
         w.pdf('signal_%d'%MH).plotOn(frame, ROOT.RooFit.LineColor(ROOT.TColor.GetColor(colors[i])),ROOT.RooFit.Name(str(MH)))#,ROOT.RooFit.Range(MH*0.8,1.2*MH))#ROOT.RooFit.Normalization(1, ROOT.RooAbsReal.RelativeExpected),
         leg.AddEntry(frame.findObject(str(MH)), "%d GeV" % MH, "L")
       frame.GetYaxis().SetTitle("A.U")
+      frame.getAttText().SetTextSize(0.04)
       frame.GetYaxis().SetNdivisions(4,5,0)
       frame.SetMaximum(0.1)
       if options.var == 'mVV':frame.SetMaximum(0.5)
@@ -185,8 +187,8 @@ def doSingle():
       c1.SaveAs(path+"signalShapes%s_%s.root" %(options.var, inFileName.rsplit(".", 1)[0]))
   
 def doAll():
-    if options.var == 'mJ':  jsons = ["JJ_BulkGWW_MJl1_HPHP.json","JJ_WprimeWZ_MJl1_HPHP.json","JJ_BulkGZZ_MJl1_HPHP.json"]
-    if options.var == 'mVV': jsons = ["JJ_BulkGWW_MVV.json","JJ_WprimeWZ_MVV.json","JJ_BulkGZZ_MVV.json"]
+    if options.var == 'mJ':  jsons = [path+"JJ_BulkGWW_MJl1_HPHP.json",path+"JJ_WprimeWZ_MJl1_HPHP.json",path+"JJ_BulkGZZ_MJl1_HPHP.json"]
+    if options.var == 'mVV': jsons = [path+"JJ_BulkGWW_MVV.json",path+"JJ_WprimeWZ_MVV.json",path+"JJ_BulkGZZ_MVV.json"]
     legs = ["G_{B} #rightarrow WW","W' #rightarrow WZ","G_{B} #rightarrow ZZ"]
     c1 = getCanvas()
     c1.Draw()
@@ -205,26 +207,37 @@ def doAll():
     frame.GetYaxis().SetTitle("A.U")
     frame.GetYaxis().SetNdivisions(4,5,0)
     frame.SetMaximum(0.15)
+    frame.GetXaxis().SetTitleSize(0.055)
+    frame.GetYaxis().SetTitleSize(0.055)
     if options.var == 'mVV':frame.SetMaximum(0.5)
     frame.Draw()
     leg.Draw("same")
-    pt =ROOT.TPaveText(0.81,0.60,0.84,0.66,"brNDC")
+    pt =ROOT.TPaveText(0.71,0.450,0.84,0.66,"brNDC")
     pt.SetBorderSize(0)
     pt.SetTextAlign(12)
     pt.SetFillStyle(0)
     pt.SetTextFont(42)
-    pt.SetTextSize(0.035)
+    pt.SetTextSize(0.05)
     pt.AddText("1.2-5.2 TeV")
     pt.Draw()
-    cmslabel_sim_prelim(c1,'sim',11)
-    c1.Update()
+    if options.prelim=="1":
+        cmslabel_sim_prelim(c1,'sim',11)
+        c1.Update()
       
-    c1.SaveAs(path+"signalShapes_%s_All.png"  %(options.var))
-    c1.SaveAs(path+"signalShapes_%s_All.pdf"  %(options.var))
-    c1.SaveAs(path+"signalShapes_%s_All.C"    %(options.var))
-    c1.SaveAs(path+"signalShapes_%s_All.root" %(options.var))
-    # sleep(1000)
-      
+        c1.SaveAs(path+"signalShapes_%s_All_prelim.png"  %(options.var))
+        c1.SaveAs(path+"signalShapes_%s_All_prelim.pdf"  %(options.var))
+        c1.SaveAs(path+"signalShapes_%s_All_prelim.C"    %(options.var))
+        c1.SaveAs(path+"signalShapes_%s_All_prelim.root" %(options.var))
+    else:
+        cmslabel_sim(c1,'sim',11)
+        c1.Update()
+        
+        c1.SaveAs(path+"signalShapes_%s_All.png"  %(options.var))
+        c1.SaveAs(path+"signalShapes_%s_All.pdf"  %(options.var))
+        c1.SaveAs(path+"signalShapes_%s_All.C"    %(options.var))
+        c1.SaveAs(path+"signalShapes_%s_All.root" %(options.var))
+        # sleep(1000)
+        
 if __name__ == '__main__':
     # doSingle()
     doAll()

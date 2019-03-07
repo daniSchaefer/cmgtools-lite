@@ -82,8 +82,8 @@ void setTDRStyle(bool force) {
 
 // For the statistics box:
   gStyle->SetOptFile(0);
-  //gStyle->SetOptStat(0);
-  gStyle->SetOptStat("mr");
+  gStyle->SetOptStat(0);
+  //gStyle->SetOptStat("mr");
   gStyle->SetStatColor(kWhite);
   gStyle->SetStatFont(42);
   gStyle->SetStatFontSize(0.04);///---> gStyle->SetStatFontSize(0.025);

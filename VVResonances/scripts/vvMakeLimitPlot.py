@@ -46,7 +46,6 @@ def rescaleaxis(g,scale=1000.):
 for event in limit:
     if float(event.mh)<options.minX or float(event.mh)>options.maxX:
         continue
-    
     if not (event.mh in data.keys()):
         data[event.mh]={}
 
@@ -125,13 +124,13 @@ line_minus2.Sort()
 
 
 
-band68.SetFillColor(ROOT.kGreen)
+band68.SetFillColor(ROOT.kGreen+1)
 band68.SetLineWidth(3)
 band68.SetLineColor(ROOT.kWhite)
 band68.SetLineStyle(0)
 band68.SetMarkerStyle(0)
 
-band95.SetFillColor(ROOT.kYellow)
+band95.SetFillColor(ROOT.kOrange)
 band95.SetLineColor(ROOT.kWhite)
 
 
@@ -224,10 +223,20 @@ c.SetLogy()
 c.cd()
 
 
+
+frame=c.DrawFrame(options.minX,options.minY,options.maxX,options.maxY)
+frame.GetXaxis().SetTitleOffset(0.9)
+frame.GetXaxis().SetTitleSize(0.05)
+frame.SetMinimum(5e-5)
+frame.SetMaximum(0.1)
+
+
 if "Wprime"  in options.sig: 
   ltheory="#sigma_{TH}#timesBR(W'#rightarrowWZ) HVT_{B}"
   ytitle ="#sigma x BR(W' #rightarrow WZ) [pb]  "
   xtitle = "M_{W'} [GeV]"
+  frame.SetMinimum(9e-5)
+  frame.SetMaximum(0.5)
 if "BulkGWW" in options.sig: 
   ltheory="#sigma_{TH}#timesBR(G_{Bulk}#rightarrowWW) #tilde{k}=0.5"
   ytitle ="#sigma x BR(G_{Bulk} #rightarrow WW) [pb]  "
@@ -240,15 +249,10 @@ if "Zprime"  in options.sig:
   ltheory="#sigma_{TH}#timesBR(Z'#rightarrowWW) HVT_{B}"
   ytitle ="#sigma x BR(Z' #rightarrow WW) [pb]  "
   xtitle = "M_{Z'} [GeV]"
+  frame.SetMinimum(7e-5)
+  frame.SetMaximum(0.5)
 
-frame=c.DrawFrame(options.minX,options.minY,options.maxX,options.maxY)
 frame.GetXaxis().SetTitle(xtitle)
-frame.GetXaxis().SetTitleOffset(0.9)
-frame.GetXaxis().SetTitleSize(0.05)
-frame.SetMinimum(5e-5)
-frame.SetMaximum(0.1)
-
-
 frame.GetYaxis().SetTitle(ytitle)
 frame.GetYaxis().SetTitleSize(0.05)
 frame.GetYaxis().SetTitleOffset(1.15)
@@ -304,7 +308,7 @@ leg2.AddEntry(gtheory, " ", "")
 
 
 
-if options.final:
+if options.final==1:
     cmslabel_final(c,options.period,11)
 else:
     cmslabel_prelim(c,options.period,11)
@@ -315,10 +319,16 @@ c.RedrawAxis()
 
 if options.blind==0:
     bandObs.Draw("PLsame")
-c.SaveAs("limits_"+options.sig+"_combo_2016_2017.png")    
-c.SaveAs("limits_"+options.sig+"_combo_2016_2017.pdf") 
-c.SaveAs("limits_"+options.sig+"_combo_2016_2017.C")
-c.SaveAs("limits_"+options.sig+"_combo_2016_2017.root")
+if options.final==1:
+    c.SaveAs("limits_"+options.sig+"_combo_2016_2017.png")    
+    c.SaveAs("limits_"+options.sig+"_combo_2016_2017.pdf") 
+    c.SaveAs("limits_"+options.sig+"_combo_2016_2017.C")
+    c.SaveAs("limits_"+options.sig+"_combo_2016_2017.root")
+else:
+    c.SaveAs("limits_"+options.sig+"_combo_2016_2017_prelim.png")    
+    c.SaveAs("limits_"+options.sig+"_combo_2016_2017_prelim.pdf") 
+    c.SaveAs("limits_"+options.sig+"_combo_2016_2017_prelim.C")
+    c.SaveAs("limits_"+options.sig+"_combo_2016_2017_prelim.root")
 
 fout=ROOT.TFile(options.output+options.sig+".root","RECREATE")
 fout.cd()
@@ -333,3 +343,7 @@ line_minus2.Write()
 
 fout.Close()
 f.Close()
+
+masses = data.keys()
+for mass in sorted(masses):
+    print mass

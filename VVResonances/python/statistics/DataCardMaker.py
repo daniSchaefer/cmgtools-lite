@@ -89,7 +89,7 @@ class DataCardMaker:
 
         scaleSysts=[]
         resolutionSysts=[]
-        print "blaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       
         for syst,factor in scale.iteritems():
             self.w.factory(syst+"[0,-0.1,0.1]")
             scaleStr=scaleStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
@@ -98,8 +98,7 @@ class DataCardMaker:
             #self.w.factory(syst+"[0,-0.8,0.8]")
             self.w.factory(syst+"[0,-0.5,0.5]")
             resolutionStr=resolutionStr+"+{factor}*{syst}".format(factor=factor,syst=syst)
-            #print syst+"[0,-0.5,0.5]"
-            #print resolutionStr
+    
             resolutionSysts.append(syst)
 
         MVV=variable    
@@ -1273,12 +1272,7 @@ class DataCardMaker:
         self.w.factory("SUM::{name}(expr::{name2}_ratio1('(1-{f})',{f})*{name1},{f}*{name2})".format(name=pdfName,name1=pdfName1,f=variable,name2=pdfName2))
        
             
-       # put out the second dependence on the other jet mass :
-        #if name.find("1")!=-1:
-            #self.w.factory("SUM::{name}(expr::{name2}_ratio1('({f}*{num})',{f})*{name1},expr::{name2}_ratio('(1-{f})',{f})*{name2})".format(name=pdfName,name1=pdfName1,f=variable,name2=pdfName2,num=num))
-        #if name.find("2")!=-1:
-            #self.w.factory("SUM::{name}(expr::{name2}_ratio1('((1-{f})*{num})',{f},{MJ})*{name1},expr::{name2}_ratio('{f}',{f})*{name2})".format(name=pdfName,name1=pdfName1,f=variable,name2=pdfName2,num=num))
-
+      
 
     def conditionalProduct(self,name,pdf1,varName,pdf2,pdf3,tag1="",tag2="",tag3=""):
         pdfName="_".join([name,self.tag])
@@ -1315,52 +1309,8 @@ class DataCardMaker:
         print pdfName2
         print pdfName3
         self.w.factory("PROD::{name}({name1},{name2},{name3})".format(name=pdfName,name1=pdfName1,name2=pdfName2,name3=pdfName3))
-        
-    def getValuesFromString(self,s):
-        ls = s.split("+")
-        results=[]
-        for line in ls:
-            if line=="0": continue
-            res = (line.split(")")[0]).replace("(","")
-            results.append(float(res))
-        return results
     
     
-    def product3D_ResBkg(self,name,pdf1,pdf2,pdf3,ratio):
-        print self.tag
-        pdfName="_".join([name,self.tag])
-        pdfName1="_".join([pdf1,self.tag])
-        pdfName2="_".join([pdf2,self.tag])
-        pdfName3="_".join([pdf3,self.tag])
-        print pdfName
-        print pdfName1
-        print pdfName2
-        print pdfName3
-        MJ = "MJ1"
-        if ratio.find("MJ2")!=-1: MJ="MJ2"
-        valuelist = self.getValuesFromString(ratio)
-        i=0
-        arglist = ROOT.RooArgList()
-        for p in valuelist:
-            pname="_".join(["p"+str(i),pdfName])
-            self.w.factory("{name}[{val},{val},{val}]".format(name=pname,val=p))
-            self.w.var(pname).setConstant(1)
-            print pname
-            print self.w.var(pname)
-            
-            arglist.add(self.w.var(pname))
-            i+=1
-        
-        
-        
-        #mjetcorr = ROOT.RooPolynomial(pdfName+"_RatioPar",pdfName+"_RatioPar",self.w.var(MJ),arglist)
-        #getattr(self.w,'import')(mjetcorr,ROOT.RooFit.Rename(pdfName+"_RatioPar"))
-        
-       
-        #self.w.factory("expr::{name1}_ratio1('({ratio})',{MJ})".format(name1=pdfName1,ratio=ratio,MJ=MJ))
-        #self.w.factory("PROD::{name}_Ratio ({name1},{name1}_ratio1 )".format(name=pdfName,name1=pdfName1))
-        self.w.factory("PROD::{name}({name1},{name2},{name3})".format(name=pdfName,name1=pdfName1,name2=pdfName2,name3=pdfName3))
-
     def envelope(self,name,pdfs):
         catName = "envelope_"+name+"_"+self.tag
         pdfName="_".join([name,self.tag])
@@ -1408,24 +1358,11 @@ class DataCardMaker:
         info=json.load(f)
         pdfName="_".join([name,self.tag])
         pdfNorm="_".join([name,self.tag,"norm"])
-        if uncertaintyValue!="lnN":
-            self.w.factory(uncertaintyName+'[0,-1,1]')
-            self.w.factory("expr::{name}('({param})*{lumi}*({constant}+{unc}*{form})',MH,{lumi},{unc})".format(name=pdfNorm,param=info['yield'],lumi=self.physics+"_"+self.period+"_lumi",constant=constant,unc=uncertaintyName,form=uncertaintyFormula))
-            self.addSystematic(uncertaintyName,"param",[0,uncertaintyValue])
-            
-        else:
-            #self.addSystematic(uncertaintyName,"lnN",{name:self.w.function(uncertaintyName+"_formular").getVal()})
-            #kind = 'lnN\t%s\t%s\t%s'%(self.tag,name,uncertaintyName+"_formular")
-            #self.systematics.append({'name':uncertaintyName,'kind':"@0",'values':uncertaintyName+"_formular"})
-            self.w.factory("expr::{unc}_formular('{form}',MH)".format(unc=uncertaintyName,form=uncertaintyFormula))
-            
-            #self.addSystematic(uncertaintyName,"lnN",{name:"@2 "+uncertaintyName+"_formular"})
-            self.w.factory("expr::{name}('({param})*{lumi}*({constant}+{unc})',MH,{lumi},{unc})".format(name=pdfNorm,param=info['yield'],lumi=self.physics+"_"+self.period+"_lumi",constant=constant,unc=uncertaintyName))
-            self.w.var("MH").setVal(5000)
-            self.addSystematic(uncertaintyName,"lnN",{name:self.w.function(uncertaintyName+"_formular").getVal()})
-            #self.addSystematic(uncertaintyName,"lnN",{name:"@2"})
-            
-            
+        self.w.factory(uncertaintyName+'[0,-1,1]')
+        #self.w.factory("expr::{name}('({param})*{lumi}*({constant}+{unc}*{form})',MH,{lumi},{unc})".format(name=pdfNorm,param=info['yield'],lumi=self.physics+"_"+self.period+"_lumi",constant=constant,unc=uncertaintyName,form=uncertaintyFormula))
+        #this formula is better: y*exp(log(unc)*theta)
+        self.w.factory("expr::{name}('({param})*{lumi}*(exp(log({form})*{unc}))',MH,{lumi},{unc})".format(name=pdfNorm,param=info['yield'],lumi=self.physics+"_"+self.period+"_lumi",constant=constant,unc=uncertaintyName,form=uncertaintyFormula))
+        self.addSystematic(uncertaintyName,"param",[0,uncertaintyValue])
         f.close()
         self.contributions.append({'name':name,'pdf':pdfName,'ID':ID,'yield':1.0})
 
@@ -1578,9 +1515,38 @@ class DataCardMaker:
         events=histogram.Integral()*self.luminosity*scaleFactor
         
         kind = 'rateParam\t%s\t%s\t%f'%(self.tag,name,events)
-        self.systematics.append({'name':paramName,'kind':kind,'values':values })
-                
+        self.systematics.append({'name':paramName,'kind':kind,'values':values})
 
+    def addYieldWithRateParameterFromFileWithUncertainty(self,name,ID,paramName,filename,histoName,uncertaintyName,uncertaintyFormula,uncertaintyValue,values=[],scaleFactor=1):#jen        
+        pdfName="_".join([name,self.tag])
+        self.contributions.append({'name':name,'pdf':pdfName,'ID':ID,'yield':1.0})    
+
+        f=ROOT.TFile(filename)
+        histogram=f.Get(histoName)
+        events=histogram.Integral()*self.luminosity*scaleFactor
+        
+        kind = 'rateParam\t%s\t%s\t%f'%(self.tag,name,events)
+        self.systematics.append({'name':paramName,'kind':kind,'values':values})
+
+        pdfNorm="_".join([name,self.tag,"norm"])
+        if not self.w.var(uncertaintyName):
+         self.w.factory(uncertaintyName+'[0,-1,1]')
+         self.addSystematic(uncertaintyName,"param",[0,uncertaintyValue])
+        self.w.factory("expr::{name}('exp(log({form})*{unc})',MH,{unc})".format(name=pdfNorm,unc=uncertaintyName,form=uncertaintyFormula))
+
+    def addYieldWithRateParameterWithUncertainty(self,name,ID,paramName,formula,values,uncertaintyName,uncertaintyFormula,uncertaintyValue):#jen        
+        pdfName="_".join([name,self.tag])
+        self.contributions.append({'name':name,'pdf':pdfName,'ID':ID,'yield':1.0})            
+        kind = 'rateParam\t%s\t%s\t%s'%(self.tag,name,formula)
+        self.systematics.append({'name':paramName,'kind':kind,'values':values})
+        
+        pdfNorm="_".join([name,self.tag,"norm"])
+        if not self.w.var(uncertaintyName):
+         self.w.factory(uncertaintyName+'[0,-1,1]')
+         self.addSystematic(uncertaintyName,"param",[0,uncertaintyValue])
+        self.w.factory("expr::{name}('exp(log({form})*{unc})',MH,{unc})".format(name=pdfNorm,unc=uncertaintyName,form=uncertaintyFormula))
+
+       
     def makeCard(self):
 
         if self.cat!="":f = open("datacard_"+self.cat+'.txt','w')
@@ -1693,7 +1659,7 @@ class DataCardMaker:
             elif i==2:
                 axis=histogram.GetZaxis()
             else:
-                #print 'Asking for more than 3 D . ROOT doesnt support that, use unbinned data instead'
+                print 'Asking for more than 3 D . ROOT doesnt support that, use unbinned data instead'
                 return
             mini=axis.GetXmin()
             maxi=axis.GetXmax()
