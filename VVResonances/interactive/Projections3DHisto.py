@@ -16,20 +16,48 @@ from time import sleep
 #python Projections3DHisto.py --mc 2016/JJ_nonRes_LPLP_altshapeUp.root,nonRes -k JJ_nonRes_3D_LPLP.root,histo -o control-plots-LPLPnew-herwig
 #python Projections3DHisto.py --mc JJ_nonRes_LPLP_nominal.root,nonRes -k JJ_nonRes_3D_LPLP.root,histo -o control-plots-LPLP-pythia
 
+
+def getLegend(x1=0.5010010112,y1=0.523362,x2=0.705202143,y2=0.879833):
+  legend = rt.TLegend(x1,y1,x2,y2)
+  legend.SetTextSize(0.04)
+  legend.SetLineColor(0)
+  legend.SetShadowColor(0)
+  legend.SetLineStyle(1)
+  legend.SetLineWidth(1)
+  legend.SetFillColor(0)
+  legend.SetFillStyle(0)
+  legend.SetTextFont(42)
+  legend.SetMargin(0.35)
+  return legend
+
+
+def setLabels(p):
+    p.GetYaxis().SetTitleOffset(1.7)
+    p.GetYaxis().SetTitle("a.u.")
+    p.GetXaxis().SetTitleOffset(1.2)
+    p.GetXaxis().SetTitleSize(0.04)
+    p.GetYaxis().SetTitleSize(0.04)
+    p.GetXaxis().SetLabelSize(0.04)
+    p.GetYaxis().SetLabelSize(0.04)
+    return p
+
 def get_canvas(cname):
 
  #change the CMS_lumi variables (see CMS_lumi.py)
  CMS_lumi.lumi_7TeV = "4.8 fb^{-1}"
  CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
  CMS_lumi.writeExtraText = 1
- CMS_lumi.extraText = "Simulation"
+ if options.final==1:
+   CMS_lumi.extraText = "Simulation"
+ else:
+   CMS_lumi.extraText = "Preliminary"
  CMS_lumi.lumi_sqrtS = "13 TeV (2017)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
 
  iPos = 11
  if( iPos==0 ): CMS_lumi.relPosX = 0.12
-
+ CMS_lumi.relPosX = 0.05
  H_ref = 600 
- W_ref = 800 
+ W_ref = 700 
  W = W_ref
  H  = H_ref
 
@@ -38,7 +66,7 @@ def get_canvas(cname):
  # references for T, B, L, R
  T = 0.08*H_ref
  B = 0.12*H_ref 
- L = 0.12*W_ref
+ L = 0.15*W_ref
  R = 0.04*W_ref
 
  canvas = rt.TCanvas(cname,cname,50,50,W,H)
@@ -60,6 +88,7 @@ parser.add_option("--mc","--mc",dest="mc",help="File with mc events and histo na
 parser.add_option("-k","--kernel",dest="kernel",help="File with kernel and histo name (separated by comma)",default='JJ_nonRes_3D_HPHP.root,histo')
 parser.add_option("-o","--outdir",dest="outdir",help="Output directory for plots",default='control-plots')
 parser.add_option("-l","--label",dest="label",help="MC type label (Pythia8, Herwig, Madgraph, Powheg)",default='Pythia8')
+parser.add_option("-f","--final",dest="final",type=int, default=1,help="Preliminary or not")
 (options,args) = parser.parse_args()
 
 #void Projections3DHisto(std::string dataFile, std::string hdataName, std::string fitFile, std::string hfitName, std::string outDirName){
@@ -132,6 +161,11 @@ for i in range(4):
   if hyMC[i].GetBinContent(b) != 0: pullsy[i].Fill( (hyMC[i].GetBinContent(b)-hy[i].GetBinContent(b))/hyMC[i].GetBinError(b) )
 
 for i in range(4):
+ hx[i] = setLabels(hx[i])
+ hy[i] = setLabels(hy[i])   
+ hxMC[i] = setLabels(hxMC[i])   
+ hyMC[i] = setLabels(hyMC[i])   
+    
 
  hx[i].Scale(scale[i])
  hy[i].Scale(scale[i])
@@ -164,10 +198,11 @@ hy[0].SetMinimum(0)
 hy[0].SetMaximum(0.03)
 
 #leg = rt.TLegend(0.6,0.6,0.85,0.8)
-leg = rt.TLegend(0.51,0.60,0.76,0.85)
+leg = getLegend()
+leg.SetHeader("#font[62]{HPLP category}")
 leg.SetBorderSize(0)
 leg.SetTextSize(0.035)
-leg.AddEntry(hxMC[0],"Simulation (%s)"%options.label,"LP")
+leg.AddEntry(hxMC[0],"Simulation (%s)"%options.label,"EP")
 leg.AddEntry(hx[0],"Template","L")
 for i in range(1,4):
  leg.AddEntry(hx[i],"%.1f < m_{jj} < %.1f TeV"%( hin.GetZaxis().GetBinLowEdge(zbinMin[i])/1000.,hin.GetZaxis().GetBinUpEdge(zbinMax[i])/1000.) )
@@ -177,7 +212,7 @@ cx.cd()
 for i in range(4):
  hx[i].Draw("HISTsame")
  hxMC[i].Draw("PEsame")
-hx[0].GetXaxis().SetTitle("m_{jet1} (proj. x) [GeV]")
+hx[0].GetXaxis().SetTitle("m_{jet1} [GeV]")
 leg.Draw()
 
 CMS_lumi.CMS_lumi(cx, 0, 11)
@@ -186,11 +221,20 @@ cx.Update()
 cx.RedrawAxis()
 frame = cx.GetFrame()
 frame.Draw()
-cx.SaveAs(options.outdir+"/cx.png","pdf")
 
+if options.final ==1:
+    cx.SaveAs(options.outdir+"/cx.png","pdf")
+    cx.SaveAs(options.outdir+"/cx.pdf")
+    cx.SaveAs(options.outdir+"/cx.C")
+    cx.SaveAs(options.outdir+"/cx.root")
+else:
+    cx.SaveAs(options.outdir+"/cx_prelim.png","pdf")
+    cx.SaveAs(options.outdir+"/cx_prelim.pdf")
+    cx.SaveAs(options.outdir+"/cx_prelim.C")
+    cx.SaveAs(options.outdir+"/cx_prelim.root")
 cy = get_canvas("cy")
 cy.cd()
-hy[0].GetXaxis().SetTitle("m_{jet2} (proj. y) [GeV]")
+hy[0].GetXaxis().SetTitle("m_{jet2} [GeV]")
 hy[0].GetXaxis().SetTitleSize(hx[0].GetXaxis().GetTitleSize())
 hy[0].GetXaxis().SetTitleOffset(hx[0].GetXaxis().GetTitleOffset())
 for i in range(4): 
@@ -204,8 +248,17 @@ cy.Update()
 cy.RedrawAxis()
 frame = cy.GetFrame()
 frame.Draw()
-cy.SaveAs(options.outdir+"/cy.png","pdf")
-
+if options.final ==1:
+    cy.SaveAs(options.outdir+"/cy.png","pdf")
+    cy.SaveAs(options.outdir+"/cy.pdf")
+    cy.SaveAs(options.outdir+"/cy.C")          
+    cy.SaveAs(options.outdir+"/cy.root")
+else:
+    cy.SaveAs(options.outdir+"/cy_prelim.png","pdf")
+    cy.SaveAs(options.outdir+"/cy_prelim.pdf")
+    cy.SaveAs(options.outdir+"/cy_prelim.C")
+    cy.SaveAs(options.outdir+"/cy_prelim.root")
+    
 '''
 labelsXY = ['All m_{jj} bins']
 for i in range(1,4): labelsXY.append( "%.1f < m_{jj} < %.1f TeV"%( hin.GetZaxis().GetBinLowEdge(zbinMin[i])/1000.,hin.GetZaxis().GetBinUpEdge(zbinMax[i])/1000.) )
@@ -296,7 +349,8 @@ for i in range(5):
   if hzMC[i].GetBinContent(b) != 0: pullsz[i].Fill( (hzMC[i].GetBinContent(b)-hz[i].GetBinContent(b))/hzMC[i].GetBinError(b) )
 
 for i in range(5):
- 
+ hz[i] = setLabels(hz[i])
+ hzMC[i] = setLabels(hzMC[i])
  hz[i].Scale(scalez[i])
  hzMC[i].Scale(scalez[i])
    
@@ -313,7 +367,8 @@ for i in range(5):
 
 
 #leg2 = rt.TLegend(0.6,0.6,0.85,0.85)
-leg2 = rt.TLegend(0.51,0.65,0.76,0.90)
+leg2 = getLegend()
+leg2.SetHeader("#font[62]{HPLP category}")
 leg2.SetBorderSize(0)
 leg2.SetTextSize(0.035)
 leg2.AddEntry(hzMC[0],"Simulation (%s)"%options.label,"LP")
@@ -330,7 +385,7 @@ hz[0].SetMaximum(50.0)
 for i in range(5):
  hz[i].Draw("HISTsame")
  hzMC[i].Draw("PEsame")
-hz[0].GetXaxis().SetTitle("m_{jj} (proj. z) [GeV]")
+hz[0].GetXaxis().SetTitle(" Dijet invariant mass [GeV]")
 leg2.Draw()
 
 CMS_lumi.CMS_lumi(cz, 0, 11)
@@ -339,7 +394,16 @@ cz.Update()
 cz.RedrawAxis()
 frame = cz.GetFrame()
 frame.Draw()
-cz.SaveAs(options.outdir+"/cz.png","pdf")
+if options.final ==1:
+    cz.SaveAs(options.outdir+"/cz.png","pdf")
+    cz.SaveAs(options.outdir+"/cz.pdf","pdf")
+    cz.SaveAs(options.outdir+"/cz.C","pdf")
+    cz.SaveAs(options.outdir+"/cz.root","pdf")
+else:
+     cz.SaveAs(options.outdir+"/cz_prelim.png","pdf")
+     cz.SaveAs(options.outdir+"/cz_prelim.pdf","pdf")
+     cz.SaveAs(options.outdir+"/cz_prelim.C","pdf")
+     cz.SaveAs(options.outdir+"/cz_prelim.root","pdf")
 
 labelsZ = ["All m_{jet} bins"]
 for i in range(1,5):
@@ -444,15 +508,16 @@ hz_OPT3Down.Scale(1./hz_OPT3Down.Integral())
 hzMC[0].Scale(1./hzMC[0].Integral())
 hz[0].Scale(1./hz[0].Integral())
 #leg3 = rt.TLegend(0.6,0.55,0.95,0.8)
-leg3 = rt.TLegend(0.53,0.55,0.78,0.89)
+leg3 = getLegend()
+leg3.SetHeader("#font[62]{HPLP category}")
 leg3.SetBorderSize(0)
 leg3.SetTextSize(0.035)
 leg3.AddEntry(hzMC[0],"Simulation (%s)"%(options.label),"LP")
 leg3.AddEntry(hz[0],"Template","L")
 leg3.AddEntry(hz_PTUp,"#propto m_{jj} up/down","L")
 leg3.AddEntry(hz_OPTUp,"#propto 1/m_{jj} up/down","L")
-leg3.AddEntry(hz_altshapeUp,"HERWIG up/down","L")
-leg3.AddEntry(hz_altshape2Up,"MADGRAPH+PYTHIA up/down","L")
+leg3.AddEntry(hz_altshapeUp,"Herwig++ up/down","L")
+leg3.AddEntry(hz_altshape2Up,"MG+Pythia8 up/down","L")
 #leg3.AddEntry(hz_altshape3Up,"POWHEG up/down","L")
 leg3.AddEntry(hz_OPT3Up,"m_{jj} turn-on up/down","L")
 
@@ -489,7 +554,17 @@ czSyst.Update()
 czSyst.RedrawAxis()
 frame = czSyst.GetFrame()
 frame.Draw()
-czSyst.SaveAs(options.outdir+"/czSyst.png","pdf")
+if options.final==1:
+    czSyst.SaveAs(options.outdir+"/czSyst.png","pdf")
+    czSyst.SaveAs(options.outdir+"/czSyst.pdf")
+    czSyst.SaveAs(options.outdir+"/czSyst.C")
+    czSyst.SaveAs(options.outdir+"/czSyst.root")
+else:
+     czSyst.SaveAs(options.outdir+"/czSyst_prelim.png","pdf")
+     czSyst.SaveAs(options.outdir+"/czSyst_prelim.pdf")
+     czSyst.SaveAs(options.outdir+"/czSyst_prelim.C")
+     czSyst.SaveAs(options.outdir+"/czSyst_prelim.root")
+
 # sleep(10000)
 hx_PTUp = hin_PTUp.ProjectionX("px_PTUp",1,binsy,zbinMin[0],zbinMax[0])
 hx_PTUp.SetLineColor(rt.kMagenta)
@@ -530,15 +605,16 @@ hx_OPT3Down.Scale(1./hx_OPT3Down.Integral())
 hxMC[0].Scale(1./hxMC[0].Integral())
 hx[0].Scale(1./hx[0].Integral())
 #leg3 = rt.TLegend(0.6,0.55,0.95,0.8)
-leg3 = rt.TLegend(0.53,0.50,0.78,0.84)
+leg3 = getLegend()
+leg3.SetHeader("#font[62]{HPLP category}")
 leg3.SetBorderSize(0)
 leg3.SetTextSize(0.035)
 leg3.AddEntry(hxMC[0],"Simulation (%s)"%(options.label),"LP")
 leg3.AddEntry(hx[0],"Template","L")
 leg3.AddEntry(hx_PTUp,"#propto m_{jj} up/down","L")
 leg3.AddEntry(hx_OPTUp,"#propto 1/m_{jj} up/down","L")
-leg3.AddEntry(hx_altshapeUp,"HERWIG up/down","L")
-leg3.AddEntry(hx_altshape2Up,"MADGRAPH+PYTHIA up/down","L")
+leg3.AddEntry(hx_altshapeUp,"Herwig++ up/down","L")
+leg3.AddEntry(hx_altshape2Up,"MG+Pythia8 up/down","L")
 #leg3.AddEntry(hx_altshape3Up,"POWHEG up/down","L")
 leg3.AddEntry(hx_OPT3Up,"m_{jj} turn-on up/down","L")
 
@@ -569,9 +645,18 @@ cxSyst.Update()
 cxSyst.RedrawAxis()
 frame = cxSyst.GetFrame()
 frame.Draw()
-cxSyst.SaveAs(options.outdir+"/cxSyst.png","pdf")
-
-
+if options.final==1:
+    cxSyst.SaveAs(options.outdir+"/cxSyst.png","pdf")
+    cxSyst.SaveAs(options.outdir+"/cxSyst.pdf")
+    cxSyst.SaveAs(options.outdir+"/cxSyst.C")
+    cxSyst.SaveAs(options.outdir+"/cxSyst.root")
+else:
+    cxSyst.SaveAs(options.outdir+"/cxSyst_prelim.png","pdf")
+    cxSyst.SaveAs(options.outdir+"/cxSyst_prelim.pdf")
+    cxSyst.SaveAs(options.outdir+"/cxSyst_prelim.C")
+    cxSyst.SaveAs(options.outdir+"/cxSyst_prelim.root")
+    
+    
 hy_PTUp = hin_PTUp.ProjectionY("py_PTUp",1,binsy,zbinMin[0],zbinMax[0])
 hy_PTUp.SetLineColor(rt.kMagenta)
 hy_PTUp.Scale(1./hy_PTUp.Integral())
@@ -610,15 +695,16 @@ hy_OPT3Down.Scale(1./hy_OPT3Down.Integral())
 hyMC[0].Scale(1./hyMC[0].Integral())
 hy[0].Scale(1./hy[0].Integral())
 #leg3 = rt.TLegend(0.6,0.55,0.95,0.8)
-leg3 = rt.TLegend(0.53,0.50,0.78,0.84)
+leg3 = getLegend()
+leg3.SetHeader("#font[62]{HPLP category}")
 leg3.SetBorderSize(0)
 leg3.SetTextSize(0.035)
 leg3.AddEntry(hyMC[0],"Simulation (%s)"%(options.label),"LP")
 leg3.AddEntry(hy[0],"Template","L")
 leg3.AddEntry(hy_PTUp,"#propto m_{jj} up/down","L")
 leg3.AddEntry(hy_OPTUp,"#propto 1/m_{jj} up/down","L")
-leg3.AddEntry(hy_altshapeUp,"HERWIG up/down","L")
-leg3.AddEntry(hy_altshape2Up,"MADGRAPH+PYTHIA up/down","L")
+leg3.AddEntry(hy_altshapeUp,"Herwig++ up/down","L")
+leg3.AddEntry(hy_altshape2Up,"MG+Pythia8 up/down","L")
 #leg3.AddEntry(hy_altshape3Up,"POWHEG up/down","L")
 leg3.AddEntry(hy_OPT3Up,"m_{jj} turn-on up/down","L")
 
@@ -649,10 +735,16 @@ cySyst.Update()
 cySyst.RedrawAxis()
 frame = cySyst.GetFrame()
 frame.Draw()
-cySyst.SaveAs(options.outdir+"/cySyst.png","pdf")
-
-
-
+if options.final==1:
+    cySyst.SaveAs(options.outdir+"/cySyst.png","pdf")
+    cySyst.SaveAs(options.outdir+"/cySyst.pdf")
+    cySyst.SaveAs(options.outdir+"/cySyst.C")
+    cySyst.SaveAs(options.outdir+"/cySyst.root")
+else:
+    cySyst.SaveAs(options.outdir+"/cySyst_prelim.png","pdf")
+    cySyst.SaveAs(options.outdir+"/cySyst_prelim.pdf")
+    cySyst.SaveAs(options.outdir+"/cySyst_prelim.C")
+    cySyst.SaveAs(options.outdir+"/cySyst_prelim.root")
 '''
 TCanvas* cxz = new TCanvas("cxz","cxz")
 cxz.cd()

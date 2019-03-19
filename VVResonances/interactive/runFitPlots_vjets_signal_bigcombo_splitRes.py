@@ -46,15 +46,10 @@ def get_canvas(cname):
  CMS_lumi.lumi_7TeV = "4.8 fb^{-1}"
  CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
  CMS_lumi.writeExtraText = 1
- if options.prelim==1:
+ if options.prelim==0:
     CMS_lumi.extraText = " "
  else:
     CMS_lumi.extraText = "Preliminary"
- CMS_lumi.lumi_sqrtS = "77.3 fb^{-1} (13 TeV)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
-
- #iPos = 11
- iPos = 11
- if( iPos==0 ): CMS_lumi.relPosX = 0.30
 
  H_ref = 600 
  W_ref = 600 
@@ -90,12 +85,15 @@ def get_pad(name):
  CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
  CMS_lumi.lumi_13TeV = "77.3 fb^{-1}"
  CMS_lumi.writeExtraText = 1
- CMS_lumi.extraText = " "
  CMS_lumi.lumi_sqrtS = "13 TeV (2016+2017)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+ if options.prelim==0:
+    CMS_lumi.extraText = " "
+ else:
+    CMS_lumi.extraText = "Preliminary"
 
  iPos = 0
  if( iPos==0 ): CMS_lumi.relPosX = 0.014
-
+ CMS_lumi.relPosX=0.05
  H_ref = 600 
  W_ref = 600 
  W = W_ref
@@ -228,27 +226,27 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     if options.zrange == '0,-1': zrange = '1126,5500'
     if axis=='z':
      htitle = "Z-Proj. x : "+options.xrange+" y : "+options.yrange
-     xtitle = "m_{jj} [GeV]"
+     xtitle = "Dijet invariant mass [GeV]"
      ymin = 0.2
      ymax = hdata.GetMaximum()*10
      extra1 = xrange.split(',')[0]+' < m_{jet1} < '+ xrange.split(',')[1]+' GeV'
      extra2 = yrange.split(',')[0]+' < m_{jet2} < '+ yrange.split(',')[1]+' GeV'
     elif axis=='x':
      htitle = "X-Proj. y : "+options.yrange+" z : "+options.zrange
-     xtitle = "Softdrop m_{jet1} [GeV]"
+     xtitle = " m_{jet1} [GeV]"
      ymin = 0.02
      ymax = hdata.GetMaximum()*1.3
      extra1 = yrange.split(',')[0]+' < m_{jet2} < '+ yrange.split(',')[1]+' GeV'
      extra2 = zrange.split(',')[0]+' < m_{jj} < '+ zrange.split(',')[1]+' GeV'
     elif axis=='y':
      htitle = "Y-Proj. x : "+options.xrange+" z : "+options.zrange
-     xtitle = "Softdrop m_{jet2} [GeV]"
+     xtitle = " m_{jet2} [GeV]"
      ymin = 0.02
      ymax = hdata.GetMaximum()*1.3
      extra1 = xrange.split(',')[0]+' < m_{jet1} < '+ xrange.split(',')[1]+' GeV'
      extra2 = zrange.split(',')[0]+' < m_{jj} < '+ zrange.split(',')[1]+' GeV'
                    
-    leg = ROOT.TLegend(0.50436242,0.5531968,0.7231544,0.8553946)
+    leg = ROOT.TLegend(0.450436242,0.5531968,0.7231544,0.8553946)
     leg.SetTextSize(0.04995005)
     c = ROOT.TCanvas('c')
     pad1 = get_pad("pad1") #ROOT.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
@@ -267,19 +265,19 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     histos[0].GetYaxis().SetTitleOffset(1.3)
     histos[0].GetYaxis().SetTitle("Events")
     histos[0].GetYaxis().SetTitleOffset(1.3)
-    histos[0].GetYaxis().SetTitle("Events")
+    histos[0].GetYaxis().SetTitle("Events/ 2 GeV")
+    if axis == 'z': histos[0].GetYaxis().SetTitle("Events/ 100 GeV")
     histos[0].GetYaxis().SetTitleSize(0.06)
     histos[0].GetYaxis().SetLabelSize(0.06)
     histos[0].Draw('HIST')
-    leg.AddEntry(histos[0],"Total signal+background","l")
+
  
     histos[1].SetLineColor(colors[1])
     histos[1].SetLineWidth(2)
-    leg.AddEntry(histos[1],"W(qq)+jets plus t#bar{t}","l")
     
     histos[2].SetLineColor(colors[2])
     histos[2].SetLineWidth(2)
-    leg.AddEntry(histos[2],"Z(qq)+jets","l")
+    
     
     if options.addTop:
       histos[3].SetLineColor(colors[3])
@@ -303,20 +301,20 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     errors[0].SetLineWidth(0)
     errors[0].SetMarkerSize(0)
     
-    leg.AddEntry(hdata,"Data","lp")
-    leg.AddEntry(errors[0],"#pm 1#sigma unc.","f")
+    scaling = 500
+    if purity =="HPHP":
+        scaling = 20
 
     if hsig:
      if hsig.Integral()!=0.:   
         #hsig.Scale(1/hsig.Integral())
         #hsig.Scale(histos[2].Integral()*0.4)
-        hsig.Scale(10)
+        hsig.Scale(scaling/hsig.Integral())
      hsig.SetFillColor(ROOT.kGreen-6)
      hsig.SetLineColor(ROOT.kBlack)
      hsig.SetLineStyle(5)
      hsig.Draw("HISTsame")
      #leg.AddEntry(hsig,"Signal pdf","F")
-     leg.AddEntry(hsig,"G_{bulk} (%.1f TeV) #rightarrow WW #times 10"%(options.signalMass/1000.),"F")
     
     #errors[0].Draw("E5same")
     if axis=="z":
@@ -329,6 +327,18 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     histos[2].Draw("histsame")
     hdata.Draw("samePE0")         
     leg.SetLineColor(0)
+    
+    
+    leg.AddEntry(hdata,"Data","ep")
+    leg.AddEntry(histos[0],"Signal+background fit","l")
+    leg.AddEntry(errors[0],"#pm 1#sigma unc.","f")
+    leg.AddEntry(histos[1],"W+jets, t#bar{t}","l")
+    leg.AddEntry(histos[2],"Z+jets","l")
+    
+    text = "G_{bulk} (%.1f TeV) #rightarrow WW (#times %i)"%(options.signalMass/1000.,scaling)
+    if (options.signalMass%1000.)==0:
+       text = "G_{bulk} (%i TeV) #rightarrow WW (#times %i)"%(options.signalMass/1000.,scaling) 
+    leg.AddEntry(hsig,text,"F")
     leg.Draw("same")
     
     #errors[0].Draw("E2same")
@@ -357,7 +367,7 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     pt2.SetFillStyle(0)
     #pt2.AddText(extra1)
     #pt2.AddText(extra2)
-    pt2.Draw()
+    #pt2.Draw()
 
     pt3 = ROOT.TPaveText(0.65,0.39,0.99,0.52,"NDC")
     pt3.SetTextFont(72)
@@ -367,8 +377,8 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     pt3.SetBorderSize(0)
     pt3.SetFillStyle(0)
     pt3.AddText("%s category"%purity)
-    pt3.AddText(extra1)
-    pt3.AddText(extra2)
+    #pt3.AddText(extra1)
+    #pt3.AddText(extra2)
     pt3.Draw()
 
     CMS_lumi.CMS_lumi(pad1, 4, 10)
@@ -794,7 +804,7 @@ def addPullPlot(hdata,hpostfit,nBins,error_band):
     gt.GetXaxis().SetLabelOffset(0.02);
     gt.GetXaxis().SetLabelSize(0.15);
     gt.GetXaxis().SetTitleSize(0.15);
-    gt.GetXaxis().SetTitleOffset(1);
+    gt.GetXaxis().SetTitleOffset(1.2);
     gt.GetXaxis().SetTitleFont(42);
     gt.GetYaxis().SetTitle("#frac{Data-fit}{#sigma}");
     gt.GetYaxis().CenterTitle(True);
@@ -866,7 +876,7 @@ def addRatioPlot(hdata,hpostfit,nBins,error_band):
 def draw_error_band(histo_central,norm1,err_norm1,norm2,err_norm2,rpdf1,rpdf2,x_min,proj):
     
     rand = ROOT.TRandom3(1234);
-    number_errorband = 100
+    number_errorband = 5
     syst = [0 for i in range(number_errorband)]
       
     value = [0 for x in range(len(x_min))]  
@@ -874,6 +884,11 @@ def draw_error_band(histo_central,norm1,err_norm1,norm2,err_norm2,rpdf1,rpdf2,x_
     
     par_pdf1 = rpdf1.getParameters(argset)  
     par_pdf2 = rpdf2.getParameters(argset)
+    
+    
+    iter = par_pdf1.createIterator()
+    var = iter.Next()
+    print var.GetName()
     
    # par_pdf1.Print()
    # par_pdf2.Print()
@@ -884,9 +899,10 @@ def draw_error_band(histo_central,norm1,err_norm1,norm2,err_norm2,rpdf1,rpdf2,x_
      syst[j] = ROOT.TGraph(number_point+1);
      
      #paramters value are randomized using rfres and this can be done also if they are not decorrelate
-     par_tmp = ROOT.RooArgList(fitresult.randomizePars())
+     par_tmp = ROOT.RooArgList(fitresult_bkg_only.randomizePars())
      iter = par_pdf1.createIterator()
      var = iter.Next()
+
      while var:
       index = par_tmp.index(var.GetName())
       if index != -1:
@@ -895,9 +911,11 @@ def draw_error_band(histo_central,norm1,err_norm1,norm2,err_norm2,rpdf1,rpdf2,x_
        #print " ---> new value: ",var.getVal()
       var = iter.Next()
       
-     par_tmp = ROOT.RooArgList(fitresult.randomizePars())
+     par_tmp = ROOT.RooArgList(fitresult_bkg_only.randomizePars())
      iter = par_pdf2.createIterator()
      var = iter.Next()
+     
+     
      while var:
       index = par_tmp.index(var.GetName())
       if index != -1:
@@ -1046,6 +1064,7 @@ if __name__=="__main__":
      #workspace.Print()
 
      model = workspace.pdf("model_b") 
+     model_b = workspace.pdf("model_b")
      if options.fitSignal: model = workspace.pdf("model_s")
      data_all = workspace.data("data_obs")
      data_all.Print()
@@ -1064,6 +1083,18 @@ if __name__=="__main__":
      print "Expected number of QCD events:",(args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_nonRes"].getVal(),"(2016)",(args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_nonRes"].getVal(),"(2017)"
      print "Expected number of W+jets events:",(args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Wjets"].getVal(),"(2016)",(args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Wjets"].getVal(),"(2017)"
      print "Expected number of Z+jets events:",(args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Zjets"].getVal(),"(2016)",(args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Zjets"].getVal(),"(2017)"
+     
+     qcd_exp        = (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_nonRes"].getVal()
+     wjets_exp      = (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Wjets"].getVal()
+     zjets_exp      = (args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_Zjets"].getVal()
+    
+     qcd_exp17        = (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_nonRes"].getVal()
+     wjets_exp17      = (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Wjets"].getVal()
+     zjets_exp17      = (args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_Zjets"].getVal()
+     
+     
+     
+     
      if options.addTop:
        print "Expected number of tt events:",(args[pdf1Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2016_proc_TThad"].getVal(),"(2016)",(args[pdf2Name].getComponents())["n_exp_binJJ_"+purity+"_13TeV_2017_proc_TThad"].getVal(),"(2017)"
      if options.fitSignal:
@@ -1076,7 +1107,9 @@ if __name__=="__main__":
 
      #################################################
      print
-     fitresult = model.fitTo(data_all,ROOT.RooFit.SumW2Error(not(options.data)),ROOT.RooFit.Minos(0),ROOT.RooFit.Verbose(0),ROOT.RooFit.Save(1),ROOT.RooFit.NumCPU(8))   
+     fitresult = model.fitTo(data_all,ROOT.RooFit.SumW2Error(not(options.data)),ROOT.RooFit.Minos(0),ROOT.RooFit.Verbose(0),ROOT.RooFit.Save(1),ROOT.RooFit.NumCPU(8))  
+     
+     fitresult_bkg_only = model_b.fitTo(data_all,ROOT.RooFit.SumW2Error(not(options.data)),ROOT.RooFit.Minos(0),ROOT.RooFit.Verbose(0),ROOT.RooFit.Save(1),ROOT.RooFit.NumCPU(8))  
      #fitresult = model.fitTo(data_all,ROOT.RooFit.SumW2Error(not(options.data)),ROOT.RooFit.Minos(0),ROOT.RooFit.Verbose(0),ROOT.RooFit.Save(1),ROOT.RooFit.NumCPU(8))   
      #fitresult = model.fitTo(data_all,ROOT.RooFit.SumW2Error(not(options.data)),ROOT.RooFit.Minos(0),ROOT.RooFit.Verbose(0),ROOT.RooFit.Save(1),ROOT.RooFit.NumCPU(8))   
      fitresult.Print() 
@@ -1308,7 +1341,25 @@ if __name__=="__main__":
      if options.addTop: print "tt normalization after fit: ",norm1_TThad[0],"+/-",norm1_TThad[1],"(2016)",norm2_TThad[0],"+/-",norm2_TThad[1],"(2017)"
      if options.fitSignal: print "Signal yields after fit: ",norm1_sig[0],"+/-",norm1_sig[1],"(2016)",norm2_sig[0],"+/-",norm2_sig[1],"(2017)"
      print
-
+     
+     
+     qcd_obs        = norm1_nonres[0]
+     wjets_obs      = norm1_Wres[0]
+     zjets_obs      = norm1_Zres[0]
+     
+     qcd_obs17        = norm2_nonres[0]
+     wjets_obs17      = norm2_Wres[0]
+     zjets_obs17      = norm2_Zres[0]
+     
+     
+     
+     qcd_err       =  norm1_nonres[1]
+     wjets_err     =  norm1_Wres[1]
+     zjets_err     =  norm1_Zres[1]
+                   
+     qcd_err17     =  norm2_nonres[1]
+     wjets_err17   =  norm2_Wres[1]
+     zjets_err17   =  norm2_Zres[1]
      #################################################
      # get variables from workspace 
      MJ1= workspace.var("MJ1");
@@ -1357,3 +1408,20 @@ if __name__=="__main__":
      #chi2 = getChi2fullModel(pdf_nonres_shape_postfit,data,norm)
      #print "Chi2/ndof: %.2f/%.2f"%(chi2[0],chi2[1])," = %.2f"%(chi2[0]/chi2[1])," prob = ",ROOT.TMath.Prob(chi2[0], int(chi2[1]))
    
+     logfile = open("log_nevents.log","a")
+     logfile.write("===========================================================\n")
+     logfile.write(options.name+"\n")
+     logfile.write(purity+"  2016\n")
+     logfile.write("process     exp         obs     err \n")
+     logfile.write("qcd "+str(qcd_exp)+"   "+str(qcd_obs)+"   +/- "+str(qcd_err)+"    "+str((qcd_obs/qcd_exp -1)*100)+"   "+str((qcd_obs-qcd_exp)/(qcd_exp*0.5))+"\n")
+     logfile.write("wjets "+str(wjets_exp)+"   "+str(wjets_obs)+"  +/-  "+str(wjets_err)+"    "+str((wjets_obs/wjets_exp -1)*100)+"   "+str((wjets_obs - wjets_exp)/(wjets_obs*0.2))+"\n")
+     logfile.write("zjets "+str(zjets_exp)+"   "+str(zjets_obs)+"  +/-  "+str(zjets_err)+"    "+str((zjets_obs/zjets_exp -1)*100)+"   "+str((zjets_obs - zjets_exp)/(zjets_obs*0.2))+"\n")
+     logfile.write("\n")
+     logfile.write(purity+"  2017\n")
+     logfile.write("process     exp         obs \n")
+     logfile.write("qcd "+str(qcd_exp17)+"   "+str(qcd_obs17)+" +/-   "+str(qcd_err17)+"    "+str((qcd_obs17/qcd_exp17 -1)*100)+"   "+str((qcd_obs17-qcd_exp17)/(qcd_err17*0.5))+"\n")
+     logfile.write("wjets "+str(wjets_exp17)+"   "+str(wjets_obs17)+"  +/-  "+str(wjets_err17)+"    "+str((wjets_obs17/wjets_exp17 -1)*100)+"   "+str((wjets_obs17 - wjets_exp17)/(wjets_err17*0.2))+"\n")
+     logfile.write("zjets "+str(zjets_exp17)+"   "+str(zjets_obs17)+" +/-   "+str(zjets_err17)+"    "+str((zjets_obs17/zjets_exp17 -1)*100)+"   "+str((zjets_obs17 - zjets_exp17)/(zjets_err17*0.2))+"\n")
+     
+     
+     

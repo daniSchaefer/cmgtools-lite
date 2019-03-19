@@ -6,7 +6,8 @@ cmd='combineCards.py '
 
 
 datasets=['2016','2017']
-
+pseudodata=""
+outlabel="CHS_wMorenonResNorm"
 addTT = False
 
 lumi = {'2016':35900,'2017':41367}
@@ -15,6 +16,7 @@ lumi_unc = {'2016':1.025,'2017':1.023}
 scales = {"2017" :[0.983,1.08], "2016":[1.014,1.086]}
 #scales = {"2017" :[1.,1.], "2016":[1.,1.]}
   
+
 vtag_unc = {'HPHP':{},'HPLP':{},'LPLP':{}}
 #old
 #vtag_unc['HPHP'] = {'2016':'1.078/0.922','2017':'1.066/0.934'}
@@ -27,7 +29,7 @@ vtag_unc['LPLP'] = {'2016':'1.063','2017':'1.043'}
 vtag_pt_dependence = {'HPHP':'((1+0.06*log(MH/2/300))*(1+0.06*log(MH/2/300)))','HPLP':'((1+0.06*log(MH/2/300))*(1+0.07*log(MH/2/300)))'}
   
 purities= ['HPHP','HPLP']
-signals = ["BulkGWW"]
+signals = ["BulkGWW"]#"BulkGZZ","ZprimeWW","WprimeWZ"]
 
 
 for sig in signals:
@@ -56,36 +58,33 @@ for sig in signals:
       #---------------------------------------------------------------------------------
       #Vjets
       sys.path.append(dataset)
-      
-      from JJ_WJets_HPLP import Wjets_TTbar_nonRes_l1, Wjets_TTbar_Res_l1, Wjets_TTbar_nonRes_l2, Wjets_TTbar_Res_l2
-      from JJ_WJets_HPLP import Zjets_Res_l1, Zjets_Res_l2, Zjets_nonRes_l1, Zjets_nonRes_l2
-         
+      #if p=="HPHP":
+        #from JJ_WJets_HPHP import Wjets_TTbar_nonRes_l1, Wjets_TTbar_Res_l1, Wjets_TTbar_nonRes_l2, Wjets_TTbar_Res_l2
+        #from JJ_WJets_HPHP import Zjets_Res_l1, Zjets_Res_l2, Zjets_nonRes_l1, Zjets_nonRes_l2
+      #else:
+      from JJ_WJets_HPLP_gauss import Wjets_TTbar_nonRes_l1, Wjets_TTbar_Res_l1, Wjets_TTbar_nonRes_l2, Wjets_TTbar_Res_l2
+      from JJ_WJets_HPLP_gauss import Zjets_Res_l1, Zjets_Res_l2, Zjets_nonRes_l1, Zjets_nonRes_l2  
          
       # begin W+jets background :
       
       # W+jets 
       #rootFile = '2017/JJ_WJets_MVV_'+p+'.root' #jen
-      rootFile = '2017/JJ_WJets_MVV_%s.root'%p
+      rootFile = '2017/JJ_WJets_MVV_%s_new.root'%p
       card.addHistoShapeFromFile("Wjets_mjj_c1",["MJJ"],rootFile,"histo_nominal",['PT:CMS_VV_JJ_Wjets_PTZ_'+p,'OPT:CMS_VV_JJ_Wjets_OPTZ_'+p],False,0)
       card.addMJJSignalShapeNOEXP("Wjets_mjetRes_l1","MJ1","",Wjets_TTbar_Res_l1,{'CMS_scale_prunedj':1.},{'CMS_res_prunedj':1.},scales[dataset])
-      
       card.addGaussianShape("Wjets_mjetNonRes_l2","MJ2",Wjets_TTbar_nonRes_l2)
-      
       card.product3D("Wjets_c1","Wjets_mjetRes_l1","Wjets_mjetNonRes_l2","Wjets_mjj_c1")
       
       # jets + W
       #rootFile = '2017/JJ_WJets_MVV_'+p+'.root' #jen
-      rootFile = '2017/JJ_WJets_MVV_%s.root'%p
+      rootFile = '2017/JJ_WJets_MVV_%s_new.root'%p
       card.addHistoShapeFromFile("Wjets_mjj_c2",["MJJ"],rootFile,"histo_nominal",['PT:CMS_VV_JJ_Wjets_PTZ_'+p,'OPT:CMS_VV_JJ_Wjets_OPTZ_'+p],False,0)
       card.addMJJSignalShapeNOEXP("Wjets_mjetRes_l2","MJ2","",Wjets_TTbar_Res_l2,{'CMS_scale_prunedj':1.},{'CMS_res_prunedj':1.},scales[dataset])
-      
       card.addGaussianShape("Wjets_mjetNonRes_l1","MJ1",Wjets_TTbar_nonRes_l1)
-      
       card.product3D("Wjets_c2","Wjets_mjetRes_l2","Wjets_mjetNonRes_l1","Wjets_mjj_c2")
-      
-      card.sumPdf('Wjets',"Wjets_c1","Wjets_c2","CMS_ratio_Wjets_"+p+"_"+dataset)
-
-      card.addYieldWithRateParameterFromFile('Wjets',ncontrib,'Wjets_%s_%s'%(p,dataset),"2017/JJ_WJets_%s.root"%p,"WJets")
+      card.sumPdf('Wjets',"Wjets_c1","Wjets_c2","CMS_ratio_Wjets_"+p)
+      card.addFixedYieldFromFile('Wjets',ncontrib,"2017/JJ_WJets_%s.root"%p,"WJets")
+      #card.addYieldWithRateParameterFromFile('Wjets',ncontrib,'Wjets_%s_%s'%(p,dataset),"2017/JJ_WJets_%s.root"%p,"WJets",scaleseff[dataset][p])
       #card.addYieldWithRateParameterFromFileWithUncertainty('Wjets',ncontrib,'Wjets_%s_%s'%(p,dataset),"2017/JJ_WJets_%s.root"%p,"WJets",'CMS_tau21_PtDependence','1.1',1.0)
     
       ncontrib+=1
@@ -94,25 +93,87 @@ for sig in signals:
       
       # Z+jets 
       #rootFile = '2017/JJ_ZJets_MVV_'+p+'.root' #jen
-      rootFile = '2017/JJ_ZJets_MVV_%s.root'%p
+      rootFile = '2017/JJ_ZJets_MVV_%s_new.root'%p
       card.addHistoShapeFromFile("Zjets_mjj_c1",["MJJ"],rootFile,"histo_nominal",['PT:CMS_VV_JJ_Zjets_PTZ_'+p,'OPT:CMS_VV_JJ_Zjets_OPTZ_'+p],False,0)
       card.addMJJSignalShapeNOEXP("Zjets_mjetRes_l1","MJ1","",Zjets_Res_l1,{'CMS_scale_prunedj':1.},{'CMS_res_prunedj':1.},scales[dataset])
-      
       card.addGaussianShape("Zjets_mjetNonRes_l2","MJ2",Zjets_nonRes_l2)
-      
       card.product3D("Zjets_c1","Zjets_mjetRes_l1","Zjets_mjetNonRes_l2","Zjets_mjj_c1")
       
       
       # jets + Z
       #rootFile = '2017/JJ_ZJets_MVV_'+p+'.root' #jen
-      rootFile = '2017/JJ_ZJets_MVV_%s.root'%p
+      rootFile = '2017/JJ_ZJets_MVV_%s_new.root'%p
       card.addHistoShapeFromFile("Zjets_mjj_c2",["MJJ"],rootFile,"histo_nominal",['PT:CMS_VV_JJ_Zjets_PTZ_'+p,'OPT:CMS_VV_JJ_Zjets_OPTZ_'+p],False,0)
       card.addMJJSignalShapeNOEXP("Zjets_mjetRes_l2","MJ2","",Zjets_Res_l2,{'CMS_scale_prunedj':1.},{'CMS_res_prunedj':1.},scales[dataset])
       card.addGaussianShape("Zjets_mjetNonRes_l1","MJ1",Zjets_nonRes_l1)
       card.product3D("Zjets_c2","Zjets_mjetRes_l2","Zjets_mjetNonRes_l1","Zjets_mjj_c2")
-      card.sumPdf('Zjets',"Zjets_c1","Zjets_c2","CMS_ratio_Zjets_"+p+"_"+dataset)
-      card.addYieldWithRateParameter('Zjets',ncontrib,'Zjets_%s_%s'%(p,dataset),"@0*@1",['Wjets_%s_%s'%(p,dataset),"CMS_VV_JJ_Vjets_ratio"])
+      card.sumPdf('Zjets',"Zjets_c1","Zjets_c2","CMS_ratio_Zjets_"+p)
+      
+      card.addFixedYieldFromFile('Zjets',ncontrib,"2017/JJ_ZJets_%s.root"%p,"ZJets")
+      #card.addYieldWithRateParameter('Zjets',ncontrib,'Zjets_%s_%s'%(p,dataset),"@0*@1",['Wjets_%s_%s'%(p,dataset),"CMS_VV_JJ_Vjets_ratio"],scaleseff[dataset][p])
       #card.addYieldWithRateParameterWithUncertainty('Zjets',ncontrib,'Zjets_%s_%s'%(p,dataset),"@0*@1",['Wjets_%s_%s'%(p,dataset),"CMS_VV_JJ_Vjets_ratio"],'CMS_tau21_PtDependence','1.1',1.0)
+
+
+      ## W+jets 
+      ##rootFile = '2017/JJ_WJets_MVV_'+p+'.root' #jen
+      #rootFile = '2017/JJ_WJets_MVV_%s_new.root'%p
+      #card.addHistoShapeFromFile("Wjets_mjj_c1",["MJJ"],rootFile,"histo_nominal",['PT:CMS_VV_JJ_Wjets_PTZ_'+p,'OPT:CMS_VV_JJ_Wjets_OPTZ_'+p],False,0)
+      #card.addMJJSignalShapeNOEXP("Wjets_mjetRes_l1","MJ1","",Wjets_TTbar_Res_l1,{'CMS_scale_prunedj':1.},{'CMS_res_prunedj':1.},scales[dataset])
+      
+      ##card.addGaussianShape("Wjets_mjetNonRes_l2","MJ2",Wjets_TTbar_nonRes_l2)
+      #card.addPolShape("Wjets_mjetNonRes_l2","MJ2",Wjets_TTbar_nonRes_l2)
+      
+      #card.product3D("Wjets_c1","Wjets_mjetRes_l1","Wjets_mjetNonRes_l2","Wjets_mjj_c1")
+      
+      ## jets + W
+      ##rootFile = '2017/JJ_WJets_MVV_'+p+'.root' #jen
+      #rootFile = '2017/JJ_WJets_MVV_%s_new.root'%p
+      #card.addHistoShapeFromFile("Wjets_mjj_c2",["MJJ"],rootFile,"histo_nominal",['PT:CMS_VV_JJ_Wjets_PTZ_'+p,'OPT:CMS_VV_JJ_Wjets_OPTZ_'+p],False,0)
+      #card.addMJJSignalShapeNOEXP("Wjets_mjetRes_l2","MJ2","",Wjets_TTbar_Res_l2,{'CMS_scale_prunedj':1.},{'CMS_res_prunedj':1.},scales[dataset])
+      
+      ##card.addGaussianShape("Wjets_mjetNonRes_l1","MJ1",Wjets_TTbar_nonRes_l1)
+      #card.addPolShape("Wjets_mjetNonRes_l1","MJ1",Wjets_TTbar_nonRes_l1)
+      
+      #card.product3D("Wjets_c2","Wjets_mjetRes_l2","Wjets_mjetNonRes_l1","Wjets_mjj_c2")
+      
+      #print 'did the product work ??????????????????????????????????????????????????????????????????????????????????????'
+      
+      
+      #card.sumPdf('Wjets',"Wjets_c1","Wjets_c2","CMS_ratio_Wjets")
+      
+      #card.addFixedYieldFromFile('Wjets',ncontrib,"2017/JJ_WJets_%s.root"%p,"WJets")
+      ##card.addYieldWithRateParameterFromFile('Wjets',ncontrib,'Wjets_%s_%s'%(p,dataset),"2017/JJ_WJets_%s.root"%p,"WJets",scaleseff[dataset][p])
+      ##card.addYieldWithRateParameterFromFileWithUncertainty('Wjets',ncontrib,'Wjets_%s_%s'%(p,dataset),"2017/JJ_WJets_%s.root"%p,"WJets",'CMS_tau21_PtDependence','1.1',1.0)
+    
+      #ncontrib+=1
+            
+      ## begin Z+jets background :
+      
+      ## Z+jets 
+      ##rootFile = '2017/JJ_ZJets_MVV_'+p+'.root' #jen
+      #rootFile = '2017/JJ_ZJets_MVV_%s_new.root'%p
+      #card.addHistoShapeFromFile("Zjets_mjj_c1",["MJJ"],rootFile,"histo_nominal",['PT:CMS_VV_JJ_Zjets_PTZ_'+p,'OPT:CMS_VV_JJ_Zjets_OPTZ_'+p],False,0)
+      #card.addMJJSignalShapeNOEXP("Zjets_mjetRes_l1","MJ1","",Zjets_Res_l1,{'CMS_scale_prunedj':1.},{'CMS_res_prunedj':1.},scales[dataset])
+      
+      ##card.addGaussianShape("Zjets_mjetNonRes_l2","MJ2",Zjets_nonRes_l2)
+      #card.addPolShape("Zjets_mjetNonRes_l2","MJ2",Zjets_nonRes_l2)
+      
+      #card.product3D("Zjets_c1","Zjets_mjetRes_l1","Zjets_mjetNonRes_l2","Zjets_mjj_c1")
+      
+      
+      ## jets + Z
+      ##rootFile = '2017/JJ_ZJets_MVV_'+p+'.root' #jen
+      #rootFile = '2017/JJ_ZJets_MVV_%s_new.root'%p
+      #card.addHistoShapeFromFile("Zjets_mjj_c2",["MJJ"],rootFile,"histo_nominal",['PT:CMS_VV_JJ_Zjets_PTZ_'+p,'OPT:CMS_VV_JJ_Zjets_OPTZ_'+p],False,0)
+      #card.addMJJSignalShapeNOEXP("Zjets_mjetRes_l2","MJ2","",Zjets_Res_l2,{'CMS_scale_prunedj':1.},{'CMS_res_prunedj':1.},scales[dataset])
+      ##card.addGaussianShape("Zjets_mjetNonRes_l1","MJ1",Zjets_nonRes_l1)
+      #card.addPolShape("Zjets_mjetNonRes_l1","MJ1",Zjets_nonRes_l1)
+      #card.product3D("Zjets_c2","Zjets_mjetRes_l2","Zjets_mjetNonRes_l1","Zjets_mjj_c2")
+      #card.sumPdf('Zjets',"Zjets_c1","Zjets_c2","CMS_ratio_Zjets")
+      
+      #card.addFixedYieldFromFile('Zjets',ncontrib,"2017/JJ_ZJets_%s.root"%p,"ZJets")
+      ##card.addYieldWithRateParameter('Zjets',ncontrib,'Zjets_%s_%s'%(p,dataset),"@0*@1",['Wjets_%s_%s'%(p,dataset),"CMS_VV_JJ_Vjets_ratio"],scaleseff[dataset][p])
+      ##card.addYieldWithRateParameterWithUncertainty('Zjets',ncontrib,'Zjets_%s_%s'%(p,dataset),"@0*@1",['Wjets_%s_%s'%(p,dataset),"CMS_VV_JJ_Vjets_ratio"],'CMS_tau21_PtDependence','1.1',1.0)
 
       ncontrib+=1
       
@@ -120,15 +181,26 @@ for sig in signals:
       
       #QCD
       
-      rootFile=dataset+"/save_new_shapes_pythia_"+p+"_3D.root"
+      rootFile=dataset+"/save_new_shapes_pythia_"+p+"_3D_new.root"
+      #if dataset=="2016":
+      #    rootFile=dataset+"/save_new_shapes_pythia_"+p+"_3D.root"
+      #else:
+      #    rootFile=dataset+"/JJ_nonRes_3D_"+p+".root"
     
-      card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile,"histo",['PT:CMS_VV_JJ_nonRes_PT_'+p,'OPT:CMS_VV_JJ_nonRes_OPT_'+p,'OPT3:CMS_VV_JJ_nonRes_OPT3_'+p,'altshape:CMS_VV_JJ_nonRes_altshape_'+p],False,0) #'altshapeZ:CMS_VV_JJ_nonRes_altshapeZ_'+p,
+      card.addHistoShapeFromFile("nonRes",["MJ1","MJ2","MJJ"],rootFile,"histo",['PT:CMS_VV_JJ_nonRes_PT_'+p,'OPT:CMS_VV_JJ_nonRes_OPT_'+p,'OPT3:CMS_VV_JJ_nonRes_OPT3_'+p,'altshape:CMS_VV_JJ_nonRes_altshape_'+p,'altshape2:CMS_VV_JJ_nonRes_altshape2_'+p],False,0) ,
      
       card.addFixedYieldFromFile("nonRes",ncontrib,dataset+"/JJ_nonRes_"+p+".root","nonRes",0.8)
 
       #DATA
-      card.importBinnedData(dataset+"/JJ_"+p+".root","data",["MJ1","MJ2","MJJ"])
-    
+      if pseudodata=="":
+        if dataset.find("2017")!=-1:
+            card.importBinnedData(dataset+"/JJ_data_"+p+".root","data",["MJ1","MJ2","MJJ"])
+        else:
+            card.importBinnedData(dataset+"/JJ_"+p+".root","data",["MJ1","MJ2","MJJ"]) 
+      else:
+          card.importBinnedData(dataset+"/JJ_"+pseudodata+"_"+p+".root","data_obs",["MJ1","MJ2","MJJ"]) 
+          outlabel = "_pseudodata"+pseudodata
+      
       #SYSTEMATICS
       #luminosity
       card.addSystematic("CMS_lumi","lnN",{'%s'%sig:lumi_unc[dataset],"Wjets":lumi_unc[dataset],"Zjets":lumi_unc[dataset]})
@@ -138,13 +210,14 @@ for sig in signals:
     
 
       #background normalization
-      card.addSystematic("CMS_VV_JJ_nonRes_norm","lnN",{'nonRes':1.5})
+      card.addSystematic("CMS_VV_JJ_nonRes_norm_"+dataset,"lnN",{'nonRes':1.5})
       card.addSystematic("CMS_VV_JJ_Wjets_norm","lnN",{'Wjets':1.2})
+      card.addSystematic("CMS_VV_JJ_Zjets_norm","lnN",{'Zjets':1.2})
       
-      card.addSystematic("CMS_VV_JJ_Vjets_ratio","param",[0.4,0.1])#0.01
+      #card.addSystematic("CMS_VV_JJ_Vjets_ratio","param",[0.4,0.11])#0.01
       
-      card.addSystematic("CMS_ratio_Wjets_"+p+"_"+dataset,"param",[0.5,0.11])
-      card.addSystematic("CMS_ratio_Zjets_"+p+"_"+dataset,"param",[0.5,0.11])
+      #card.addSystematic("CMS_ratio_Wjets_"+p,"param",[0.5,0.11])
+      #card.addSystematic("CMS_ratio_Zjets_"+p,"param",[0.5,0.11])
       
         
       #tau21 
@@ -166,7 +239,7 @@ for sig in signals:
       #alternative shapes for QCD background
       card.addSystematic("CMS_VV_JJ_nonRes_PT_"+p,"param",[0.0,0.333])
       card.addSystematic("CMS_VV_JJ_nonRes_OPT_"+p,"param",[0.0,0.333])
-      #card.addSystematic('CMS_VV_JJ_nonRes_altshapeZ_'+p,"param",[0.0,0.333])  
+      card.addSystematic('CMS_VV_JJ_nonRes_altshape2_'+p,"param",[0.0,0.333])  
       card.addSystematic('CMS_VV_JJ_nonRes_altshape_'+p,"param",[0.0,0.333])
       card.addSystematic("CMS_VV_JJ_nonRes_OPT3_"+p,"param",[1.0,0.333])
         
@@ -178,7 +251,7 @@ for sig in signals:
     del card
     #make combined HPHP+HPLP card   
     combo_card = 'datacard_'+cat.replace("_HPHP","").replace("_HPLP","").replace("_LPLP","")+'.txt'
-    combo_workspace = 'workspace_'+cat.replace("_HPHP","").replace("_HPLP","").replace("_LPLP","")+'.root'
+    combo_workspace = 'workspace_'+cat.replace("_HPHP","").replace("_HPLP","").replace("_LPLP","")+outlabel+'.root'
     os.system('rm %s'%combo_card)
     cmd_combo+=' >> %s'%combo_card
     print cmd_combo
@@ -189,7 +262,7 @@ for sig in signals:
   
   #make combine 2016+2017 card
   combo_card = 'datacard_'+cat.replace("_HPHP","").replace("_HPLP","").replace("_LPLP","").replace('_2016','').replace('_2017','')+'.txt'
-  combo_workspace = 'workspace_'+cat.replace("_HPHP","").replace("_HPLP","").replace("_LPLP","").replace('_2016','').replace('_2017','')+'.root'
+  combo_workspace = 'workspace_'+cat.replace("_HPHP","").replace("_HPLP","").replace("_LPLP","").replace('_2016','').replace('_2017','')+outlabel+'.root'
   os.system('rm %s'%combo_card)
   cmd+=' >> %s'%combo_card
   print cmd

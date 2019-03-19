@@ -55,8 +55,12 @@ def returnString(func,ftype,varname):
 
 def doFit(fitter,histo,histo_nonRes,label,leg):
   params={}
+  histo_nonRes.Scale(1/histo_nonRes.Integral())
   print "fitting "+histo.GetName()+" contribution "    
-  exp  = ROOT.TF1("gaus" ,"gaus",55,215)  
+  #exp  = ROOT.TF1("gaus" ,"gaus",55,215) 
+  exp=ROOT.TF1("pol","pol3",55,215)
+  if options.output.find("HPHP")!=-1:
+      exp=ROOT.TF1("pol","pol1",55,215)
   histo_nonRes.Fit(exp,"R")
  
   gauss  = ROOT.TF1("gauss" ,"gaus",74,94) 
@@ -98,7 +102,11 @@ def doFit(fitter,histo,histo_nonRes,label,leg):
   
   
   params[label+"_Res_"+leg]={"mean": {"val": fitter.w.var("mean").getVal(), "err": fitter.w.var("mean").getError()}, "sigma": {"val": fitter.w.var("sigma").getVal(), "err": fitter.w.var("sigma").getError()}, "alpha":{ "val": fitter.w.var("alpha").getVal(), "err": fitter.w.var("alpha").getError()},"alpha2":{"val": fitter.w.var("alpha2").getVal(),"err": fitter.w.var("alpha2").getError()},"n":{ "val": fitter.w.var("n").getVal(), "err": fitter.w.var("n").getError()},"n2": {"val": fitter.w.var("n2").getVal(), "err": fitter.w.var("n2").getError()}}
-  params[label+"_nonRes_"+leg]={"mean": {"val":exp.GetParameter(1),"err":exp.GetParError(1)},"sigma": {"val":exp.GetParameter(2),"err":exp.GetParError(2)}}
+  #params[label+"_nonRes_"+leg]={"mean": {"val":exp.GetParameter(1),"err":exp.GetParError(1)},"sigma": {"val":exp.GetParameter(2),"err":exp.GetParError(2)}}
+  if options.output.find("HPHP")!=-1:
+      params[label+"_nonRes_"+leg]={"p0": {"val":exp.GetParameter(0),"err":exp.GetParError(0)},"p1": {"val":exp.GetParameter(1),"err":exp.GetParError(1)}}
+  else:    
+        params[label+"_nonRes_"+leg]={"p0": {"val":exp.GetParameter(0),"err":exp.GetParError(0)},"p1": {"val":exp.GetParameter(1),"err":exp.GetParError(1)},"p2": {"val":exp.GetParameter(2),"err":exp.GetParError(2)}, "p3": {"val":exp.GetParameter(3),"err":exp.GetParError(3)}}#,"p4": {"val":exp.GetParameter(4),"err":exp.GetParError(4)}}
   return params
 
 
@@ -159,8 +167,8 @@ for name in samples.keys():
     plotters[-1].addCorrectionFactor('puWeight','tree')
     if options.triggerW: plotters[-1].addCorrectionFactor('triggerWeight','tree')	
     corrFactor = options.corrFactorW
-    if samples[name].find('Z') != -1: corrFactor = options.corrFactorZ
-    if samples[name].find('W') != -1: corrFactor = options.corrFactorW
+    if samples[name].find('Z') != -1: corrFactor = options.corrFactorZ; plotters[-1].addCorrectionFactor('kfactor','tree'); plotters[-1].addCorrectionFactor('genWeight_LO','tree')
+    if samples[name].find('W') != -1: corrFactor = options.corrFactorW; plotters[-1].addCorrectionFactor('kfactor','tree'); plotters[-1].addCorrectionFactor('genWeight_LO','tree')
     plotters[-1].addCorrectionFactor(corrFactor,'flat')
     names.append(samples[name])
 

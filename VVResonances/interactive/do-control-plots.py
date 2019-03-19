@@ -3,40 +3,22 @@ from CMGTools.VVResonances.plotting.RooPlotter import *
 from CMGTools.VVResonances.plotting.TreePlotter import TreePlotter
 from CMGTools.VVResonances.plotting.MergedPlotter import MergedPlotter
 from CMGTools.VVResonances.plotting.StackPlotter import StackPlotter
-from CMGTools.VVResonances.plotting.tdrstyle import *
-setTDRStyle()
-from  CMGTools.VVResonances.plotting.CMS_lumi import *
+
+import ROOT as rt
 import os,copy, random
 from array import array
 from time import sleep
 from datetime import datetime
 import argparse
 startTime = datetime.now()
-
-H_ref = 600; 
-W_ref = 800; 
-W = W_ref
-H = H_ref
-
-T = 0.08*H_ref
-B = 0.12*H_ref 
-L = 0.12*W_ref
-R = 0.04*W_ref
-c=ROOT.TCanvas("c","c",50,50,W,H)
-c.SetFillColor(0)
-c.SetBorderMode(0)
-c.SetFrameFillStyle(0)
-c.SetFrameBorderMode(0)
-c.SetLeftMargin( L/W )
-c.SetRightMargin( R/W )
-c.SetTopMargin( T/H )
-c.SetBottomMargin( B/H )
-c.SetTickx(0)
-c.SetTicky(0)
-c.GetWindowHeight()
-c.GetWindowWidth()
-
-ROOT.gROOT.SetBatch(True)
+import CMS_lumi, tdrstyle
+tdrstyle.setTDRStyle()
+prelim = 1
+if prelim:
+   CMS_lumi.extraText = "Preliminary"
+else:
+   CMS_lumi.extraText = ""
+# ROOT.gROOT.SetBatch(True)
 
 HCALbinsMVV= [838,890,944,1000,1058,1118,1181,1246,1313,1383,1455,1530,1607,1687,1770,1856,1945,2037]#,2132,2231,2332,2438,2546,2659,2775,2895,3019,3147,3279,3416,3558,3704,3854,4010,4171,4337,4509,4686,4869,5058,5253,5455,5663,5877,6099,6328,6564,6808]
 HCALbinsMVV= [1126,1181,1246,1313,1383,1455,1530,1607,1687,1770,1856,1945,2037,2132,2231,2332,2438,2546,2659,2775,2895,3019,3147,3279,3416,3558,3704,3854,4010,4171,4337,4509,4686,4869,5058,5253,5455,5663,5877,6099,6328,6564,6808]
@@ -47,19 +29,21 @@ xbins = array('d',HCALbinsMVV)
 #     parser.add_argument('-b','--batch', action='store_true', help="stop at generation step", default = False)
 #     args = parser.parse_args()
 
-directory='/eos/user/t/thaarres/www/vvana/3D_latest/control_plots_latest/combined_latest/'
-try: os.stat(directory)
-except: os.mkdir(directory)
+in_directory='resCP17_MG/'
+out_directory='control_plots_PAPER/'
+try: os.stat(out_directory)
+except: os.mkdir(out_directory)
 
 lumi=41367.929231882
 # lumi=35900.
-if 	lumi==35900.: lumi_13TeV = "35.9 fb^{-1}"
+if  lumi==35900.: lumi_13TeV = "35.9 fb^{-1}"
 else: lumi_13TeV = "41.4 fb^{-1}"
 lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
 iPeriod=0
-iPosX = 11
 cuts={}
-
+iPos = 11
+if( iPos==0 ): CMS_lumi.relPosX = 0.30
+CMS_lumi.relPosX = 0.1
 def getMCunc(hist):
    
     x   = []
@@ -126,44 +110,107 @@ def GetRatioPad():
   c1_1.SetGrid(1)
   return c1_1
 def GetMainPad():
-  c1_2 = rt.TPad("c1_2", "newpad2",0.,0.2,1,1)
-  c1_2.Draw()
-  c1_2.cd()
-  c1_2.SetTopMargin( 1.5*T/H )
-  c1_2.SetBottomMargin(0.013)
-  c1_2.SetLeftMargin( L/W )
-  c1_2.SetRightMargin( R/W )
-  c1_2.SetFillStyle(0)
-  #c1_2.SetGrid(1)
-  return c1_2
-def getCanvas(name="c1"):
-    
-    canvas = ROOT.TCanvas(name,name,50,50,W,H)
-    canvas.SetFillColor(0)
-    canvas.SetBorderMode(0)
-    canvas.SetFrameFillStyle(0)
-    canvas.SetFrameBorderMode(0)
-    # canvas.SetLeftMargin( L/W )
-    # canvas.SetRightMargin( R/W )
-    # canvas.SetTopMargin( T/H )
-    # canvas.SetBottomMargin( B/H )
-    canvas.SetTickx(0)
-    canvas.SetTicky(0)
-    
-    ROOT.gStyle.SetOptStat(0)
-    ROOT.gStyle.SetOptTitle(0)
-    canvas.cd()
-    legend = ROOT.TLegend(0.6084422,0.4798951,0.9174874,0.8295455,"","brNDC")
-    legend.SetBorderSize(0)
-    legend.SetLineColor(1)
-    legend.SetLineStyle(1)
-    legend.SetLineWidth(1)
-    legend.SetFillColor(0)
-    legend.SetFillStyle(0)
-    legend.SetTextFont(42)
-    
-    return canvas,legend 
-    
+   #change the CMS_lumi variables (see CMS_lumi.py)
+   CMS_lumi.lumi_7TeV = "4.8 fb^{-1}"
+   CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
+   CMS_lumi.lumi_13TeV = "77.3 fb^{-1}"
+   CMS_lumi.writeExtraText = 1
+   CMS_lumi.extraText = "Preliminary"
+   CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+
+   iPos = 11
+   if( iPos==0 ): CMS_lumi.relPosX = 0.05
+   
+
+   H_ref = 600 
+   W_ref = 600 
+   W = W_ref
+   H  = H_ref
+
+   iPeriod = 0
+   iPeriod = 4
+   # references for T, B, L, R
+   T = 0.08*H_ref
+   B = 0.12*H_ref 
+   L = 0.12*W_ref
+   R = 0.04*W_ref
+
+   pad = ROOT.TPad("pad", "pad", 0, 0.3, 1, 1.0)
+   pad.SetFillColor(0)
+   pad.SetBorderMode(0)
+   pad.SetFrameFillStyle(0)
+   pad.SetFrameBorderMode(0)
+   #pad.SetLeftMargin( L/W )
+   #pad.SetRightMargin( R/W )
+   pad.SetTopMargin( T/H )
+   #pad.SetBottomMargin( B/H )
+   pad.SetTickx(0)
+   pad.SetTicky(0)
+   pad.SetBottomMargin(0.01)    
+   pad.SetTopMargin(0.1)
+ 
+   return pad
+def getCanvas(cname):
+ ROOT.gStyle.SetOptStat(0)
+ #change the CMS_lumi variables (see CMS_lumi.py)
+ CMS_lumi.lumi_7TeV = "4.8 fb^{-1}"
+ CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
+ CMS_lumi.lumi_13TeV = "77.3 fb^{-1}"
+ CMS_lumi.writeExtraText = 1
+ CMS_lumi.extraOverCmsTextSize=0.6
+ if prelim:
+    CMS_lumi.extraText = "Preliminary"
+ else:
+    CMS_lumi.extraText = ""
+ # CMS_lumi.writeExtraText = 1
+ # # CMS_lumi.extraText = " "
+ # CMS_lumi.lumi_sqrtS = "13 TeV"# (2016+2017)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+ # iPos = 0
+ # if( iPos==0 ): CMS_lumi.relPosX = 0.014
+ # #iPos = 11
+ # iPos = 11
+ # if( iPos==0 ): CMS_lumi.relPosX = 0.30
+ H_ref = 600 
+ W_ref = 600 
+ W = W_ref
+ H  = H_ref
+ iPeriod = 0
+ # references for T, B, L, R
+ T = 0.08*H_ref
+ B = 0.12*H_ref 
+ L = 0.15*W_ref
+ R = 0.04*W_ref
+ canvas = ROOT.TCanvas(cname,cname,50,50,W,H)
+ canvas.SetFillColor(0)
+ canvas.SetBorderMode(0)
+ canvas.SetFrameFillStyle(0)
+ canvas.SetFrameBorderMode(0)
+ canvas.SetLeftMargin( L/W )
+ canvas.SetRightMargin( R/W )
+ canvas.SetTopMargin( T/H )
+ canvas.SetBottomMargin( B/H )
+ canvas.SetTickx(0)
+ canvas.SetTicky(0)
+ legend = ROOT.TLegend(0.4865772,0.6381119,0.942953,0.8951049,"","brNDC")
+ # legend = ROOT.TLegend(0.52,0.65,0.92,0.9,"","brNDC")
+ legend.SetBorderSize(0)
+ legend.SetLineColor(1)
+ legend.SetLineStyle(1)
+ legend.SetLineWidth(1)
+ legend.SetFillColor(0)
+ legend.SetFillStyle(0)
+ legend.SetTextFont(42)
+ 
+ pt = ROOT.TPaveText(0.6224832,0.4256993,0.9731544,0.5743007,"NDC")
+ # pt.SetTextFont(72)
+ pt.SetTextSize(0.038)
+ pt.SetTextAlign(12)
+ pt.SetFillColor(0)
+ pt.SetBorderSize(0)
+ pt.SetFillStyle(0)
+ 
+ 
+ return canvas, legend, pt  
 def getLegend():
     legend = ROOT.TLegend(0.7084422,0.3798951,0.9174874,0.4795455,"","brNDC")
     legend.SetBorderSize(0)
@@ -174,7 +221,90 @@ def getLegend():
     legend.SetFillStyle(0)
     legend.SetTextFont(42)
     return legend
-    
+def get_canvas(cname):
+
+ #change the CMS_lumi variables (see CMS_lumi.py)
+ CMS_lumi.lumi_7TeV = "4.8 fb^{-1}"
+ CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
+ CMS_lumi.writeExtraText = 1
+ if prelim:
+    CMS_lumi.extraText = "Preliminary"
+ else:
+    CMS_lumi.extraText = ""
+ CMS_lumi.lumi_sqrtS = "77.3 fb^{-1} (13 TeV)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+
+ iPos = 11
+ if( iPos==0 ): CMS_lumi.relPosX = 0.30
+ CMS_lumi.relPosX = 0.05
+ H_ref = 600 
+ W_ref = 600 
+ W = W_ref
+ H  = H_ref
+
+ iPeriod = 0
+
+ # references for T, B, L, R
+ T = 0.08*H_ref
+ B = 0.12*H_ref 
+ L = 0.12*W_ref
+ R = 0.04*W_ref
+
+ canvas = ROOT.TCanvas(cname,cname,50,50,W,H)
+ canvas.SetFillColor(0)
+ canvas.SetBorderMode(0)
+ canvas.SetFrameFillStyle(0)
+ canvas.SetFrameBorderMode(0)
+ canvas.SetLeftMargin( L/W )
+ canvas.SetRightMargin( R/W )
+ canvas.SetTopMargin( T/H )
+ canvas.SetBottomMargin( B/H )
+ canvas.SetTickx(0)
+ canvas.SetTicky(0)
+ 
+ return canvas
+
+def get_pad(name):
+
+ #change the CMS_lumi variables (see CMS_lumi.py)
+ CMS_lumi.lumi_7TeV = "4.8 fb^{-1}"
+ CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
+ CMS_lumi.lumi_13TeV = "77.3 fb^{-1}"
+ CMS_lumi.writeExtraText = 1
+ if prelim:
+    CMS_lumi.extraText = "Preliminary"
+ else:
+    CMS_lumi.extraText = ""
+ CMS_lumi.lumi_sqrtS = "13 TeV (2016+2017)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+
+ iPos = 0
+ if( iPos==0 ): CMS_lumi.relPosX = 0.05
+
+ H_ref = 600 
+ W_ref = 600 
+ W = W_ref
+ H  = H_ref
+
+ iPeriod = 0
+ iPeriod = 4
+ # references for T, B, L, R
+ T = 0.08*H_ref
+ B = 0.12*H_ref 
+ L = 0.12*W_ref
+ R = 0.04*W_ref
+
+ pad = ROOT.TPad(name, name, 0, 0.3, 1, 1.0)
+ pad.SetFillColor(0)
+ pad.SetBorderMode(0)
+ pad.SetFrameFillStyle(0)
+ pad.SetFrameBorderMode(0)
+ #pad.SetLeftMargin( L/W )
+ #pad.SetRightMargin( R/W )
+ pad.SetTopMargin( T/H )
+ #pad.SetBottomMargin( B/H )
+ pad.SetTickx(0)
+ pad.SetTicky(0)
+ 
+ return pad    
 def plot(dir,data,qcd,herwig,madgraph,mcs,sigs,legDat,legqcd,legMCs,legSigs,postfix,luminosity):
   
   histnames = []
@@ -345,7 +475,7 @@ def plot(dir,data,qcd,herwig,madgraph,mcs,sigs,legDat,legqcd,legMCs,legSigs,post
     htotmg.SetFillColorAlpha(0, 0.00)
     
     legend.AddEntry(hdata ,legDat,"LEP")
-    legend.AddEntry(hqcd	      ,"QCD Pythia8","F")   
+    legend.AddEntry(hqcd        ,"QCD Pythia8","F")   
     legend.AddEntry(htotherwig    ,"         Herwig++","L")
     legend.AddEntry(htotmg        ,"         MadGraph+Pythia8","L")
     
@@ -408,13 +538,13 @@ def plot(dir,data,qcd,herwig,madgraph,mcs,sigs,legDat,legqcd,legMCs,legSigs,post
     ratiohist.GetYaxis().SetTitleSize(0.16)
     ratiohist.GetYaxis().SetTitleOffset(0.2)
     ratiohist.GetYaxis().CenterTitle()
-    ratiohist.GetYaxis().SetTitle("Data/MC")
+    ratiohist.GetYaxis().SetTitle("Data/Simulation")
     ratiohist.GetXaxis().SetTitle(xtitle)
     ratiohist.GetYaxis().SetRangeUser(0.2,1.8)
     ratiohist.SetNdivisions(505,"x")
     ratiohist.SetNdivisions(105,"y")
     ratiohist.Draw("")
-    ratiohist.GetXaxis().SetTitleOffset(0.98)
+    ratiohist.GetXaxis().SetTitleOffset(1.1)
     canvas.Update()
     MCunc = getMCunc(hsum)
     MCunc.Draw("3same")
@@ -601,7 +731,7 @@ def plotMC(dir,qcd,mcs,sigs,legqcd,legMCs,legSigs,postfix):
     hdraw.GetYaxis().SetTitleSize(0.16)
     hdraw.GetYaxis().SetTitleOffset(0.2)
     hdraw.GetYaxis().CenterTitle()
-    hdraw.GetYaxis().SetTitle("MC unc.")
+    hdraw.GetYaxis().SetTitle("Simulation unc.")
     hdraw.GetXaxis().SetTitle(xtitle)
     hdraw.GetYaxis().SetRangeUser(0.7,1.3)
     # hdraw.GetXaxis().SetRangeUser(hqcd.GetXaxis().GetXmin(),hqcd.GetXaxis().GetXmax())
@@ -610,7 +740,7 @@ def plotMC(dir,qcd,mcs,sigs,legqcd,legMCs,legSigs,postfix):
     hdraw.Draw("")
     
     ratiohist.Draw("3same")
-    hdraw.GetXaxis().SetTitleOffset(0.98)
+    hdraw.GetXaxis().SetTitleOffset(1.1)
     canvas.Update()
     canvas.Update()
     c1_2.RedrawAxis()
@@ -786,18 +916,18 @@ def plotTrigWeight(dir,datafile,qcdfiles,signalfiles, qcdleg,signallegs):
 
        ratios[0].GetXaxis().SetLabelSize(0.14)
        ratios[0].GetXaxis().SetTitleSize(0.17)
-       ratios[0].GetXaxis().SetTitleOffset(0.)
+       ratios[0].GetXaxis().SetTitleOffset(1.0)
        ratios[0].GetYaxis().SetLabelSize(0.14)
        ratios[0].GetYaxis().SetTitleSize(0.16)
        ratios[0].GetYaxis().SetTitleOffset(0.2)
        ratios[0].GetYaxis().CenterTitle()
-       ratios[0].GetYaxis().SetTitle("Data/MC")
+       ratios[0].GetYaxis().SetTitle("Data/Simulation")
        ratios[0].GetXaxis().SetTitle(xtitle)
        ratios[0].GetYaxis().SetRangeUser(0.2,1.8)
        ratios[0].SetNdivisions(505,"x")
        ratios[0].SetNdivisions(105,"y")
        ratios[0].Draw("HIST")
-       ratios[0].GetXaxis().SetTitleOffset(0.98)
+       ratios[0].GetXaxis().SetTitleOffset(1.1)
        ratios[1].Draw("HISTsame")
        canvas.Update()
        
@@ -809,52 +939,77 @@ def plotTrigWeight(dir,datafile,qcdfiles,signalfiles, qcdleg,signallegs):
        del ratiohist,hmcs,hsigs
        
 def plotCombo(file,postfix="TOTAL"):
-    f = ROOT.TFile.Open (directory+file ,'READ')
-    hWprime       = f.Get("WprimeToWZToWhadZhad")  ; hWprime       .Scale(0.7); 
-    hBulkGravToWW = f.Get("BulkGravToWW")          ; hBulkGravToWW .Scale(0.7); 
-    hBulkGravToZZ = f.Get("BulkGravToZZ")          ; hBulkGravToZZ .Scale(0.7); 
-    hZJets        = f.Get("ZJetsToQQ")
-    hWJets        = f.Get("WJetsToQQ")
-    hTT           = f.Get("TTHad")
-    hqcd	      = f.Get("hqcd")
-    hherwig	      = f.Get("hherwig")
-    hmg	          = f.Get("hmg")
-    hdata	      = f.Get("hdata")
-     
-    canvas, legend = getCanvas("c1")
-    legend2 = getLegend()
-    canvas.Range(0,0,1,1)
+    # f = ROOT.TFile.Open (out_directory+file ,'READ')
+    f = ROOT.TFile.Open ("resCP17_MG/"+file ,'READ')
+    hZJets        = f.Get("ZJetsToQQ")                                         ;hZJets        .SetName("hZJets" ); hZJets.SetFillColor(ROOT.kRed-6)
+    hWJets        = f.Get("WJetsToQQ")                                         ;hWJets        .SetName("hWJets" ); hWJets.SetFillColor(ROOT.kCyan+2)
+    hTT           = f.Get("TTHad")                                             ;hTT           .SetName("hTT" ); hTT.SetFillColor(414)
+    hqcd          = f.Get("hqcd")                                              ;hqcd           .SetName("hqcd" )
+    hherwig       = f.Get("hherwig")                                           ;hherwig      .SetName("hherwig" )
+    hmg           = f.Get("hmg")                                               ;hmg          .SetName("hmg" )
+    hdata         = f.Get("hdata")                                             ;hdata        .SetName("hdata" )
+    hWprime       = f.Get("WprimeToWZToWhadZhad")  ; hWprime       .Scale(0.1*hdata.Integral()/hWprime       .Integral());hWprime       .SetName("hWprime" )      ;hWprime      .SetLineStyle(1);
+    hBulkGravToWW = f.Get("BulkGravToWW")          ; hBulkGravToWW .Scale(0.1*hdata.Integral()/hBulkGravToWW .Integral());hBulkGravToWW .SetName("hBulkGravToWW" );hBulkGravToWW.SetLineStyle(1);
+    hBulkGravToZZ = f.Get("BulkGravToZZ")          ; hBulkGravToZZ .Scale(0.1*hdata.Integral()/hBulkGravToZZ .Integral());hBulkGravToZZ .SetName("hBulkGravToZZ" );hBulkGravToZZ.SetLineStyle(1);hBulkGravToZZ.SetLineColor(ROOT.kTeal)
+    hmg    .SetLineStyle(2)
+    hherwig.SetLineStyle(3)
     
-    # ratio pad
-    c1_1 = GetRatioPad()
-    canvas.cd()
-    
-    #main pad
-    c1_2 = GetMainPad()
-    
-    
+    legend = ROOT.TLegend(0.3865772,0.5781119,0.982953,0.8951049,"","brNDC")
+    # legend = ROOT.TLegend(0.52,0.65,0.92,0.9,"","brNDC")
+    legend.SetBorderSize(0)
+    legend.SetLineColor(1)
+    legend.SetLineStyle(1)
+    legend.SetLineWidth(1)
+    legend.SetFillColor(0)
+    legend.SetFillStyle(0)
+    legend.SetTextFont(42)
+ 
+    pt = ROOT.TPaveText(0.7224832,0.3256993,0.9731544,0.4743007,"NDC")
+    # pt.SetTextFont(72)
+    pt.SetTextSize(0.038)
+    pt.SetTextAlign(12)
+    pt.SetFillColor(0)
+    pt.SetBorderSize(0)
+    pt.SetFillStyle(0)
+    c = ROOT.TCanvas('c')
+    pad1 = get_pad("pad1") #ROOT.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
+    pad1.SetBottomMargin(0.01)    
+    pad1.SetTopMargin(0.1) 
+    pad1.Draw()
+    pad1.cd()	 
+
     logY = 0
     if f.GetName().find("Dijet")!=-1 or f.GetName().find("_p_T")!=-1:
         logY=1
-        hWprime       .Scale(0.5)
-        hBulkGravToWW .Scale(0.5)
-        hBulkGravToZZ .Scale(0.5)
-    legend.AddEntry(hdata	      ,"Data","LEP")   
-    legend.AddEntry(hqcd	      ,"QCD Pythia8","F")   
-    legend.AddEntry(hherwig       ,"         Herwig++","L")
-    legend.AddEntry(hmg           ,"         MadGraph+Pythia8","L")
+    legend.SetNColumns(2)
+    legend.AddEntry(hqcd        ,"QCD Pythia8","F")   
     legend.AddEntry(hWJets        ,"W+jets","F")
+    legend.AddEntry(hherwig     ,"QCD Herwig++","L")
     legend.AddEntry(hZJets        ,"Z+jets","F")
+    legend.AddEntry(hmg         ,"QCD MG+Pythia8","L")
+  
     legend.AddEntry(hTT           ,"t#bar{t}","F")
-    legend.AddEntry(hBulkGravToWW ,"G#rightarrowWW","L")
-    legend.AddEntry(hWprime       ,"W'#rightarrowWZ","L")
-    legend.AddEntry(hBulkGravToZZ ,"G#rightarrowZZ","L")
+    legend.AddEntry(hdata       ,"Data","LEP")
+    legend.AddEntry(hBulkGravToWW ,"G (2 TeV)#rightarrowWW","L")
+    legend.AddEntry(0       ,"","")
+    legend.AddEntry(hWprime       ,"W' (2 TeV)#rightarrowWZ","L")
+    legend.AddEntry(0       ,"","")
+    legend.AddEntry(hBulkGravToZZ ,"G (2 TeV)#rightarrowZZ","L")
+    
        
     hdata.GetXaxis().SetLabelSize(0.)
     hdata.GetXaxis().SetTitleSize(0.)
     if file.find("DDT")!=-1:
-        hdata.GetXaxis().SetRangeUser(0.15,1.2)
-
+        hdata.GetXaxis().SetRangeUser(0.20,1.4)
+        hWprime       .Scale(2)
+        hBulkGravToWW .Scale(2)
+        hBulkGravToZZ .Scale(2)
+    hdata.SetLineWidth(2)
+    hdata.GetYaxis().SetTitleOffset(1.3)
+    hdata.GetYaxis().SetTitle("Events")
+    hdata.GetYaxis().SetTitle("Events")
+    hdata.GetYaxis().SetTitleSize(0.06)
+    hdata.GetYaxis().SetLabelSize(0.06)
     hdata.Draw("EP")
     htot = copy.deepcopy(hqcd)
     ths1 = ROOT.THStack ("stack","ctack")
@@ -864,9 +1019,10 @@ def plotCombo(file,postfix="TOTAL"):
     ths1.Add(hWJets) ; htot.Add(hWJets);
     ths1.Add(hqcd)
     ths1.Draw("HISTsame")
-    hBulkGravToWW.Draw("HISTCSAME")
-    hWprime      .Draw("HISTCSAME")
-    hBulkGravToZZ.Draw("HISTCSAME")
+    
+    hBulkGravToZZ.Draw("HIST SAME")
+    hBulkGravToWW.Draw("HIST SAME")
+    hWprime      .Draw("HIST SAME")
     hherwig.SetFillColorAlpha(0, 0.00)
     hmg.SetFillColorAlpha(0, 0.00)
     hherwig.Draw("HIST same")
@@ -878,24 +1034,44 @@ def plotCombo(file,postfix="TOTAL"):
     htot.SetLineColor(rt.kBlack)
     htot.Draw("E2same")
     hdata.Draw("EPSAME")
-    maxY = hqcd.GetMaximum()*2.0
+    maxY = hdata.GetMaximum()*2.0
     if f.GetName().find("Deltaeta")!=-1 or  f.GetName().find("phi")!=-1:  maxY = hqcd.GetMaximum()*3.0
-    hdata.GetYaxis().SetRangeUser(0.0,maxY)
-    hdata.GetYaxis().SetTitleSize(0.04)
-    hdata.GetYaxis().SetTitle("Events")
+    # hdata.GetYaxis().SetRangeUser(0.0,maxY)
+    # hdata.GetYaxis().SetTitleSize(0.04)
+    # hdata.GetYaxis().SetTitle("Events")
     xtitle = hdata.GetXaxis().GetTitle().replace("Leading jet","Jet 1").replace("Second leading jet","Jet 2")
+    if xtitle.find("softdrop")!=-1:
+        xtitle = "m_{jet1} [GeV]"
     hdata.GetXaxis().SetTitle(xtitle)
     if logY:
-      c1_2.SetLogy()
-      maxY = maxY*100
-      hdata.GetYaxis().SetRangeUser(0.1,maxY)
-
+      pad1.SetLogy()
+      maxY = maxY*20
+      hdata.GetYaxis().SetRangeUser(0.2,maxY)
+      hWprime       .Scale(0.00005)
+      hBulkGravToWW .Scale(0.00005)
+      hBulkGravToZZ .Scale(0.00005)
+    hdata.GetYaxis().SetRangeUser(0.02,maxY)
     
     legend.Draw()
-    cmslabel_prelim(c1_2,'ALL',11)
-    canvas.Update()
+    pt.AddText("m_{jj} > 1126 GeV")
+    pt.AddText("|#Delta#eta_{jj}| < 1.3")
+    pt.AddText("55 < m_{jet} < 215 GeV")
+    pt.Draw()
+    CMS_lumi.CMS_lumi(pad1, 4, 11)
+        
+    pad1.Modified()
+    pad1.Update()
     
-    c1_1.cd()
+    c.Update()
+    c.cd()
+    pad2 = ROOT.TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
+    pad2.SetTopMargin(0.01)
+    pad2.SetBottomMargin(0.4)
+    pad2.SetGridy()
+    pad2.Draw()
+    pad2.cd()
+    
+    # ratio pad
     hsum = htot.Clone("tot%i" %random.randint(0,10000))
     hsumH  = hherwig.Clone("herwigtot%i" %random.randint(0,10000))
     hsumMG = hmg.Clone("mgtot%i" %random.randint(0,10000))
@@ -906,39 +1082,61 @@ def plotCombo(file,postfix="TOTAL"):
     ratiohistHW = hdata.Clone("H_ratiohist%i" %random.randint(0,10000))
     ratiohistMG.Divide(hsumMG)
     ratiohistHW.Divide(hsumH)
-    ratiohistHW.SetLineStyle(9)
+    ratiohistHW.SetLineStyle(3)
     ratiohistMG.SetLineStyle(2)
     ratiohistHW.SetFillColorAlpha(0, 0.00)
     ratiohistMG.SetFillColorAlpha(0, 0.00)
+    ratiohist.SetDirectory(0);
+    ratiohist.SetStats(0);
+    ratiohist.GetXaxis().SetLabelFont(42);
+    ratiohist.GetXaxis().SetLabelOffset(0.02);
+    ratiohist.GetXaxis().SetLabelSize(0.15);
+    ratiohist.GetXaxis().SetTitleSize(0.15);
+    ratiohist.GetXaxis().SetTitleOffset(1);
+    ratiohist.GetXaxis().SetTitleFont(42);
+    ratiohist.GetYaxis().SetTitle("#frac{Data}{Simulation}");
+    ratiohist.GetYaxis().CenterTitle(True);
+    ratiohist.GetYaxis().SetNdivisions(205);
+    ratiohist.GetYaxis().SetLabelFont(42);
+    ratiohist.GetYaxis().SetLabelOffset(0.007);
+    ratiohist.GetYaxis().SetLabelSize(0.15);
+    ratiohist.GetYaxis().SetTitleSize(0.12);
+    ratiohist.GetYaxis().SetTitleOffset(0.6);
+    ratiohist.GetYaxis().SetTitleFont(42);
+    ratiohist.GetXaxis().SetNdivisions(505)   
+    if file.find("DDT")!=-1: ratiohist.GetXaxis().SetNdivisions(908)  
     ratiohist.SetMarkerColor(1)
-    # ratiohist.SetLineColor(1)
-    ratiohist.SetMarkerSize(1)
-    ratiohist.GetXaxis().SetLabelSize(0.14)
-    ratiohist.GetXaxis().SetTitleSize(0.17)
-    ratiohist.GetXaxis().SetTitleOffset(0.)
-    ratiohist.GetYaxis().SetLabelSize(0.14)
-    ratiohist.GetYaxis().SetTitleSize(0.16)
-    ratiohist.GetYaxis().SetTitleOffset(0.2)
-    ratiohist.GetYaxis().CenterTitle()
-    ratiohist.GetYaxis().SetTitle("Data/MC")
+    # # ratiohist.SetLineColor(1)
+    # ratiohist.SetMarkerSize(1)
+    # ratiohist.GetXaxis().SetLabelSize(0.14)
+    # ratiohist.GetXaxis().SetTitleSize(0.17)
+    # ratiohist.GetXaxis().SetTitleOffset(0.)
+    # ratiohist.GetYaxis().SetLabelSize(0.14)
+    # ratiohist.GetYaxis().SetTitleSize(0.16)
+    # ratiohist.GetYaxis().SetTitleOffset(0.2)
+    # ratiohist.GetYaxis().CenterTitle()
+    # ratiohist.GetYaxis().SetTitle("Data/MC")
     ratiohist.GetXaxis().SetTitle(xtitle)
     ratiohist.GetYaxis().SetRangeUser(0.2,1.8)
-    ratiohist.SetNdivisions(505,"x")
-    ratiohist.SetNdivisions(105,"y")
+    # ratiohist.SetNdivisions(505,"x")
+ #    ratiohist.SetNdivisions(105,"y")
     ratiohist.Draw("")
-    ratiohist.GetXaxis().SetTitleOffset(0.98)
-    canvas.Update()
+    ratiohist.GetXaxis().SetTitleOffset(1.1)
+    c.Update()
     MCunc = getMCunc(hsum)
     MCunc.Draw("3same")
     ratiohistHW.Draw("HISTsame")
     ratiohistMG.Draw("HISTsame")
     ratiohist.Draw("same")
-    canvas.Update()
-    c1_2.RedrawAxis()
-    oname = directory+"/"+postfix
-    canvas.SaveAs(oname+".pdf")
-    canvas.SaveAs(oname+".png")
-    canvas.SaveAs(oname+".C")
+    c.Update()
+    pad1.RedrawAxis()
+    oname = out_directory+"/"+postfix
+    if prelim: oname = out_directory+"/"+postfix+"_prelim"
+    c.SaveAs(oname+".pdf")
+    c.SaveAs(oname+".png")
+    c.SaveAs(oname+".C")
+    c.SaveAs(oname+".root")
+    # sleep(1000000)
         
        
 if __name__ == '__main__':
@@ -958,13 +1156,14 @@ if __name__ == '__main__':
   ZJetsTemplate     ="ZJetsToQQ"
   ttTemplate        ="TT"
 
-  wait = True
-  from modules.submitJobs import submitCPs
+  #wait = True
+  #from modules.submitJobs import submitCPs
   template=','.join([dataTemplate])
   template=','.join([nonResTemplate,WJetsTemplate,ZJetsTemplate,ttTemplate,BulkGravWWTemplate,BulkGravZZTemplate,WprimeTemplate,dataTemplate])
   # template=','.join([nonResTemplate,BulkGravWWTemplate,BulkGravZZTemplate,WprimeTemplate,dataTemplate])
   # template=','.join([nonResTemplate,dataTemplate])
   template=','.join([dataTemplate])
+  template=','.join(["QCD_HT1000to1500","QCD_HT1500to2000","QCD_HT2000toInf","QCD_HT700to1000"])
   pwd = os.getcwd()
   # samples = pwd +"/samples16/" #For 2016 CPs
   samples = pwd +"/samples/" #For 2017 CPs
@@ -973,13 +1172,13 @@ if __name__ == '__main__':
   # samples = '/eos/user/t/thaarres/2017_JECV6_PURew/'
   # samples = '/eos/cms/store/cmst3/group/exovv/VVtuple/VV3Dproduction/2017_JECV6_PURew_June2018'
   # samples = '/eos/cms/store/cmst3/group/exovv/VVtuple/VV3Dproduction/2017_JECV6_PURew_JER/'
-  jobname = "CP17_latest"
+  jobname = "CP17_MG"
   # submitCPs(samples,template,wait,jobname)
   # mergeCPs(template,jobname)
   dir = "res"+jobname+"/"
   # dir = "resHPmc/"
   # plot("resCP16_latest/","data.root" , "qcdpt.root","controlplots_2017_QCD_Pt-15to7000.root","qcdht.root",["controlplots_2017_TTHad_pow.root",'controlplots_2017_WJetsToQQ_HT800toInf_new.root','controlplots_2017_ZJetsToQQ_HT800toInf_new.root'] , ["controlplots_2017_WprimeToWZToWhadZhad_narrow_M_2000.root"  , "controlplots_2017_BulkGravToWW_narrow_M_2000.root" , "controlplots_2017_BulkGravToZZ_narrow_M_2000.root"],"Data (2016)" , "QCD Pythia8",["t#bar{t}","W+jets","Z+jets"] , ["W'(2 TeV)#rightarrowWZ" , "G_{Bulk}(2 TeV)#rightarrowWW" , "G_{Bulk}(2 TeV)#rightarrowZZ"],"_2016",35900.)
-  plot("resCP17_latest/","data.root" , "qcdpt.root","qcdherwig.root","qcdht.root",["controlplots_2017_TTHad_pow.root",'controlplots_2017_WJetsToQQ_HT800toInf_new.root','controlplots_2017_ZJetsToQQ_HT800toInf_new.root'] , ["controlplots_2017_WprimeToWZToWhadZhad_narrow_M_2000.root"  , "controlplots_2017_BulkGravToWW_narrow_M_2000.root" , "controlplots_2017_BulkGravToZZ_narrow_M_2000.root"],"Data (2017)" , "QCD Pythia8",["t#bar{t}","W+jets","Z+jets"] , ["W'(2 TeV)#rightarrowWZ" , "G_{Bulk}(2 TeV)#rightarrowWW" , "G_{Bulk}(2 TeV)#rightarrowZZ"],"_2017",41367.929231882)
+  # plot("resCP17_latest/","data.root" , "qcdpt.root","qcdherwig.root","qcdht.root",["controlplots_2017_TTHad_pow.root",'controlplots_2017_WJetsToQQ_HT800toInf_new.root','controlplots_2017_ZJetsToQQ_HT800toInf_new.root'] , ["controlplots_2017_WprimeToWZToWhadZhad_narrow_M_2000.root"  , "controlplots_2017_BulkGravToWW_narrow_M_2000.root" , "controlplots_2017_BulkGravToZZ_narrow_M_2000.root"],"Data (2017)" , "QCD Pythia8",["t#bar{t}","W+jets","Z+jets"] , ["W'(2 TeV)#rightarrowWZ" , "G_{Bulk}(2 TeV)#rightarrowWW" , "G_{Bulk}(2 TeV)#rightarrowZZ"],"_2017",41367.929231882)
   # plot(dir,"data.root" , "qcdpt.root",["controlplots_2017_TTHad_pow.root",'controlplots_2017_WJetsToQQ_HT800toInf.root','controlplots_2017_ZJetsToQQ_HT800toInf.root'] , ["controlplots_2017_WprimeToWZToWhadZhad_narrow_M_2000.root"  , "controlplots_2017_BulkGravToWW_narrow_M_2000.root" , "controlplots_2017_BulkGravToZZ_narrow_M_2000.root"],"Data (2017)" , "QCD Pythia8",["t#bar{t}","W+jets","Z+jets"] , ["W'(2 TeV)#rightarrowWZ" , "G_{Bulk}(2 TeV)#rightarrowWW" , "G_{Bulk}(2 TeV)#rightarrowZZ"],"_ptbinned")
   # plotMC(dir, "qcdht.root",["controlplots_2017_TTHad_pow.root",'controlplots_2017_WJetsToQQ_HT800toInf.root','controlplots_2017_ZJetsToQQ_HT800toInf.root'] , ["controlplots_2017_WprimeToWZToWhadZhad_narrow_M_2000.root"  , "controlplots_2017_BulkGravToWW_narrow_M_2000.root" , "controlplots_2017_BulkGravToZZ_narrow_M_2000.root"], "QCD MadGraph",["t#bar{t}","W+jets","Z+jets"] , ["W'(2 TeV)#rightarrowWZ" , "G_{Bulk}(2 TeV)#rightarrowWW" , "G_{Bulk}(2 TeV)#rightarrowZZ"],postfix="MadGraph")
   # plotMC(dir, "qcdpt.root",["controlplots_2017_TTHad_pow.root",'controlplots_2017_WJetsToQQ_HT800toInf.root','controlplots_2017_ZJetsToQQ_HT800toInf.root'] , ["controlplots_2017_WprimeToWZToWhadZhad_narrow_M_2000.root"  , "controlplots_2017_BulkGravToWW_narrow_M_2000.root" , "controlplots_2017_BulkGravToZZ_narrow_M_2000.root"], "QCD Pythia8",["t#bar{t}","W+jets","Z+jets"] , ["W'(2 TeV)#rightarrowWZ" , "G_{Bulk}(2 TeV)#rightarrowWW" , "G_{Bulk}(2 TeV)#rightarrowZZ"],postfix="Pythia8")
@@ -989,12 +1188,13 @@ if __name__ == '__main__':
   # plotCombo("Jet_1_softdrop_mass.root","SoftDropMass")
   #
   # os.system("hadd -f %slooseSel_Deltaeta.root              %slooseSel_Deltaeta_*.root            "%(directory,directory))
- #  os.system("hadd -f %slooseSel_Dijet_invariant_mass.root  %slooseSel_Dijet_invariant_mass_*.root"%(directory,directory))
- #  os.system("hadd -f %slooseSel_Jet_1_DDT.root             %slooseSel_Jet_1_DDT_*.root           "%(directory,directory))
+  # os.system("hadd -f %slooseSel_Dijet_invariant_mass.root  %slooseSel_Dijet_invariant_mass_*.root"%(directory,directory))
+  # os.system("hadd -f %slooseSel_Jet_1_DDT.root             %slooseSel_Jet_1_DDT_*.root           "%(directory,directory))
+  # os.system("hadd -f %slooseSel_Jet_1_softdrop_mass.root   %slooseSel_Jet_1_softdrop_mass_*.root "%(directory,directory))
  #  os.system("hadd -f %slooseSel_Jet_1_eta.root             %slooseSel_Jet_1_eta_*.root           "%(directory,directory))
  #  os.system("hadd -f %slooseSel_Jet_1_p_T.root             %slooseSel_Jet_1_p_T_*.root           "%(directory,directory))
  #  os.system("hadd -f %slooseSel_Jet_1_phi.root             %slooseSel_Jet_1_phi_*.root           "%(directory,directory))
- #  os.system("hadd -f %slooseSel_Jet_1_softdrop_mass.root   %slooseSel_Jet_1_softdrop_mass_*.root "%(directory,directory))
+  
  #  os.system("hadd -f %slooseSel_Jet_1_tau21.root           %slooseSel_Jet_1_tau21_*.root         "%(directory,directory))
  #  os.system("hadd -f %slooseSel_Jet_1_tau_1.root           %slooseSel_Jet_1_tau_1_*.root         "%(directory,directory))
  #  os.system("hadd -f %slooseSel_Jet_1_tau_2.root           %slooseSel_Jet_1_tau_2_*.root         "%(directory,directory))
@@ -1007,12 +1207,14 @@ if __name__ == '__main__':
  #  os.system("hadd -f %slooseSel_Jet_2_tau_1.root           %slooseSel_Jet_2_tau_1_*.root         "%(directory,directory))
  #  os.system("hadd -f %slooseSel_Jet_2_tau_2.root           %slooseSel_Jet_2_tau_2_*.root         "%(directory,directory))
   # plotCombo("looseSel_Deltaeta.root"              , "looseSel_Deltaeta"               )
-  # plotCombo("looseSel_Dijet_invariant_mass.root"  , "looseSel_Dijet_invariant_mass"   )
-  # plotCombo("looseSel_Jet_1_DDT.root"             , "looseSel_Jet_1_DDT"              )
+  plotCombo("looseSel_Dijet_invariant_mass.root"  , "looseSel_Dijet_invariant_mass"   )
+  plotCombo("looseSel_Jet_1_DDT.root"             , "looseSel_Jet_1_DDT"              )
+  plotCombo("looseSel_Jet_1_softdrop_mass.root"   , "looseSel_Jet_1_softdrop_mass"    )
+  
   # plotCombo("looseSel_Jet_1_eta.root"             , "looseSel_Jet_1_eta"              )
   # plotCombo("looseSel_Jet_1_p_T.root"             , "looseSel_Jet_1_p_T"              )
   # plotCombo("looseSel_Jet_1_phi.root"             , "looseSel_Jet_1_phi"              )
-  # plotCombo("looseSel_Jet_1_softdrop_mass.root"   , "looseSel_Jet_1_softdrop_mass"    )
+  
   # plotCombo("looseSel_Jet_1_tau21.root"           , "looseSel_Jet_1_tau21"            )
   # plotCombo("looseSel_Jet_1_tau_1.root"           , "looseSel_Jet_1_tau_1"            )
   # plotCombo("looseSel_Jet_1_tau_2.root"           , "looseSel_Jet_1_tau_2"            )

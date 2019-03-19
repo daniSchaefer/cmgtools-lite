@@ -82,8 +82,8 @@ def smoothTail1D(proj):
     proj.Scale(1.0/scale)
     
     
-    beginFitX = 1500
-    endX = 2800
+    beginFitX = 1150
+    endX = 1200
     if period == "2016" or options.output.find("HPHP")!=-1:
         beginFitX=1150
         endX = 1200
@@ -373,57 +373,57 @@ histogram_opt2_down.Write()
 histogram_opt2_up.Write() 
 
 #################################
-# c = ROOT.TCanvas("c","C",600,400)
-# c.SetRightMargin(0.11)
-# c.SetLeftMargin(0.11)
-# c.SetTopMargin(0.11)
-# finalHistograms["histo_nominal"].SetLineColor(ROOT.kBlue)
-# finalHistograms["histo_nominal"].GetYaxis().SetTitle("arbitrary scale")
-# finalHistograms["histo_nominal"].GetYaxis().SetTitleOffset(1.5)
-# finalHistograms["histo_nominal"].GetXaxis().SetTitle("dijet mass")
-# sf = finalHistograms["histo_nominal"].Integral()
-# histogram_pt_up     .Scale(sf/histogram_pt_up.Integral())
-# histogram_pt_down   .Scale(sf/histogram_pt_down.Integral())
-# histogram_opt_up    .Scale(sf/histogram_opt_up.Integral())
-# histogram_opt_down  .Scale(sf/histogram_opt_down.Integral())
-# finalHistograms["histo_nominal"].Draw("hist")
-# #stack.Draw("histsame")
-# histogram_pt_up.SetLineColor(ROOT.kRed)
-# histogram_pt_up.SetLineWidth(2)
-# histogram_pt_up.Draw("histsame")
-# histogram_pt_down.SetLineColor(ROOT.kRed)
-# histogram_pt_down.SetLineWidth(2)
-# histogram_pt_down.Draw("histsame")
-# histogram_opt_up.SetLineColor(ROOT.kGreen)
-# histogram_opt_up.SetLineWidth(2)
-# histogram_opt_up.Draw("histsame")
-# histogram_opt_down.SetLineColor(ROOT.kGreen)
-# histogram_opt_down.SetLineWidth(2)
-# histogram_opt_down.Draw("histsame")
-# text = ROOT.TLatex()
-# text.DrawLatexNDC(0.13,0.92,"#font[62]{CMS} #font[52]{Simulation}")
-# data = finalHistograms["mvv_nominal"]
-# data.Scale(sf/data.Integral())
-# data.SetMarkerColor(ROOT.kBlack)
-# data.SetMarkerStyle(7)
-# data.Draw("same")
-# c.SetLogy()
+c = ROOT.TCanvas("c","C",600,400)
+c.SetRightMargin(0.11)
+c.SetLeftMargin(0.11)
+c.SetTopMargin(0.11)
+finalHistograms["histo_nominal"].SetLineColor(ROOT.kBlue)
+finalHistograms["histo_nominal"].GetYaxis().SetTitle("arbitrary scale")
+finalHistograms["histo_nominal"].GetYaxis().SetTitleOffset(1.5)
+finalHistograms["histo_nominal"].GetXaxis().SetTitle("dijet mass")
+sf = finalHistograms["histo_nominal"].Integral()
+histogram_pt_up     .Scale(sf/histogram_pt_up.Integral())
+histogram_pt_down   .Scale(sf/histogram_pt_down.Integral())
+histogram_opt_up    .Scale(sf/histogram_opt_up.Integral())
+histogram_opt_down  .Scale(sf/histogram_opt_down.Integral())
+finalHistograms["histo_nominal"].Draw("hist")
+#stack.Draw("histsame")
+histogram_pt_up.SetLineColor(ROOT.kRed)
+histogram_pt_up.SetLineWidth(2)
+histogram_pt_up.Draw("histsame")
+histogram_pt_down.SetLineColor(ROOT.kRed)
+histogram_pt_down.SetLineWidth(2)
+histogram_pt_down.Draw("histsame")
+histogram_opt_up.SetLineColor(ROOT.kGreen)
+histogram_opt_up.SetLineWidth(2)
+histogram_opt_up.Draw("histsame")
+histogram_opt_down.SetLineColor(ROOT.kGreen)
+histogram_opt_down.SetLineWidth(2)
+histogram_opt_down.Draw("histsame")
+text = ROOT.TLatex()
+text.DrawLatexNDC(0.13,0.92,"#font[62]{CMS} #font[52]{Simulation}")
+data = finalHistograms["mvv_nominal"]
+data.Scale(sf/data.Integral())
+data.SetMarkerColor(ROOT.kBlack)
+data.SetMarkerStyle(7)
+data.Draw("same")
+c.SetLogy()
 
 
-# l = ROOT.TLegend(0.17,0.2,0.6,0.33)
-# l.AddEntry(data,"simulation","lp")
-# l.AddEntry(finalHistograms["histo_nominal"],"template","l")
-# l.AddEntry(histogram_pt_up,"#propto m_{jj}","l")
-# l.AddEntry(histogram_opt_up,"#propto 1/m_{jj}","l")
-# l.Draw("same")
+l = ROOT.TLegend(0.17,0.2,0.6,0.33)
+l.AddEntry(data,"simulation","lp")
+l.AddEntry(finalHistograms["histo_nominal"],"template","l")
+l.AddEntry(histogram_pt_up,"#propto m_{jj}","l")
+l.AddEntry(histogram_opt_up,"#propto 1/m_{jj}","l")
+l.Draw("same")
 
-# tmplabel="Jets_HPHP"
-# if options.output.find('HPLP')!=-1:
-#     tmplabel="Jets_HPLP"
-# if options.output.find("W")!=-1: tmplabel="W"+tmplabel
-# else: tmplabel= "Z"+tmplabel
-# c.SaveAs("debug_mVV_kernels_"+tmplabel+".pdf")
-# print "for debugging save   debug_Vjets_mVV_kernels.png "
+tmplabel="Jets_HPHP"
+if options.output.find('HPLP')!=-1:
+    tmplabel="Jets_HPLP"
+if options.output.find("W")!=-1: tmplabel="W"+tmplabel
+else: tmplabel= "Z"+tmplabel
+c.SaveAs("debug_mVV_kernels_"+tmplabel+".pdf")
+print "for debugging save   debug_Vjets_mVV_kernels.png "
 
 ########################################################
 

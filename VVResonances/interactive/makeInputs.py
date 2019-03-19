@@ -4,7 +4,7 @@ import os,sys
 
 period = 2017 #2016
 
-samples= "samples/"# "/ceph/dschaefer/VV3D2017/2017_JECV6_PURew_NoJER_LOWeights_CHSrescale_CHSJER/"#"/ceph/dschaefer/VV3D2017/NoJERSmearing/"#"samples/"
+samples= "/ceph/dschaefer/VV3D2017//ceph/dschaefer/VV3D2017/2017_JECV6_PURew_JER_LOWeights_CHS/"#"/ceph/dschaefer/VV3D2017/2017_JECV6_PURew_NoJER_LOWeights_CHSrescale_CHSJER/"# "/ceph/dschaefer/VV3D2017/2017_JECV6_PURew_NoJER_LOWeights_CHSrescale_CHSJER/"#"/ceph/dschaefer/VV3D2017/NoJERSmearing/"#"samples/"
 if period==2016:
     samples= "samples2016/" # "/ceph/dschaefer/VV3D2016/SignalSamples2016_JERsmearing/" #"samples2016/"
 
@@ -80,7 +80,7 @@ cuts['resTT'] = '(jj_l1_mergedVTruth==1&&jj_l1_softDrop_mass>140&&jj_l1_softDrop
 
 purities=['HPHP','HPLP','LPLP','NP']
 purities=['HPHP','HPLP','LPLP']
-purities=['HPHP',"HPLP"]
+purities=['HPHP']#,"HPLP"]
 
 BulkGravWWTemplate="BulkGravToWW_narrow_"
 #BulkGravWWTemplate="BulkWW"
@@ -88,7 +88,7 @@ BulkGravZZTemplate="BulkGravToZZToZhadZhad"
 WprimeTemplate= "WprimeToWZToWhadZhad"
 ZprimeWWTemplate= "ZprimeToWW"
 # use arbitrary cross section 0.001 so limits converge better
-BRWW=1.*0.001
+BRWW=1.*0.001               
 BRZZ=1.*0.001*0.6991*0.6991
 BRWZ=1.*0.001*0.6991*0.676
 
@@ -160,7 +160,7 @@ def makeSignalShapesMVV(filename,template):
  os.system(cmd)
  jsonFile=filename+"_MVV.json"
  print 'Making JSON'
- cmd='vvMakeJSON.py  -o "{jsonFile}" -g "MEAN:pol1,SIGMA:pol6,ALPHA1:pol5,N1:pol0,ALPHA2:pol4,N2:pol0" -m {minMX} -M {maxMX} {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile,minMX=minMX,maxMX=maxMX)
+ cmd='vvMakeJSON.py  -o "{jsonFile}" -g "MEAN:pol1,SIGMA:pol6,ALPHA1:pol6,N1:pol0,ALPHA2:pol4,N2:pol0" -m {minMX} -M {maxMX} {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile,minMX=minMX,maxMX=maxMX)
  os.system(cmd)
 
 def makeSignalShapesMJ(filename,template,leg):
@@ -187,7 +187,7 @@ def makeSignalShapesMJ(filename,template,leg):
       cmd='vvMakeSignalMJShapes.py -s "{template}" -c "{cut}"  -o "{rootFile}" -V "jj_{leg}_softDrop_mass" -m {minMJ} -M {maxMJ} -e {doExp} -f "{fixPars}" --minMX {minMX} --maxMX {maxMX} {addOption} {samples} '.format(template=template,cut=cut,rootFile=rootFile,leg=leg,minMJ=minMJ,maxMJ=maxMJ,doExp=doExp,minMX=minMX,maxMX=maxMX,fixPars=fixPars,addOption=addOption,samples=samples)
       cmdjson='vvMakeJSON.py  -o "{jsonFile}" -g "mean:pol5,sigma:pol3,alpha:pol3,n:pol0,alpha2:pol4,n2:pol0,slope:pol0,f:pol0" -m {minMX} -M {maxMX} {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile,minMX=minMX,maxMX=maxMX)
   os.system(cmd)
-  #os.system(cmdjson)
+  os.system(cmdjson)
 
 
 def makeSignalYields(filename,template,branchingFraction,sfP = {'HPHP':1.0,'HPLP':1.0,'LPLP':1.0}):
@@ -411,6 +411,8 @@ def mergeBackgroundShapes(name,filename):
 def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",factors="1",wait=True):
   pwd = os.getcwd()
   sam = pwd +"/"+samples
+  if data==1:
+      sam = "/ceph/dschaefer/data2017/2017_JECV6_CHS/"
   if name.find("Jets")!= -1 or name.find("tt")!=-1: sam = pwd +"/samplesVjets/"
   print "using files in" , sam
   # if name.find("data")!= -1: samples = "/eos/user/t/thaarres/reduced/"
@@ -424,7 +426,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
    jobname = jobName+"_"+p
    rootFile=filename+"_"+name+"_"+p+".root"
    print "Saving to ",rootFile  
-   cut='*'.join([cuts['common'],cuts[p],addCut,cuts['acceptance']])
+   cut='*'.join([cuts['common'],cuts[p],addCut,cuts['acceptance'],cuts['metfilters']])
 
    if submitToBatch:
        if name.find("nonRes")!= -1: template += ",QCD_Pt-,QCD_HT"
@@ -483,20 +485,23 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 #mergeBackgroundShapes("nonRes","JJ_"+str(period))
 # Do Vjets
 submitToBatch = False #Do not need batch for the following
-#makeNormalizations("WJets","JJ",WresTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:0.205066345")
-#makeNormalizations("ZJets","JJ",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:0.09811023622")
+SF =str(0.912025)
+#SF =str(0.957865)
+makeNormalizations("WJets","JJ_noWeights",WresTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:"+SF,"TTHad_pow:"+SF) #0.205066345")
+makeNormalizations("ZJets","JJ_noWeights",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:"+SF)#0.09811023622")
 
 #makeNormalizations("VJets","JJ",resTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:1,ZJetsToQQ_HT800toInf:1")
 
-makeNormalizations("WJets","JJ_NLOweights",WresTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:0.205066345")
-makeNormalizations("ZJets","JJ_NLOweights",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:0.09811023622")
-makeNormalizations("TTJets","JJ",TTemplate,0,cuts['nonres'],"nRes","")
+#makeNormalizations("WJets","JJ",WresTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:1.")
+#makeNormalizations("ZJets","JJ",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:1.")
+#makeNormalizations("TTJets","JJ",TTemplate,0,cuts['nonres'],"nRes","")
+
+#makeNormalizations("nonRes","JJ",nonResTemplate,0,cuts['nonres'],"nRes")
 
 
-
-fitVJets("JJ_WJets",resTemplate,0.205066345,0.09811023622)#0.3425,0.3425)
-makeBackgroundShapesMVVKernel("WJets","JJ_NLOweights",WresTemplate,cuts['nonres'],"1D",0,0.205066345,0.09811023622)
-makeBackgroundShapesMVVKernel("ZJets","JJ_NLOweights",ZresTemplate,cuts['nonres'],"1D",0,0.205066345,0.09811023622)
+#fitVJets("JJ_WJets",resTemplate,0.205066345,0.09811023622)#0.3425,0.3425)
+#makeBackgroundShapesMVVKernel("WJets","JJ",WresTemplate,cuts['nonres'],"1D",0,1.,1.)
+#makeBackgroundShapesMVVKernel("ZJets","JJ",ZresTemplate,cuts['nonres'],"1D",0,1.,1.)
 
 
 

@@ -143,9 +143,9 @@ class TreePlotter(PlotterBase):
                 corrString = corrString+"*"+str(corr['value'])
         print 'print correction weights '
         print corrString
-        print self.weight
-        print lumi
-        print 'weight env '+str(self.weightinv) 
+        #print self.weight
+        #print lumi
+        #print 'weight env '+str(self.weightinv) 
         self.tree.Draw(var+">>tmpTH3","("+cuts+")*"+lumi+"*"+self.weight+"*("+corrString+")","goff")
 
         return h

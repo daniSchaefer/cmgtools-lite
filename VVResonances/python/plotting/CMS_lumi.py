@@ -1,14 +1,14 @@
 import ROOT as rt
 
 class CMSPlotLabel:
-    def __init__(self,text='CMS',extraText=' ',lumiPeriods={'2015':{'lumi':'2.6 fb^{-1}','energy':'13 TeV'},'2016':{'lumi':'35.9 fb^{-1}','energy':'13 TeV'},'2017':{'lumi':'(2017) 41.4 fb^{-1}','energy':'13 TeV'},'ALL':{'lumi':'77.3 fb^{-1} (2016+2017)','energy':'13 TeV'},'sim17':{'lumi':'(2017)','energy':'13 TeV'},'sim16':{'lumi':'(2016)','energy':'13 TeV'},'sim':{'lumi':'','energy':'13 TeV'}}):
+    def __init__(self,text='CMS',extraText=' ',lumiPeriods={'2015':{'lumi':'2.6 fb^{-1}','energy':'13 TeV'},'2016':{'lumi':'35.9 fb^{-1}','energy':'13 TeV'},'2017':{'lumi':'(2017) 41.4 fb^{-1}','energy':'13 TeV'},'ALL':{'lumi':'77.3 fb^{-1} ','energy':'13 TeV'},'sim17':{'lumi':'(2017)','energy':'13 TeV'},'sim16':{'lumi':'(2016)','energy':'13 TeV'},'sim':{'lumi':'','energy':'13 TeV'}}):
         self.cmsText=text
         self.cmsTextFont=61
         self.extraText=extraText
         self.extraTextFont=52
-        self.lumiTextSize=0.4
+        self.lumiTextSize=0.6
         self.lumiTextOffset=0.2
-        self.cmsTextSize=0.6
+        self.cmsTextSize=0.8
         self.cmsTextOffset=0.1
         
         self.relPosX    = 0.045
@@ -45,7 +45,7 @@ class CMSPlotLabel:
 
         pad.cd()
         
-        lumiText = self.periods[iPeriod]['lumi']+"("+self.periods[iPeriod]['energy']+")"
+        lumiText = self.periods[iPeriod]['lumi']+""+self.periods[iPeriod]['energy']+""
         if self.extraText=='Simulation':
             lumiText=''
         print lumiText

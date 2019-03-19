@@ -1263,7 +1263,8 @@ class DataCardMaker:
     def sumPdf(self,name,pdf1,pdf2,variable):
         #self.w.factory(variable+"[0,0.,1.]")
         print "variable "+str(variable)
-        self.w.factory(variable+"[0.5,0.1,0.91]")
+        self.w.factory(variable+"[0.5,0.5,0.5]")
+        self.w.var(variable).setConstant(1)
         pdfName="_".join([name,self.tag])
         pdfName1="_".join([pdf1,self.tag])
         pdfName2="_".join([pdf2,self.tag])
