@@ -101,7 +101,7 @@ def compareLimits(data,fname1,fname2):
 
 setTDRStyle()
 
-def getLegend(x1=0.370010112,y1=0.523362,x2=0.55202143,y2=0.7279833):
+def getLegend(x1=0.360010112,y1=0.523362,x2=0.55202143,y2=0.7279833):
   legend = ROOT.TLegend(x1,y1,x2,y2)
   legend.SetTextSize(0.04)
   legend.SetLineColor(0)
@@ -158,8 +158,8 @@ mydir = "/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/"
 
 # compare old 2016 with 3D 2016 
 oname="compAll_BulkGWW"
-title=["Phys. Rev. D97, 072006, 35.9 fb^{-1}","This analysis 35.9 fb^{-1}","This analysis 77.3 fb^{-1}","new CHS"] #,"2017 full 3D"
-files = [mydir+"b2g-17-001/limits_b2g17-001.root",mydir+"2016limits_tau21ptCorr_BulkGWW_13TeV_CMS_jj_combAll.root", mydir+"limits_BulkGWW_13TeV_CMS_jj_combAll.root",mydir+"limits_CHS_BulkGWW_13TeV_CMS_jj_combAll.root"] #mydir+"2017limits_NoDijetBinningForSig_JERSmearing_BulkGWW.root"
+title=["Phys. Rev. D97, 072006, 35.9 fb^{-1}","This analysis, 35.9 fb^{-1}","This analysis, 77.3 fb^{-1}"]#,"new CHS"] #,"2017 full 3D"
+files = [mydir+"b2g-17-001/limits_b2g17-001.root",mydir+"2016limits_tau21ptCorr_BulkGWW_13TeV_CMS_jj_combAll.root", mydir+"limits_BulkGWW_13TeV_CMS_jj_combAll.root"]#,mydir+"limits_CHS_BulkGWW_13TeV_CMS_jj_combAll.root"] #mydir+"2017limits_NoDijetBinningForSig_JERSmearing_BulkGWW.root"
 outname = "compareLimits_"+oname+"_3D"
 
 #title=["2017 PUPPI jets","2017 CHS jets","2016 CHS","16+17 CHS+PUPPI","16+17 CHS+CHS"]
@@ -171,19 +171,19 @@ outname = "compareLimits_"+oname+"_3D"
 #outname = "compareLimits_"+oname+"_3D"
 
 
-titleY = "#sigma x #bf{#it{#Beta}}(W' #rightarrow WZ) (pb)  "
-oname = "Wprime"
-title = ["B2G-18-001","new CHS"]
-files = ["/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/limits_WprimeWZ_13TeV_CMS_jj_combAll_newTau21pT.root",mydir+"limits_CHS_WprimeWZ_13TeV_CMS_jj_combAll.root"]
-outname = "compareLimits_"+oname+"_3D"
+#titleY = "#sigma x #bf{#it{#Beta}}(W' #rightarrow WZ) (pb)  "
+#oname = "Wprime"
+#title = ["B2G-18-001","new CHS"]
+#files = ["/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/limits_WprimeWZ_13TeV_CMS_jj_combAll_newTau21pT.root",mydir+"limits_CHS_WprimeWZ_13TeV_CMS_jj_combAll.root"]
+#outname = "compareLimits_"+oname+"_3D"
 
 
 
-titleY = "#sigma x #bf{#it{#Beta}}(Z' #rightarrow WW) (pb)  "
-oname = "Zprime"
-title = ["B2G-18-001","new CHS"]
-files = ["/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/limits_ZprimeWW_13TeV_CMS_jj_combAll.root",mydir+"limits_CHS_ZprimeWW_13TeV_CMS_jj_combAll.root"]
-outname = "compareLimits_"+oname+"_3D"
+#titleY = "#sigma x #bf{#it{#Beta}}(Z' #rightarrow WW) (pb)  "
+#oname = "Zprime"
+#title = ["B2G-18-001","new CHS"]
+#files = ["/portal/ekpbms2/home/dschaefer/DiBoson3D/limits/limits_ZprimeWW_13TeV_CMS_jj_combAll.root",mydir+"limits_CHS_ZprimeWW_13TeV_CMS_jj_combAll.root"]
+#outname = "compareLimits_"+oname+"_3D"
 
 
 atlas_mps    = [1200,1500,2000,2500,3000,3500,4000,4500,5000]
@@ -203,7 +203,7 @@ atlas_lim = ROOT.TGraph( 9 , vatlas_mps, lims)
 
 
 leg = getLegend()
-leg.SetHeader("Expected limits")
+leg.SetHeader("95% CL expected upper limits")
 leg.AddEntry(0,"","")
 tgraphs = []
 alllims ={}
@@ -307,7 +307,7 @@ atlas_lim.SetLineWidth(2)
 #atlas_lim.Draw("PL")
 
 cols  = [42,46,1,49,20]*3
-tline = [10,9,2,1]*3
+tline = [5,1,2,9]*3
 for i,g in enumerate(tgraphs):
 	g.SetLineStyle(tline[i])
 	g.SetLineColor(cols[i])
@@ -330,6 +330,7 @@ else:
     c.SaveAs(outname+".png")
     c.SaveAs(outname+".pdf")
     c.SaveAs(outname+".root")
+    c.SaveAs(outname+".C")
 # c.SaveAs(options.output.replace(".root","")+".pdf")
 # c.SaveAs(options.output.replace(".root","")+".C")
 

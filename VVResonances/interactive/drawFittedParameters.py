@@ -27,7 +27,7 @@ def beautify(h1,color,linestyle=1,markerstyle=8):
     h1.GetYaxis().SetTitleSize(0.06)
     h1.GetXaxis().SetTitleSize(0.06)
     
-def getLegend(x1=0.6809045,y1=0.6363636,x2=0.9522613,y2=0.9020979):
+def getLegend(x1=0.5809045,y1=0.6363636,x2=0.9522613,y2=0.9020979):
   legend = TLegend(x1,y1,x2,y2)
   legend.SetTextSize(0.05)
   legend.SetLineColor(0)
@@ -52,28 +52,33 @@ def getPavetext():
   return addInfo
     
 def getCanvas(w=800,h=600):
-    H_ref = 600 
-    W_ref = 800 
-    W = W_ref
-    H  = H_ref
-    iPeriod = 0
-    # references for T, B, L, R
-    T = 0.08*H_ref
-    B = 0.15*H_ref 
-    L = 0.12*W_ref
-    R = 0.04*W_ref
-    canvas = rt.TCanvas("c","cname",50,50,W,H)
-    canvas.SetFillColor(0)
-    canvas.SetBorderMode(0)
-    canvas.SetFrameFillStyle(0)
-    canvas.SetFrameBorderMode(0)
-    canvas.SetLeftMargin( L/W )
-    canvas.SetRightMargin( R/W )
-    canvas.SetTopMargin( T/H )
-    canvas.SetBottomMargin( B/H )
-    canvas.SetTickx(0)
-    canvas.SetTicky(0)
-    return canvas
+   
+ H_ref = 600 
+ W_ref = 600 
+ W = W_ref
+ H  = H_ref
+
+ iPeriod = 0
+
+ # references for T, B, L, R
+ T = 0.08*H_ref
+ B = 0.12*H_ref 
+ L = 0.13*W_ref
+ R = 0.04*W_ref
+ cname = "c"
+ canvas = TCanvas(cname,cname,50,50,W,H)
+ canvas.SetFillColor(0)
+ canvas.SetBorderMode(0)
+ canvas.SetFrameFillStyle(0)
+ canvas.SetFrameBorderMode(0)
+ canvas.SetLeftMargin( L/W )
+ canvas.SetRightMargin( R/W )
+ canvas.SetTopMargin( T/H )
+ canvas.SetBottomMargin( B/H )
+ canvas.SetTickx(0)
+ canvas.SetTicky(0)
+ 
+ return canvas
     
 
 def doSignalEff():
@@ -112,9 +117,9 @@ def doSignalEff():
         gHPHP.GetFunction("func").SetBit(rt.TF1.kNotDraw)
         # gHPLP.SetMarkerColor(rt.TColor.GetColor(colors[i]))
         # gHPHP.SetMarkerColor(rt.TColor.GetColor(colors[i]))
-        beautify(fHPLP ,rt.TColor.GetColor(colors[i]),9,24)
+        beautify(fHPLP ,rt.TColor.GetColor(colors[i]),2,24)
         beautify(fHPHP ,rt.TColor.GetColor(colors[i]),1,8)
-        beautify(gHPLP ,rt.TColor.GetColor(colors[i]),9,24)
+        beautify(gHPLP ,rt.TColor.GetColor(colors[i]),2,24)
         beautify(gHPHP ,rt.TColor.GetColor(colors[i]),1,8)
         datasHP.append(gHPHP)
         datasLP.append(gHPLP)
@@ -126,10 +131,10 @@ def doSignalEff():
     fitsHP[0].GetXaxis().SetTitle("m_{X} [GeV]")
     fitsHP[0].GetYaxis().SetTitle("Signal efficiency")
     fitsHP[0].GetYaxis().SetNdivisions(4,5,0)
-    fitsHP[0].GetXaxis().SetNdivisions(9,2,0)
+    fitsHP[0].GetXaxis().SetNdivisions(5,2,0)
     fitsHP[0].GetYaxis().SetTitleOffset(1.0)
-    fitsHP[0].GetXaxis().SetTitleOffset(1.0)
-    fitsHP[0].GetXaxis().SetRangeUser(1126, 5500.)
+    fitsHP[0].GetXaxis().SetTitleOffset(0.9)
+    fitsHP[0].GetXaxis().SetRangeUser(1126, 5550.)
     fitsHP[0].GetYaxis().SetRangeUser(0.0, 0.25)
     fitsHP[0].Draw("C")
     for i,(gHP,gLP) in enumerate(zip(datasHP,datasLP)): 
@@ -186,9 +191,9 @@ def doJetMass(leg="l1"):
             gHPLP.GetFunction(var+"_func").SetBit(rt.TF1.kNotDraw)
             gHPHP.GetFunction(var+"_func").SetBit(rt.TF1.kNotDraw)
 
-            beautify(fHPLP ,rt.TColor.GetColor(colors[i]),9,24)
+            beautify(fHPLP ,rt.TColor.GetColor(colors[i]),2,24)
             beautify(fHPHP ,rt.TColor.GetColor(colors[i]),1,8)
-            beautify(gHPLP ,rt.TColor.GetColor(colors[i]),9,24)
+            beautify(gHPLP ,rt.TColor.GetColor(colors[i]),2,24)
             beautify(gHPHP ,rt.TColor.GetColor(colors[i]),1,8)
             datasHP.append(gHPHP)
             datasLP.append(gHPLP)
@@ -200,9 +205,9 @@ def doJetMass(leg="l1"):
         datasHP[0].GetXaxis().SetTitle("m_{X} [GeV]")
         datasHP[0].GetYaxis().SetTitle(title+" [GeV]")
         datasHP[0].GetYaxis().SetNdivisions(4,5,0)
-        datasHP[0].GetXaxis().SetNdivisions(9,2,0)
-        datasHP[0].GetYaxis().SetTitleOffset(0.95)
-        datasHP[0].GetXaxis().SetTitleOffset(1.0)
+        datasHP[0].GetXaxis().SetNdivisions(5,2,0)
+        datasHP[0].GetYaxis().SetTitleOffset(1.05)
+        datasHP[0].GetXaxis().SetTitleOffset(0.9)
         datasHP[0].GetXaxis().SetRangeUser(1126, 5500.)
         if var == "mean": datasHP[0].GetYaxis().SetRangeUser(70,110)
         if var == "sigma": datasHP[0].GetYaxis().SetRangeUser(5,20.)

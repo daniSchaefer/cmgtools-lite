@@ -10,7 +10,8 @@ from  CMGTools.VVResonances.plotting.CMS_lumi import *
 
 path = "/portal/ekpbms2/home/dschaefer/DiBoson3D/2017/"
 
-def getLegend(x1=0.70010112,y1=0.6093362,x2=0.905202143,y2=0.929833):
+    
+def getLegend(x1=0.5809045,y1=0.6363636,x2=0.9522613,y2=0.9020979):
   legend = ROOT.TLegend(x1,y1,x2,y2)
   legend.SetTextSize(0.05)
   legend.SetLineColor(0)
@@ -20,20 +21,21 @@ def getLegend(x1=0.70010112,y1=0.6093362,x2=0.905202143,y2=0.929833):
   legend.SetFillColor(0)
   legend.SetFillStyle(0)
   legend.SetMargin(0.35)
+  legend.SetTextFont(42)
   return legend
   
 def getCanvasPaper(cname):
  ROOT.gStyle.SetOptStat(0)
 
  H_ref = 600 
- W_ref = 800 
+ W_ref = 600 
  W = W_ref
  H  = H_ref
  iPeriod = 0
  # references for T, B, L, R
  T = 0.08*H_ref
  B = 0.15*H_ref 
- L = 0.12*W_ref
+ L = 0.15*W_ref
  R = 0.04*W_ref
  canvas = ROOT.TCanvas(cname,cname,50,50,W,H)
  canvas.SetFillColor(0)
@@ -46,15 +48,8 @@ def getCanvasPaper(cname):
  canvas.SetBottomMargin( B/H )
  canvas.SetTickx(0)
  canvas.SetTicky(0)
- legend = ROOT.TLegend(0.6809045,0.6363636,0.9522613,0.9020979,"","brNDC")
- # legend = TLegend(0.52,0.65,0.92,0.9,"","brNDC")
- legend.SetBorderSize(0)
- legend.SetLineColor(1)
- legend.SetLineStyle(1)
- legend.SetLineWidth(1)
- legend.SetFillColor(0)
- legend.SetFillStyle(0)
- legend.SetTextFont(42)
+ legend = getLegend()
+ 
  
  pt = ROOT.TPaveText(0.1746231,0.6031469,0.5251256,0.7517483,"NDC")
  # pt.SetTextFont(72)
@@ -174,6 +169,7 @@ def doSingle():
         w.pdf('signal_%d'%MH).plotOn(frame, ROOT.RooFit.LineColor(ROOT.TColor.GetColor(colors[i])),ROOT.RooFit.Name(str(MH)))#,ROOT.RooFit.Range(MH*0.8,1.2*MH))#ROOT.RooFit.Normalization(1, ROOT.RooAbsReal.RelativeExpected),
         leg.AddEntry(frame.findObject(str(MH)), "%d GeV" % MH, "L")
       frame.GetYaxis().SetTitle("a.u.")
+      
       frame.getAttText().SetTextSize(0.04)
       frame.GetYaxis().SetNdivisions(4,5,0)
       frame.SetMaximum(0.1)
@@ -238,6 +234,7 @@ def doAll():
         name = jsons[len(jsons)-ii-1].split("_")[1]
         leg.AddEntry(frame.findObject(str(1800)+name), legs[len(jsons)-ii-1], "L")
     frame.GetYaxis().SetTitle("a.u.")
+    frame.GetYaxis().SetTitleOffset(1.3)
     frame.GetYaxis().SetNdivisions(4,5,0)
     frame.SetMaximum(0.17)
     frame.GetXaxis().SetTitleSize(0.055)

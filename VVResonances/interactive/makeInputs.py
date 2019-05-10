@@ -4,13 +4,13 @@ import os,sys
 
 period = 2017 #2016
 
-samples= "/ceph/dschaefer/VV3D2017//ceph/dschaefer/VV3D2017/2017_JECV6_PURew_JER_LOWeights_CHS/"#"/ceph/dschaefer/VV3D2017/2017_JECV6_PURew_NoJER_LOWeights_CHSrescale_CHSJER/"# "/ceph/dschaefer/VV3D2017/2017_JECV6_PURew_NoJER_LOWeights_CHSrescale_CHSJER/"#"/ceph/dschaefer/VV3D2017/NoJERSmearing/"#"samples/"
+samples= "samples/"#"/ceph/dschaefer/VV3D2017//ceph/dschaefer/VV3D2017/2017_JECV6_PURew_JER_LOWeights_CHS/"#"/ceph/dschaefer/VV3D2017/2017_JECV6_PURew_NoJER_LOWeights_CHSrescale_CHSJER/"# "/ceph/dschaefer/VV3D2017/2017_JECV6_PURew_NoJER_LOWeights_CHSrescale_CHSJER/"#"/ceph/dschaefer/VV3D2017/NoJERSmearing/"#"samples/"
 if period==2016:
     samples= "samples2016/" # "/ceph/dschaefer/VV3D2016/SignalSamples2016_JERsmearing/" #"samples2016/"
 
 submitToBatch = False #Set to true if you want to submit kernels + makeData to batch!
 runParallel   = False #Set to true if you want to run all kernels in parallel! This will exit this script and you will have to run mergeKernelJobs when your jobs are done! TODO! Add waitForBatchJobs also here?
-dijetBinning = True
+dijetBinning = False
 useTriggerWeights = False
 
 
@@ -84,7 +84,7 @@ purities=['HPHP']#,"HPLP"]
 
 BulkGravWWTemplate="BulkGravToWW_narrow_"
 #BulkGravWWTemplate="BulkWW"
-BulkGravZZTemplate="BulkGravToZZToZhadZhad"
+BulkGravZZTemplate="BulkGravToZZToZhadZhad_narrow_M_"
 WprimeTemplate= "WprimeToWZToWhadZhad"
 ZprimeWWTemplate= "ZprimeToWW"
 # use arbitrary cross section 0.001 so limits converge better
@@ -160,7 +160,7 @@ def makeSignalShapesMVV(filename,template):
  os.system(cmd)
  jsonFile=filename+"_MVV.json"
  print 'Making JSON'
- cmd='vvMakeJSON.py  -o "{jsonFile}" -g "MEAN:pol1,SIGMA:pol6,ALPHA1:pol6,N1:pol0,ALPHA2:pol4,N2:pol0" -m {minMX} -M {maxMX} {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile,minMX=minMX,maxMX=maxMX)
+ cmd='vvMakeJSON.py  -o "{jsonFile}" -g "MEAN:pol1,SIGMA:pol6,ALPHA1:pol6,N1:pol0,ALPHA2:pol7,N2:pol0" -m {minMX} -M {maxMX} {rootFile}  '.format(jsonFile=jsonFile,rootFile=rootFile,minMX=minMX,maxMX=maxMX)
  os.system(cmd)
 
 def makeSignalShapesMJ(filename,template,leg):
@@ -459,7 +459,7 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 #makeSignalShapesMJ("JJ_ZprimeWW_"+str(period),ZprimeWWTemplate,'l2')
 #makeSignalYields("JJ_ZprimeWW_"+str(period),ZprimeWWTemplate,BRWW,{'HPHP':HPSF*HPSF,'HPLP':HPSF*LPSF,'LPLP':LPSF*LPSF})
 
-#makeSignalShapesMVV("JJ_BulkGZZ_"+str(period),BulkGravZZTemplate)
+makeSignalShapesMVV("JJ_BulkGZZ_"+str(period),BulkGravZZTemplate)
 #makeSignalShapesMJ("JJ_BulkGZZ_"+str(period),BulkGravZZTemplate,'l1')
 #makeSignalShapesMJ("JJ_BulkGZZ_"+str(period),BulkGravZZTemplate,'l2')
 #makeSignalYields("JJ_BulkGZZ_"+str(period),BulkGravZZTemplate,BRZZ,{'HPHP':HPSF*HPSF,'HPLP':HPSF*LPSF,'LPLP':LPSF*LPSF})
@@ -487,8 +487,8 @@ def makeNormalizations(name,filename,template,data=0,addCut='1',jobName="nR",fac
 submitToBatch = False #Do not need batch for the following
 SF =str(0.912025)
 #SF =str(0.957865)
-makeNormalizations("WJets","JJ_noWeights",WresTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:"+SF,"TTHad_pow:"+SF) #0.205066345")
-makeNormalizations("ZJets","JJ_noWeights",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:"+SF)#0.09811023622")
+#makeNormalizations("WJets","JJ_noWeights",WresTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:"+SF,"TTHad_pow:"+SF) #0.205066345")
+#makeNormalizations("ZJets","JJ_noWeights",ZresTemplate,0,cuts['nonres'],"nRes","ZJetsToQQ_HT800toInf:"+SF)#0.09811023622")
 
 #makeNormalizations("VJets","JJ",resTemplate,0,cuts['nonres'],"nRes","WJetsToQQ_HT800toInf:1,ZJetsToQQ_HT800toInf:1")
 

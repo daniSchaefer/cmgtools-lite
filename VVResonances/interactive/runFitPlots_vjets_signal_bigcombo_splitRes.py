@@ -11,8 +11,8 @@ ROOT.gROOT.ProcessLine(".x tdrstyle.cc");
 #ROOT.gSystem.Load("Util_cxx.so")
 #from ROOT import draw_error_band
 
-#python runFitPlots_vjets_signal_bigcombo_splitRes.py -n workspace_combo_BulkGWW.root  -l comboHPHP -i /afs/cern.ch/user/j/jngadiub/public/2016/JJ_nonRes_HPHP.root -M 1200 -s
-#python runFitPlots_vjets_signal_bigcombo_splitRes.py -n workspace_combo_BulkGWW.root  -l comboHPLP -i /afs/cern.ch/user/j/jngadiub/public/2016/JJ_nonRes_HPLP.root -M 1200
+#python runFitPlots_vjets_signal_bigcombo_splitRes.py -n workspace_combo_"+signalName+".root  -l comboHPHP -i /afs/cern.ch/user/j/jngadiub/public/2016/JJ_nonRes_HPHP.root -M 1200 -s
+#python runFitPlots_vjets_signal_bigcombo_splitRes.py -n workspace_combo_"+signalName+".root  -l comboHPLP -i /afs/cern.ch/user/j/jngadiub/public/2016/JJ_nonRes_HPLP.root -M 1200
 
 addTT = False 
 parser = optparse.OptionParser()
@@ -39,6 +39,8 @@ ROOT.gStyle.SetOptStat(0)
 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.FATAL)
 #colors = [ROOT.kBlack,ROOT.kPink-1,ROOT.kAzure+1,ROOT.kAzure+1,210,210,ROOT.kMagenta,ROOT.kMagenta,ROOT.kOrange,ROOT.kOrange,ROOT.kViolet,ROOT.kViolet]
 colors = [ROOT.kPink-1,ROOT.kCyan+2,ROOT.kRed-6,ROOT.kGreen+2,210,210,ROOT.kMagenta,ROOT.kMagenta,ROOT.kOrange,ROOT.kOrange,ROOT.kViolet,ROOT.kViolet]
+
+signalName = "ZprimeWW"
 
 def get_canvas(cname):
 
@@ -88,9 +90,12 @@ def get_pad(name):
  CMS_lumi.lumi_sqrtS = "13 TeV (2016+2017)" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
  if options.prelim==0:
     CMS_lumi.extraText = " "
- else:
+ if options.prelim==1:
     CMS_lumi.extraText = "Preliminary"
+ if options.prelim==2:
+     CMS_lumi.extraText = "Supplementary"
 
+ CMS_lumi.lumiText = "(13 TeV)"
  iPos = 0
  if( iPos==0 ): CMS_lumi.relPosX = 0.014
  CMS_lumi.relPosX=0.05
@@ -301,15 +306,16 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     errors[0].SetLineWidth(0)
     errors[0].SetMarkerSize(0)
     
-    scaling = 500
+    scaling = 5
+    eff = 0.1
     if purity =="HPHP":
-        scaling = 20
-
+        scaling = 5
+        eff = 0.02
     if hsig:
      if hsig.Integral()!=0.:   
         #hsig.Scale(1/hsig.Integral())
         #hsig.Scale(histos[2].Integral()*0.4)
-        hsig.Scale(scaling/hsig.Integral())
+        hsig.Scale(scaling/hsig.Integral()*0.013146*77300.*eff)
      hsig.SetFillColor(ROOT.kGreen-6)
      hsig.SetLineColor(ROOT.kBlack)
      hsig.SetLineStyle(5)
@@ -338,6 +344,12 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     text = "G_{bulk} (%.1f TeV) #rightarrow WW (#times %i)"%(options.signalMass/1000.,scaling)
     if (options.signalMass%1000.)==0:
        text = "G_{bulk} (%i TeV) #rightarrow WW (#times %i)"%(options.signalMass/1000.,scaling) 
+    
+    if signalName.find("Zprime")!=-1:
+        text = "Z' (%.1f TeV) #rightarrow WW (#times %i)"%(options.signalMass/1000.,scaling)
+        if (options.signalMass%1000.)==0:
+            text = "Z' (%i TeV) #rightarrow WW (#times %i)"%(options.signalMass/1000.,scaling) 
+       
     leg.AddEntry(hsig,text,"F")
     leg.Draw("same")
     
@@ -359,7 +371,7 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     #pt.Draw()
 
     pt2 = ROOT.TPaveText(0.18,0.75,0.53,0.88,"NDC")
-    pt2.SetTextFont(72)
+    pt2.SetTextFont(62)
     pt2.SetTextSize(0.04)
     pt2.SetTextAlign(12)
     pt2.SetFillColor(0)
@@ -370,7 +382,7 @@ def MakePlots(histos,hdata,hsig,axis,nBins,errors):
     #pt2.Draw()
 
     pt3 = ROOT.TPaveText(0.65,0.39,0.99,0.52,"NDC")
-    pt3.SetTextFont(72)
+    pt3.SetTextFont(62)
     pt3.SetTextSize(0.04)
     pt3.SetTextAlign(12)
     pt3.SetFillColor(0)
@@ -1102,7 +1114,7 @@ if __name__=="__main__":
       workspace.var("MH").setConstant(1)
       #workspace.var("r").setRange(0,1000)
       #workspace.var("r").setVal(9)
-      print "Expected signal yields:",(args[pdf1Name].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_2016_proc_BulkGWW"].getVal(),"(2016)",(args[pdf2Name].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_2017_proc_BulkGWW"].getVal(),"(2017)"
+      print "Expected signal yields:",(args[pdf1Name].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_2016_proc_"+signalName+""].getVal(),"(2016)",(args[pdf2Name].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_2017_proc_"+signalName+""].getVal(),"(2017)"
      print 
 
      #################################################
@@ -1187,11 +1199,11 @@ if __name__=="__main__":
      pdf2_signal_postfit = 0
      if options.fitSignal:
       print "2016 Signal pdf:"     
-      pdf1_signal_postfit  = args["shapeSig_BulkGWW_JJ_"+purity+"_13TeV_2016"]
+      pdf1_signal_postfit  = args["shapeSig_"+signalName+"_JJ_"+purity+"_13TeV_2016"]
       pdf1_signal_postfit.Print()
       print
       print "2017 Signal pdf:"     
-      pdf2_signal_postfit  = args["shapeSig_BulkGWW_JJ_"+purity+"_13TeV_2017"]
+      pdf2_signal_postfit  = args["shapeSig_"+signalName+"_JJ_"+purity+"_13TeV_2017"]
       pdf2_signal_postfit.Print()
       
      print "Full 2016 post-fit pdf:"     
@@ -1324,15 +1336,15 @@ if __name__=="__main__":
      norm2_sig = 0
      if options.fitSignal:
       print
-      #(args[pdfName].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_proc_BulkGWW"].dump()
+      #(args[pdfName].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_proc_"+signalName+""].dump()
       norm1_sig = [0,0]
-      norm1_sig[0] = (args[pdf1Name].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_2016_proc_BulkGWW"].getVal()
-      norm1_sig[1] = (args[pdf1Name].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_2016_proc_BulkGWW"].getPropagatedError(fitresult)
+      norm1_sig[0] = (args[pdf1Name].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_2016_proc_"+signalName+""].getVal()
+      norm1_sig[1] = (args[pdf1Name].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_2016_proc_"+signalName+""].getPropagatedError(fitresult)
       print
-      #(args[pdfName].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_proc_BulkGWW"].dump()
+      #(args[pdfName].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_proc_"+signalName+""].dump()
       norm2_sig = [0,0]
-      norm2_sig[0] = (args[pdf2Name].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_2017_proc_BulkGWW"].getVal()
-      norm2_sig[1] = (args[pdf2Name].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_2017_proc_BulkGWW"].getPropagatedError(fitresult)
+      norm2_sig[0] = (args[pdf2Name].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_2017_proc_"+signalName+""].getVal()
+      norm2_sig[1] = (args[pdf2Name].getComponents())["n_exp_final_binJJ_"+purity+"_13TeV_2017_proc_"+signalName+""].getPropagatedError(fitresult)
                 
      print
      print "QCD normalization after fit: ",norm1_nonres[0],"+/-",norm1_nonres[1],"(2016)",norm2_nonres[0],"+/-",norm2_nonres[1],"(2017)"

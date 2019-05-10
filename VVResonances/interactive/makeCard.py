@@ -7,7 +7,7 @@ cmd='combineCards.py '
 
 datasets=['2016','2017']
 pseudodata=""
-outlabel="CHS_wMorenonResNorm"
+outlabel=""
 addTT = False
 
 lumi = {'2016':35900,'2017':41367}
@@ -29,7 +29,7 @@ vtag_unc['LPLP'] = {'2016':'1.063','2017':'1.043'}
 vtag_pt_dependence = {'HPHP':'((1+0.06*log(MH/2/300))*(1+0.06*log(MH/2/300)))','HPLP':'((1+0.06*log(MH/2/300))*(1+0.07*log(MH/2/300)))'}
   
 purities= ['HPHP','HPLP']
-signals = ["BulkGWW"]#"BulkGZZ","ZprimeWW","WprimeWZ"]
+signals = ["BulkGZZ"]#,"BulkGZZ","ZprimeWW","WprimeWZ"]
 
 
 for sig in signals:
@@ -47,9 +47,12 @@ for sig in signals:
       cardName='datacard_'+cat+'.txt'
       workspaceName='workspace_'+cat+'.root'
 
-      
+      # _2017_MVV are with PUppi and other with CHS !!!!
       #SIGNAL
-      card.addMVVSignalParametricShape("%s_MVV"%sig,"MJJ",dataset+"/JJ_%s_MVV.json"%sig,{'CMS_scale_j':1},{'CMS_res_j':1.0})
+      #if dataset.find("2017")!=-1:
+      #  card.addMVVSignalParametricShape("%s_MVV"%sig,"MJJ",dataset+"/JJ_%s_%s_MVV.json"%(sig,dataset),{'CMS_scale_j':1},{'CMS_res_j':1.0})
+      #else:
+      card.addMVVSignalParametricShape("%s_MVV"%sig,"MJJ",dataset+"/JJ_%s_MVV.json"%sig,{'CMS_scale_j':1},{'CMS_res_j':1.0})  
       card.addMJJSignalParametricShapeNOEXP("Wqq1","MJ1" ,dataset+"/JJ_%s_MJl1_"%sig+p+".json",{'CMS_scale_prunedj':1.},{'CMS_res_prunedj':1.},scales[dataset])
       card.addMJJSignalParametricShapeNOEXP("Wqq2","MJ2" ,dataset+"/JJ_%s_MJl2_"%sig+p+".json",{'CMS_scale_prunedj':1.},{'CMS_res_prunedj':1.},scales[dataset])
       card.addParametricYieldWithUncertainty("%s"%sig,0  ,dataset+"/JJ_%s_"%sig+p+"_yield.json",1,'CMS_tau21_PtDependence',vtag_pt_dependence[p],1.0)
@@ -193,9 +196,9 @@ for sig in signals:
 
       #DATA
       if pseudodata=="":
-        if dataset.find("2017")!=-1:
-            card.importBinnedData(dataset+"/JJ_data_"+p+".root","data",["MJ1","MJ2","MJJ"])
-        else:
+        #if dataset.find("2017")!=-1:
+        #    card.importBinnedData(dataset+"/JJ_data_"+p+".root","data",["MJ1","MJ2","MJJ"])
+        #else:
             card.importBinnedData(dataset+"/JJ_"+p+".root","data",["MJ1","MJ2","MJJ"]) 
       else:
           card.importBinnedData(dataset+"/JJ_"+pseudodata+"_"+p+".root","data_obs",["MJ1","MJ2","MJJ"]) 
@@ -210,7 +213,7 @@ for sig in signals:
     
 
       #background normalization
-      card.addSystematic("CMS_VV_JJ_nonRes_norm_"+dataset,"lnN",{'nonRes':1.5})
+      card.addSystematic("CMS_VV_JJ_nonRes_norm","lnN",{'nonRes':1.5})
       card.addSystematic("CMS_VV_JJ_Wjets_norm","lnN",{'Wjets':1.2})
       card.addSystematic("CMS_VV_JJ_Zjets_norm","lnN",{'Zjets':1.2})
       
